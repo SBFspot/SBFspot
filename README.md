@@ -3,11 +3,15 @@
 SBFspot, formerly known as SMAspot, is an open source project to get actual and archive data out of an SMA® inverter over Bluetooth or Ethernet (Speedwire®) It works on either Linux ([Raspberry Pi](http://www.raspberrypi.org)) and Windows.
 
 ### **What it does**
-SBFspot connects via Bluetooth or Ethernet to your SMA® solar/battery inverter and reads Archive Day/Month Power generation, user/installer events and the actual (spot) data. The collected data is stored in a SQL database or SMA® compatible .csv files.
+SBFspot connects via Bluetooth or Ethernet to your SMA® solar/battery inverter and reads Archive Day/Month Power generation, user/installer events and the actual (spot) data. The collected data is stored in a SQL database (SQLite/MySQL/MariaDB) or SMA® compatible .csv files.
 A separate service/daemon uploads the collected data to [PVoutput.org](https://pvoutput.org)
 
 ### **Known bugs and limitations**
-For a list of known bugs, consult the Issues pages on [GitHub](https://github.com/sbf-/SBFspot/issues) or [CodePlex](https://sbfspot.codeplex.com/workitem/list/advanced). If you find a bug, please create an [issue](https://github.com/sbf-/SBFspot/issues).
+For a list of known bugs, consult the Issues pages on [GitHub](./issues) or [CodePlex](https://sbfspot.codeplex.com/workitem/list/advanced). If you find a bug, please create an [issue](./issues).
+
+### **Documentation**
+Refer to the [Wiki](./wiki) for documentation and FAQ.
+The old documents are still available at [CodePlex](https://sbfspot.codeplex.com/releases/view/612778)
 
 ### **Special thanks to:**
 * S. Pittaway: Author of ["NANODE SMA PV MONITOR"](https://github.com/stuartpittaway/nanodesmapvmonitor) on which this project is based.
