@@ -7,10 +7,10 @@ SBFspot connects via Bluetooth or Ethernet to your SMA® solar/battery inverter 
 A separate service/daemon uploads the collected data to [PVoutput.org](https://pvoutput.org)
 
 ### **Known bugs and limitations**
-For a list of known bugs, consult the Issues pages on [GitHub](./issues) or [CodePlex](https://sbfspot.codeplex.com/workitem/list/advanced). If you find a bug, please create an [issue](./issues).
+For a list of known bugs, consult the Issues pages on [GitHub](https://github.com/SBFspot/SBFspot/issues) or [CodePlex](https://sbfspot.codeplex.com/workitem/list/advanced). If you find a bug, please create an [issue](https://github.com/SBFspot/SBFspot/issues).
 
 ### **Documentation**
-Refer to the [Wiki](./wiki) for documentation and FAQ.
+Refer to the [Wiki](https://github.com/SBFspot/SBFspot/wiki) for documentation and FAQ.
 The old documents are still available at [CodePlex](https://sbfspot.codeplex.com/releases/view/612778)
 
 ### **Special thanks to:**
