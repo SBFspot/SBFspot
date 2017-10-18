@@ -28,7 +28,7 @@ If you click on the button below, you will be taken to the secure PayPal Web sit
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3R5JSRCXBGSLQ)
 
 ### **License**
-[Attribution - NonCommercial - ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)](http://creativecommons.org/licenses/by-nc-sa/3.0)
+[Attribution - NonCommercial - ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)](https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode)
 
 In short, you are free:
 * to Share => to copy, distribute and transmit the work
