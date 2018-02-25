@@ -1,0 +1,84 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SBFspot", "SBFspot\SBFspot.vcxproj", "{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SBFspotUploadService", "SBFspotUploadService\SBFspotUploader.vcxproj", "{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestUpload", "TestUpload\TestUpload.vcxproj", "{816F89D0-59A3-4C18-A932-26D72C46B60E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_MySQL|Win32 = Debug_MySQL|Win32
+		Debug_MySQL|x64 = Debug_MySQL|x64
+		Debug_SQLite|Win32 = Debug_SQLite|Win32
+		Debug_SQLite|x64 = Debug_SQLite|x64
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release_MySQL|Win32 = Release_MySQL|Win32
+		Release_MySQL|x64 = Release_MySQL|x64
+		Release_SQLite|Win32 = Release_SQLite|Win32
+		Release_SQLite|x64 = Release_SQLite|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug_MySQL|Win32.ActiveCfg = Debug_MySQL|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug_MySQL|Win32.Build.0 = Debug_MySQL|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug_MySQL|x64.ActiveCfg = Debug_MySQL|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug_SQLite|Win32.ActiveCfg = Debug_SQLite|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug_SQLite|Win32.Build.0 = Debug_SQLite|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug_SQLite|x64.ActiveCfg = Debug_SQLite|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug|Win32.Build.0 = Debug|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Debug|x64.ActiveCfg = Debug|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release_MySQL|Win32.ActiveCfg = Release_MySQL|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release_MySQL|Win32.Build.0 = Release_MySQL|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release_MySQL|x64.ActiveCfg = Release_MySQL|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release_SQLite|Win32.ActiveCfg = Release_SQLite|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release_SQLite|Win32.Build.0 = Release_SQLite|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release_SQLite|x64.ActiveCfg = Release_SQLite|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release|Win32.ActiveCfg = Release|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release|Win32.Build.0 = Release|Win32
+		{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}.Release|x64.ActiveCfg = Release|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug_MySQL|Win32.ActiveCfg = Debug_MySQL|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug_MySQL|Win32.Build.0 = Debug_MySQL|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug_MySQL|x64.ActiveCfg = Debug_MySQL|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug_SQLite|Win32.ActiveCfg = Debug_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug_SQLite|Win32.Build.0 = Debug_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug_SQLite|x64.ActiveCfg = Debug_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug|Win32.ActiveCfg = Debug_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug|Win32.Build.0 = Debug_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Debug|x64.ActiveCfg = Debug_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release_MySQL|Win32.ActiveCfg = Release_MySQL|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release_MySQL|Win32.Build.0 = Release_MySQL|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release_MySQL|x64.ActiveCfg = Release_MySQL|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release_SQLite|Win32.ActiveCfg = Release_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release_SQLite|Win32.Build.0 = Release_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release_SQLite|x64.ActiveCfg = Release_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release|Win32.ActiveCfg = Release_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release|Win32.Build.0 = Release_SQLite|Win32
+		{DE70E2D1-6A4D-4984-BD82-CE750889F0D3}.Release|x64.ActiveCfg = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug_MySQL|Win32.ActiveCfg = Debug_MySQL|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug_MySQL|Win32.Build.0 = Debug_MySQL|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug_MySQL|x64.ActiveCfg = Debug_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug_SQLite|Win32.ActiveCfg = Debug_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug_SQLite|Win32.Build.0 = Debug_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug_SQLite|x64.ActiveCfg = Debug_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug|Win32.ActiveCfg = Debug_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug|Win32.Build.0 = Debug_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Debug|x64.ActiveCfg = Debug_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release_MySQL|Win32.ActiveCfg = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release_MySQL|Win32.Build.0 = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release_MySQL|x64.ActiveCfg = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release_SQLite|Win32.ActiveCfg = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release_SQLite|Win32.Build.0 = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release_SQLite|x64.ActiveCfg = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release|Win32.ActiveCfg = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release|Win32.Build.0 = Release_SQLite|Win32
+		{816F89D0-59A3-4C18-A932-26D72C46B60E}.Release|x64.ActiveCfg = Release_SQLite|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

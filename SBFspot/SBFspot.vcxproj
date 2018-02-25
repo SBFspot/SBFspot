@@ -1,0 +1,438 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_MySQL|Win32">
+      <Configuration>Debug_MySQL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_SQLite|Win32">
+      <Configuration>Debug_SQLite</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_MySQL|Win32">
+      <Configuration>Release_MySQL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SQLite|Win32">
+      <Configuration>Release_SQLite</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CE77BB0B-AA1B-42D9-8451-866C22A1CA21}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>SBFspot</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>C:\Program Files %28x86%29\Boost 1.58\lib32-msvc-10.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Boost 1.58;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>$(VCInstallDir)lib\sqlite;C:\Program Files %28x86%29\boost 1.58\lib32-msvc-10.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio 10.0\VC\include\SQLite;C:\Program Files %28x86%29\boost 1.58;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>C:\Program Files %28x86%29\Boost 1.58\lib32-msvc-10.0;C:\Program Files %28x86%29\Microsoft Visual Studio 10.0\VC\lib\MySQL;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Boost 1.58;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>C:\Program Files %28x86%29\Boost 1.58\lib32-msvc-10.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Boost 1.58;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>BuildLink</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(VCInstallDir)lib\sqlite;C:\Program Files %28x86%29\boost 1.58\lib32-msvc-10.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio 10.0\VC\include\SQLite;C:\Program Files %28x86%29\boost 1.58;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>BuildLink</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>C:\Program Files %28x86%29\Boost 1.58\lib32-msvc-10.0;C:\Program Files %28x86%29\Microsoft Visual Studio 10.0\VC\lib\MySQL;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Boost 1.58;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>BuildLink</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ws2_32.lib;wsock32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
+copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
+copy "$(ProjectDir)*.dll" "$(OutDir)"
+copy "$(ProjectDir)Create*.sql" "$(OutDir)"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying resources...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/D "USE_SQLITE" %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>sqlite3.lib;ws2_32.lib;wsock32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
+copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
+copy "$(ProjectDir)libcurl.dll" "$(OutDir)"
+copy "$(ProjectDir)zlib1.dll" "$(OutDir)"
+copy "$(ProjectDir)sqlite3.dll" "$(OutDir)"
+copy "$(ProjectDir)CreateSQLite*.sql" "$(OutDir)"
+copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying resources...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/D "USE_MYSQL" %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libmysql.lib;ws2_32.lib;wsock32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
+copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
+copy "$(ProjectDir)libcurl.dll" "$(OutDir)"
+copy "$(ProjectDir)zlib1.dll" "$(OutDir)"
+copy "$(ProjectDir)libmysql.dll" "$(OutDir)"
+copy "$(ProjectDir)CreateMySQL*.sql" "$(OutDir)"
+copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying resources...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ws2_32.lib;wsock32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
+copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
+copy "$(ProjectDir)*.dll" "$(OutDir)"
+copy "$(ProjectDir)Create*.sql" "$(OutDir)"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying resources...</Message>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/D "USE_SQLITE" %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>sqlite3.lib;ws2_32.lib;wsock32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
+copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
+copy "$(ProjectDir)libcurl.dll" "$(OutDir)"
+copy "$(ProjectDir)zlib1.dll" "$(OutDir)"
+copy "$(ProjectDir)sqlite3.dll" "$(OutDir)"
+copy "$(ProjectDir)CreateSQLite*.sql" "$(OutDir)"
+copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
+copy "$(ProjectDir)SBFspot_Empty.db" "$(OutDir)"
+"C:\Program Files\7-Zip\7z.exe" a -xr!*zip -xr!*.pdb "$(OutDir)SBFspot_Vxxx_Win32_SQLite.zip" "$(OutDir)*.*"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying resources...</Message>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/D "USE_MYSQL" %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libmysql.lib;ws2_32.lib;wsock32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
+copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
+copy "$(ProjectDir)libcurl.dll" "$(OutDir)"
+copy "$(ProjectDir)zlib1.dll" "$(OutDir)"
+copy "$(ProjectDir)libmysql.dll" "$(OutDir)"
+copy "$(ProjectDir)CreateMySQL*.sql" "$(OutDir)"
+copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
+"C:\Program Files\7-Zip\7z.exe" a -xr!*zip -xr!*.pdb "$(OutDir)SBFspot_Vxxx_Win32_MySQL.zip" "$(OutDir)*.*"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying resources...</Message>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="CreateMySQLDB.sql" />
+    <None Include="CreateMySQLUser.sql" />
+    <None Include="CreateSQLiteDB.sql" />
+    <None Include="date_time_zonespec.csv" />
+    <None Include="makefile" />
+    <None Include="SBFspot.cfg" />
+    <None Include="TagListDE-DE.txt" />
+    <None Include="TagListEN-US.txt" />
+    <None Include="TagListES-ES.txt" />
+    <None Include="TagListFR-FR.txt" />
+    <None Include="TagListIT-IT.txt" />
+    <None Include="TagListNL-NL.txt" />
+    <None Include="Update_300_301_MySQL.sql" />
+    <None Include="Update_300_301_SQLite.sql" />
+    <None Include="Update_30x_302_MySQL.sql" />
+    <None Include="Update_30x_302_SQLite.sql" />
+    <None Include="Update_340_MySQL.sql" />
+    <None Include="Update_340_SQLite.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ArchData.h" />
+    <ClInclude Include="bluetooth.h" />
+    <ClInclude Include="boost_ext.h" />
+    <ClInclude Include="CSVexport.h" />
+    <ClInclude Include="db_MySQL.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="db_MySQL_Export.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="db_SQLite.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="db_SQLite_Export.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Ethernet.h" />
+    <ClInclude Include="EventData.h" />
+    <ClInclude Include="misc.h" />
+    <ClInclude Include="oslinux.h" />
+    <ClInclude Include="osselect.h" />
+    <ClInclude Include="oswindows.h" />
+    <ClInclude Include="Rec40S32.h" />
+    <ClInclude Include="SBFNet.h" />
+    <ClInclude Include="SBFspot.h" />
+    <ClInclude Include="SQLselect.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="sunrise_sunset.h" />
+    <ClInclude Include="TagDefs.h" />
+    <ClInclude Include="version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ArchData.cpp" />
+    <ClCompile Include="Bluetooth.cpp" />
+    <ClCompile Include="boost_ext.cpp" />
+    <ClCompile Include="CSVexport.cpp" />
+    <ClCompile Include="db_MySQL.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="db_MySQL_Export.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="db_SQLite.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="db_SQLite_Export.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="endianness.h" />
+    <ClCompile Include="Ethernet.cpp" />
+    <ClCompile Include="EventData.cpp" />
+    <ClCompile Include="misc.cpp" />
+    <ClCompile Include="SBFNet.cpp" />
+    <ClCompile Include="SBFspot.cpp" />
+    <ClCompile Include="strptime.cpp" />
+    <ClCompile Include="sunrise_sunset.cpp" />
+    <ClCompile Include="TagDefs.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

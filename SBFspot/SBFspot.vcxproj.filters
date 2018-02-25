@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Bluetooth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CSVexport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="strptime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sunrise_sunset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ethernet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TagDefs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EventData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boost_ext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="db_SQLite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="db_SQLite_Export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="db_MySQL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="db_MySQL_Export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SBFNet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SBFspot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="endianness.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bluetooth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVexport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="oslinux.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="osselect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="oswindows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sunrise_sunset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ethernet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TagDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EventData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boost_ext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SQLselect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="db_SQLite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="db_SQLite_Export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="db_MySQL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="db_MySQL_Export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SBFNet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SBFspot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rec40S32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TagListDE-DE.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TagListEN-US.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TagListES-ES.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TagListFR-FR.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TagListIT-IT.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TagListNL-NL.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="date_time_zonespec.csv">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="CreateSQLiteDB.sql">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="makefile">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="CreateMySQLDB.sql">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="SBFspot.cfg">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="Update_300_301_SQLite.sql">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="Update_300_301_MySQL.sql">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="Update_30x_302_MySQL.sql">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="Update_30x_302_SQLite.sql">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="Update_340_SQLite.sql">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="Update_340_MySQL.sql">
+      <Filter>Support Files</Filter>
+    </None>
+    <None Include="CreateMySQLUser.sql">
+      <Filter>Support Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8f8e718d-e388-413a-891b-afb68fb496ea}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{e36dd8d3-1e64-4d5a-9d65-0e7d8c311f52}</UniqueIdentifier>
+      <Extensions>csv;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{fca1646b-41c9-401a-aee6-0f92fce638e1}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Support Files">
+      <UniqueIdentifier>{5a40800d-6f42-4ba8-8201-bc5ef973dc29}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
