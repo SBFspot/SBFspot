@@ -22,7 +22,7 @@ LIB = -lbluetooth -lboost_date_time -lboost_system -lpthread
 LDFLAGS = 
 
 APPNAME = SBFspot
-INSTALLDIR = /usr/local/bin/sbfspot.3
+INSTALLDIR = /usr/local/bin/sbfspot.3/
 
 SRC_NOSQL  := boost_ext.cpp misc.cpp sunrise_sunset.cpp SBFNet.cpp CSVexport.cpp Ethernet.cpp EventData.cpp ArchData.cpp SBFspot.cpp TagDefs.cpp Bluetooth.cpp
 SRC_SQLITE := $(SRC_NOSQL) db_SQLite.cpp db_SQLite_Export.cpp

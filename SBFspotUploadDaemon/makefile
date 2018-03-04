@@ -14,7 +14,7 @@ CXX = g++
 AR = ar
 LD = g++
 
-INSTALLDIR  = /usr/local/bin/sbfspot.3
+INSTALLDIR  = /usr/local/bin/sbfspot.3/
 
 APPNAME = SBFspotUploadDaemon
 
