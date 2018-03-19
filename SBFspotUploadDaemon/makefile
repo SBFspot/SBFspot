@@ -6,6 +6,7 @@
 #
 # Installation:
 #	sudo make install_sqlite|install_mysql|install_mariadb
+#	sudo make install_systemd
 #
 ############################################################
 
@@ -15,6 +16,7 @@ AR = ar
 LD = g++
 
 INSTALLDIR  = /usr/local/bin/sbfspot.3/
+SYSTEMDDIR  = /etc/systemd/system/
 
 APPNAME = SBFspotUploadDaemon
 
@@ -97,6 +99,9 @@ build_target: $(TARGET)
 install:
 	$(CMD_COPY) $(TARGET) $(INSTALLDIR)
 	$(CMD_COPY) SBFspotUpload.default.cfg $(INSTALLDIR)
+
+install_systemd:
+	$(CMD_COPY) SBFspotUpload.service $(SYSTEMDDIR)
 
 OBJECTS_NOOPT := $(SRC_NOOPT:%.cpp=$(OBJDIR)%.o)
 
