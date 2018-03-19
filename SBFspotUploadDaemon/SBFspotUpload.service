@@ -1,8 +1,8 @@
 [Unit]
 Description=SBFspot upload daemon
-Requires=mysql.service
-After=mysql.service
-#After=network.target
+# Some optional dependent services may be added here if needed,
+# such as mysql.service etc.
+After=network.target
 
 [Service]
 User=root
