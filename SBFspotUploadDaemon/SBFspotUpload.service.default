@@ -1,7 +1,5 @@
 [Unit]
 Description=SBFspot upload daemon
-# Some optional dependent services may be added here if needed,
-# such as mysql.service etc.
 After=network.target
 
 [Service]
