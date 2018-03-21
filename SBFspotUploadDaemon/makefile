@@ -65,7 +65,7 @@ BINDIR     := mysql/bin/
 SERVICE    := SBFspotUpload.service.mysql
 else ifeq ($(MAKECMDGOALS),install_mariadb)
 BINDIR     := mariadb/bin/
-SERVICE    := SBFspotUpload.service.default
+SERVICE    := SBFspotUpload.service.mariadb
 endif
 
 TARGET     := $(BINDIR)$(APPNAME)
