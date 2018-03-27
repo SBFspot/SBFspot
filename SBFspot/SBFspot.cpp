@@ -265,7 +265,7 @@ int main(int argc, char **argv)
     {
         for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
-			if (Inverters[inv]->SUSyID == 292)	//SB 3600-SE (Smart Energy)
+			if ((Inverters[inv]->DevClass == BatteryInverter) || (Inverters[inv]->SUSyID == 292))	//SB 3600-SE (Smart Energy)
 				hasBatteryDevice = Inverters[inv]->hasBattery = true;
 			else
 				Inverters[inv]->hasBattery = false;
@@ -274,7 +274,7 @@ int main(int argc, char **argv)
             {
                 printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
                 printf("Device Name:      %s\n", Inverters[inv]->DeviceName);
-                printf("Device Class:     %s%s\n", Inverters[inv]->DeviceClass, Inverters[inv]->hasBattery ? " (with battery)":"");
+                printf("Device Class:     %s%s\n", Inverters[inv]->DeviceClass, (Inverters[inv]->SUSyID == 292) ? " (with battery)":"");
                 printf("Device Type:      %s\n", Inverters[inv]->DeviceType);
                 printf("Software Version: %s\n", Inverters[inv]->SWVersion);
                 printf("Serial number:    %lu\n", Inverters[inv]->Serial);
