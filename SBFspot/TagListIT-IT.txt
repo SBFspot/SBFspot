@@ -2355,7 +2355,7 @@
 8000=DevClss0\0\Tutti gli apparecchi
 8001=DevClss1\0\Inverter solari
 8002=DevClss2\0\Inverter eolico
-8007=DevClss7\0\DevClss7
+8007=DevClss7\0\Inverter a batteria
 8033=DevClss33\0\Utenza
 8064=DevClss64\0\Sensorica generale
 8065=DevClss65\0\Contatore corrente

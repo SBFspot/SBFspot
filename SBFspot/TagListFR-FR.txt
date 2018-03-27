@@ -2355,7 +2355,7 @@
 8000=DevClss0\0\Tous les appareils
 8001=DevClss1\0\Onduleur solaire
 8002=DevClss2\0\Onduleur éolien
-8007=DevClss7\0\DevClss7
+8007=DevClss7\0\Batterie-onduleur
 8033=DevClss33\0\Consommateur
 8064=DevClss64\0\Technique sensorielle en général
 8065=DevClss65\0\Compteur électrique

@@ -2355,7 +2355,7 @@
 8000=DevClss0\0\All Devices
 8001=DevClss1\0\Solar Inverters
 8002=DevClss2\0\Wind Turbine Inverter
-8007=DevClss7\0\DevClss7
+8007=DevClss7\0\Battery Inverter
 8033=DevClss33\0\Consumer
 8064=DevClss64\0\Sensor System in General
 8065=DevClss65\0\Electricity meter

@@ -2355,7 +2355,7 @@
 8000=DevClss0\0\Todos los equipos
 8001=DevClss1\0\Inversores fotovoltaicos
 8002=DevClss2\0\Inversores eólicos
-8007=DevClss7\0\DevClss7
+8007=DevClss7\0\Inversor de la batería
 8033=DevClss33\0\Consumidor
 8064=DevClss64\0\Sensórica general
 8065=DevClss65\0\Contador de corriente
