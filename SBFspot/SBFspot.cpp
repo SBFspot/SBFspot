@@ -2424,15 +2424,17 @@ int GetConfig(Config *cfg)
 				{
 					cfg->timezone = value;
 					boost::local_time::tz_database tzDB;
+					string tzdbPath = cfg->AppPath + "date_time_zonespec.csv";
 					// load the time zone database which comes with boost
+					// file must be UNIX file format (line delimiter=CR)
+					// if not: bad lexical cast: source type value could not be interpreted as target
 					try
 					{
-						string tzdbPath = cfg->AppPath + "date_time_zonespec.csv";
 						tzDB.load_from_file(tzdbPath);
 					}
-					catch (...)
+					catch (std::exception const&  e)
 					{
-						cout << "Unable to open 'date_time_zonespec.csv'\n";
+						std::cout << e.what() << std::endl;
 						return -2;
 					}
 

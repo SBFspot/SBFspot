@@ -14,13 +14,6 @@ CXX = g++
 AR = ar
 LD = g++
 
-INC = 
-CFLAGS = -Wall
-RESINC = 
-LIBDIR = 
-LIB = -lbluetooth -lboost_date_time -lboost_system -lpthread
-LDFLAGS = 
-
 APPNAME = SBFspot
 INSTALLDIR = /usr/local/bin/sbfspot.3/
 
