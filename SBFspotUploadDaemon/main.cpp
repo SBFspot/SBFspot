@@ -1,8 +1,8 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2017, SBF
+	(c)2012-2018, SBF
 
-	Latest version found at https://sbfspot.codeplex.com
+	Latest version found at https://github.com/SBFspot/SBFspot
 
 	License: Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
@@ -34,9 +34,10 @@ DISCLAIMER:
 // See http://kahimyang.info/kauswagan/code-blogs/1326/a-simple-cc-database-daemon
 // and http://www.boost.org/doc/libs/1_48_0/doc/html/boost_asio/example/fork/daemon.cpp
 
-#define VERSION "1.1.0"
+#define VERSION "1.2.0"
 
 // Fixed Issue 93: Add PID-File for SBFspotUploadDaemon (by wpaesen)
+// Fixed Issue #GH218: .out file not deleted when daemon stops
 
 #include "../SBFspotUploadCommon/CommonServiceCode.h"
 
@@ -259,6 +260,16 @@ int main(int argrc, char *argv[])
 
     // Start daemon loop
     pvo_upload();
+
+	// fix #GH218
+	try
+	{
+		remove(output);
+	}
+	catch (...)
+	{
+		Log("Unable to delete " + output, LOG_WARNING_);
+	}
 
     exit(EXIT_SUCCESS);
 }

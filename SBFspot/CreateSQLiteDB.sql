@@ -232,14 +232,12 @@ CREATE VIEW vwPvoData AS
 CREATE TABLE SpotDataX (
     [TimeStamp] INTEGER (4) NOT NULL,
     [Serial]    INTEGER (4) NOT NULL,
-    [Key]       INTEGER (2) NOT NULL,
-    [Extra]     INTEGER (1) NOT NULL,
+    [Key]       INTEGER (4) NOT NULL,
     [Value]     INTEGER (4),
     PRIMARY KEY (
         [TimeStamp] ASC,
         [Serial] ASC,
-        [Key],
-        [Extra]
+        [Key]
     )
 )
 WITHOUT ROWID;

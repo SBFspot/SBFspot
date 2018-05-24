@@ -7,6 +7,9 @@
 *.arm
 arm/
 
+# Backup files (WinMerge)
+*.bak
+
 # User-specific files
 *.suo
 *.user

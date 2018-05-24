@@ -18,8 +18,8 @@ CREATE VIEW vwBatteryData AS
            inv.`Name`,
            AVG(CASE WHEN `Key` = 10586 THEN `Value` END) AS ChaStatus,
            AVG(CASE WHEN `Key` = 18779 THEN CAST(`Value` AS DECIMAL(10,1)) / 10 END) AS Temperature,
-           AVG(CASE WHEN `Key` = 18780 THEN CAST(`Value` AS DECIMAL(10,3)) / 1000 END) AS ChaCurrent,
-           AVG(CASE WHEN `Key` = 18781 THEN CAST(`Value` AS DECIMAL(10,2)) / 100 END) AS ChaVoltage,
+           AVG(CASE WHEN `Key` = 18781 THEN CAST(`Value` AS DECIMAL(10,3)) / 1000 END) AS ChaCurrent,
+           AVG(CASE WHEN `Key` = 18780 THEN CAST(`Value` AS DECIMAL(10,2)) / 100 END) AS ChaVoltage,
            AVG(CASE WHEN `Key` = 17974 THEN `Value` END) AS GridMsTotWOut,
            AVG(CASE WHEN `Key` = 17975 THEN `Value` END) AS GridMsTotWIn
       FROM SpotDataX AS sdx
