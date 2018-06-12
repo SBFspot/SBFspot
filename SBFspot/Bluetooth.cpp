@@ -140,7 +140,7 @@ int bthSearchDevices()
 	BYTE buffer[1024];
 	DWORD bufferLength, flags, addressSize;
 	CSADDR_INFO *pCSAddr;
-	unsigned __int16 addressAsString[1024]; // WCHAR
+	WCHAR addressAsString[1024];
 
 	puts("Scanning for SMA devices...\n");
 

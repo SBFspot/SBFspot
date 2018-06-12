@@ -609,12 +609,12 @@ int main(int argc, char **argv)
 
 			if (VERBOSE_HIGH)
 			{
-				for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+				for (int inv = 0; Inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
 				{
 					printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
-					for (unsigned int ii = 0; ii < sizeof(Inverters[ii]->monthData)/sizeof(MonthData); ii++)
-						if (Inverters[ii]->monthData[idx].datetime > 0)
-							printf("%s : %.3fkWh - %3.3fkWh\n", strfgmtime_t(cfg.DateFormat, Inverters[ii]->monthData[ii].datetime), (double)Inverters[ii]->monthData[ii].totalWh/1000, (double)Inverters[ii]->monthData[ii].dayWh/1000);
+					for (unsigned int ii = 0; ii < sizeof(Inverters[inv]->monthData) / sizeof(MonthData); ii++)
+						if (Inverters[inv]->monthData[ii].datetime > 0)
+							printf("%s : %.3fkWh - %3.3fkWh\n", strfgmtime_t(cfg.DateFormat, Inverters[inv]->monthData[ii].datetime), (double)Inverters[inv]->monthData[ii].totalWh / 1000, (double)Inverters[inv]->monthData[ii].dayWh / 1000);
 					puts("======");
 				}
 			}
