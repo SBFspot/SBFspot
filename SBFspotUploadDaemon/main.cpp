@@ -97,6 +97,20 @@ void xwrite(int fd, char *buffer, int count)
 	}
 }
 
+pid_t pidof(const char *ps_name)
+{
+	const int BUFSIZE = 256;
+    FILE *fp;
+    char cmd[BUFSIZE];
+    snprintf(cmd, BUFSIZE, "pidof %s", ps_name);
+printf("%s\n", cmd);
+    fp = popen(cmd, "r");
+    fread(cmd, 1, BUFSIZE, fp);
+printf("%s\n", cmd);
+    fclose(fp);
+    return atoi(cmd);
+}
+
 int main(int argrc, char *argv[])
 {
 	int c, pidfd = -1, rc = 0;
@@ -137,8 +151,23 @@ int main(int argrc, char *argv[])
 
     // Check if log is writable
     if (Log("Starting SBFspotUploadDaemon Version " + std::string(VERSION), LOG_INFO_) != 0)
+	{
         exit(EXIT_FAILURE);
+	}
 
+	// Daemon should run only once
+	printf("appname=%s\n", argv[0]);
+	printf("getpid=%d\n", getpid());
+	printf("pid=%i\n", pidof(argv[0]));
+	printf("pid=%i\n", pidof("SBFspotUploadDaemon"));
+	
+	if (pidof(argv[0]) > 0)
+	{
+		printf("Daemon already running - Exiting now.\n");
+		Log("Daemon already running - Exiting now.", LOG_INFO_);
+		exit(EXIT_FAILURE);
+	}
+	
     // Check if DB is accessible
 	db_SQL_Base db = db_SQL_Base();
 	db.open(cfg.getSqlHostname(), cfg.getSqlUsername(), cfg.getSqlPassword(), cfg.getSqlDatabase());
@@ -268,7 +297,7 @@ int main(int argrc, char *argv[])
 	}
 	catch (...)
 	{
-		Log("Unable to delete " + output, LOG_WARNING_);
+		Log("Unable to delete " + std::string(output), LOG_WARNING_);
 	}
 
     exit(EXIT_SUCCESS);

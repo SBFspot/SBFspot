@@ -612,9 +612,9 @@ int main(int argc, char **argv)
 				for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				{
 					printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
-					for (unsigned int idx = 0; idx < sizeof(Inverters[inv]->monthData)/sizeof(MonthData); idx++)
-						if (Inverters[inv]->monthData[idx].datetime > 0)
-							printf("%s : %.3fkWh - %3.3fkWh\n", strfgmtime_t(cfg.DateFormat, Inverters[inv]->monthData[idx].datetime), (double)Inverters[inv]->monthData[idx].totalWh/1000, (double)Inverters[inv]->monthData[idx].dayWh/1000);
+					for (unsigned int ii = 0; ii < sizeof(Inverters[ii]->monthData)/sizeof(MonthData); ii++)
+						if (Inverters[ii]->monthData[idx].datetime > 0)
+							printf("%s : %.3fkWh - %3.3fkWh\n", strfgmtime_t(cfg.DateFormat, Inverters[ii]->monthData[ii].datetime), (double)Inverters[ii]->monthData[ii].totalWh/1000, (double)Inverters[ii]->monthData[ii].dayWh/1000);
 					puts("======");
 				}
 			}
@@ -1504,11 +1504,11 @@ E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *pass
 	                unsigned short rcvpcktID = get_short(pcktBuf+27) & 0x7FFF;
                     if ((pcktID == rcvpcktID) && (get_long(pcktBuf + 41) == now))
                     {
-                        int idx = getInverterIndexByAddress(inverters, CommBuf + 4);
-                        if (idx >= 0 )
+                        int ii = getInverterIndexByAddress(inverters, CommBuf + 4);
+                        if (ii >= 0 )
                         {
-                            inverters[idx]->SUSyID = get_short(pcktBuf + 15);
-                            inverters[idx]->Serial = get_long(pcktBuf + 17);
+                            inverters[ii]->SUSyID = get_short(pcktBuf + 15);
+                            inverters[ii]->Serial = get_long(pcktBuf + 17);
                             validPcktID = 1;
 							unsigned short retcode = get_short(pcktBuf + 23);
 							switch (retcode)
@@ -2837,24 +2837,24 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                         unsigned char Vbuild = 0;
                         unsigned char Vminor = 0;
                         unsigned char Vmajor = 0;
-                        for (int i = 41; i < packetposition - 3; i += recordsize)
+                        for (int ii = 41; ii < packetposition - 3; ii += recordsize)
                         {
-                            uint32_t code = ((uint32_t)get_long(pcktBuf + i));
+                            uint32_t code = ((uint32_t)get_long(pcktBuf + ii));
                             LriDef lri = (LriDef)(code & 0x00FFFF00);
                             uint32_t cls = code & 0xFF;
                             unsigned char dataType = code >> 24;
-                            time_t datetime = (time_t)get_long(pcktBuf + i + 4);
+                            time_t datetime = (time_t)get_long(pcktBuf + ii + 4);
 
                             // fix: We can't rely on dataType because it can be both 0x00 or 0x40 for DWORDs
                             if ((lri == MeteringDyWhOut) || (lri == MeteringTotWhOut) || (lri == MeteringTotFeedTms) || (lri == MeteringTotOpTms))	//QWORD
                             //if ((code == SPOT_ETODAY) || (code == SPOT_ETOTAL) || (code == SPOT_FEEDTM) || (code == SPOT_OPERTM))	//QWORD
                             {
-                                value64 = get_longlong(pcktBuf + i + 8);
+                                value64 = get_longlong(pcktBuf + ii + 8);
                                 if ((value64 == (int64_t)NaN_S64) || (value64 == (int64_t)NaN_U64)) value64 = 0;
                             }
                             else if ((dataType != 0x10) && (dataType != 0x08))	//Not TEXT or STATUS, so it should be DWORD
                             {
-                                value = (int32_t)get_long(pcktBuf + i + 8);
+                                value = (int32_t)get_long(pcktBuf + ii + 8);
                                 if ((value == (int32_t)NaN_S32) || (value == (int32_t)NaN_U32)) value = 0;
                             }
 
@@ -3042,22 +3042,22 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 if (recordsize == 0) recordsize = 40;
                                 //This function gives us the time when the inverter was switched on
                                 devList[inv]->WakeupTime = datetime;
-                                strncpy(devList[inv]->DeviceName, (char *)pcktBuf + i + 8, sizeof(devList[inv]->DeviceName)-1);
+                                strncpy(devList[inv]->DeviceName, (char *)pcktBuf + ii + 8, sizeof(devList[inv]->DeviceName)-1);
                                 devList[inv]->flags |= type;
                                 if (DEBUG_NORMAL) printf("%-12s: '%s' %s", "INV_NAME", devList[inv]->DeviceName, ctime(&datetime));
                                 break;
 
                             case NameplatePkgRev: //INV_SWVER
                                 if (recordsize == 0) recordsize = 40;
-                                Vtype = pcktBuf[i + 24];
+                                Vtype = pcktBuf[ii + 24];
                                 char ReleaseType[4];
                                 if (Vtype > 5)
                                     sprintf(ReleaseType, "%d", Vtype);
                                 else
                                     sprintf(ReleaseType, "%c", "NEABRS"[Vtype]); //NOREV-EXPERIMENTAL-ALPHA-BETA-RELEASE-SPECIAL
-                                Vbuild = pcktBuf[i + 25];
-                                Vminor = pcktBuf[i + 26];
-                                Vmajor = pcktBuf[i + 27];
+                                Vbuild = pcktBuf[ii + 25];
+                                Vminor = pcktBuf[ii + 26];
+                                Vmajor = pcktBuf[ii + 27];
                                 //Vmajor and Vminor = 0x12 should be printed as '12' and not '18' (BCD)
                                 snprintf(devList[inv]->SWVersion, sizeof(devList[inv]->SWVersion), "%c%c.%c%c.%02d.%s", '0'+(Vmajor >> 4), '0'+(Vmajor & 0x0F), '0'+(Vminor >> 4), '0'+(Vminor & 0x0F), Vbuild, ReleaseType);
                                 devList[inv]->flags |= type;
@@ -3068,8 +3068,8 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 if (recordsize == 0) recordsize = 40;
                                 for (int idx = 8; idx < recordsize; idx += 4)
                                 {
-                                    unsigned long attribute = ((unsigned long)get_long(pcktBuf + i + idx)) & 0x00FFFFFF;
-                                    unsigned char status = pcktBuf[i + idx + 3];
+                                    unsigned long attribute = ((unsigned long)get_long(pcktBuf + ii + idx)) & 0x00FFFFFF;
+                                    unsigned char status = pcktBuf[ii + idx + 3];
                                     if (attribute == 0xFFFFFE) break;	//End of attributes
                                     if (status == 1)
                                     {
@@ -3092,8 +3092,8 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 if (recordsize == 0) recordsize = 40;
                                 for (int idx = 8; idx < recordsize; idx += 4)
                                 {
-                                    unsigned long attribute = ((unsigned long)get_long(pcktBuf + i + idx)) & 0x00FFFFFF;
-                                    unsigned char attValue = pcktBuf[i + idx + 3];
+                                    unsigned long attribute = ((unsigned long)get_long(pcktBuf + ii + idx)) & 0x00FFFFFF;
+                                    unsigned char attValue = pcktBuf[ii + idx + 3];
                                     if (attribute == 0xFFFFFE) break;	//End of attributes
                                     if (attValue == 1)
                                     {
@@ -3117,8 +3117,8 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 if (recordsize == 0) recordsize = 40;
                                 for (int idx = 8; idx < recordsize; idx += 4)
                                 {
-                                    unsigned long attribute = ((unsigned long)get_long(pcktBuf + i + idx)) & 0x00FFFFFF;
-                                    unsigned char attValue = pcktBuf[i + idx + 3];
+                                    unsigned long attribute = ((unsigned long)get_long(pcktBuf + ii + idx)) & 0x00FFFFFF;
+                                    unsigned char attValue = pcktBuf[ii + idx + 3];
                                     if (attribute == 0xFFFFFE) break;	//End of attributes
                                     if (attValue == 1)
                                         devList[inv]->DeviceStatus = attribute;
@@ -3131,8 +3131,8 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 if (recordsize == 0) recordsize = 40;
                                 for (int idx = 8; idx < recordsize; idx += 4)
                                 {
-                                    unsigned long attribute = ((unsigned long)get_long(pcktBuf + i + idx)) & 0x00FFFFFF;
-                                    unsigned char attValue = pcktBuf[i + idx + 3];
+                                    unsigned long attribute = ((unsigned long)get_long(pcktBuf + ii + idx)) & 0x00FFFFFF;
+                                    unsigned char attValue = pcktBuf[ii + idx + 3];
                                     if (attribute == 0xFFFFFE) break;	//End of attributes
                                     if (attValue == 1)
                                         devList[inv]->GridRelayStatus = attribute;

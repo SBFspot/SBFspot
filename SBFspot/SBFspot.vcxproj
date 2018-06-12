@@ -37,35 +37,40 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -91,34 +96,34 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Program Files %28x86%29\Boost\lib32-msvc-10.0\Win32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files %28x86%29\Boost\lib32-msvc-14.0\Win32;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\Program Files %28x86%29\Boost;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(VCInstallDir)lib\sqlite;C:\Program Files %28x86%29\Boost\lib32-msvc-10.0\Win32;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio 10.0\VC\include\SQLite;C:\Program Files %28x86%29\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VCInstallDir)lib\sqlite;C:\Program Files %28x86%29\Boost\lib32-msvc-14.0\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\include\SQLite;C:\Program Files %28x86%29\Boost;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MySQL|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Program Files %28x86%29\Boost\lib32-msvc-10.0\Win32;C:\Program Files %28x86%29\Microsoft Visual Studio 10.0\VC\lib\MySQL;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files %28x86%29\Boost\lib32-msvc-14.0\Win32;C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\lib\MySQL;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\Program Files %28x86%29\Boost;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\Program Files %28x86%29\Boost\lib32-msvc-10.0\Win32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files %28x86%29\Boost\lib32-msvc-14.0\Win32;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\Program Files %28x86%29\Boost;$(IncludePath)</IncludePath>
     <CustomBuildAfterTargets>BuildLink</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SQLite|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(VCInstallDir)lib\sqlite;C:\Program Files %28x86%29\Boost\lib32-msvc-10.0\Win32;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio 10.0\VC\include\SQLite;C:\Program Files %28x86%29\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VCInstallDir)lib\sqlite;C:\Program Files %28x86%29\Boost\lib32-msvc-14.0\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\include\SQLite;C:\Program Files %28x86%29\Boost;$(IncludePath)</IncludePath>
     <CustomBuildAfterTargets>BuildLink</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\Program Files %28x86%29\Boost\lib32-msvc-10.0\Win32;C:\Program Files %28x86%29\Microsoft Visual Studio 10.0\VC\lib\MySQL;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files %28x86%29\Boost\lib32-msvc-14.0\Win32;C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\lib\MySQL;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\Program Files %28x86%29\Boost;$(IncludePath)</IncludePath>
     <CustomBuildAfterTargets>BuildLink</CustomBuildAfterTargets>
   </PropertyGroup>

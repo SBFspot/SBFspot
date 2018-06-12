@@ -61,9 +61,6 @@ typedef int socklen_t;
 
 #define sleep(sec) Sleep(sec*1000)
 
-//Ignore C4996 Warnings (The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name)
-#define snprintf sprintf_s
-
 char *strptime (const char *buf, const char *format, struct tm *timeptr);
 
 #include <direct.h>	// _mkdir
