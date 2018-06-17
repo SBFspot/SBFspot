@@ -71,7 +71,7 @@ public:
 	int open(std::string server, std::string user, std::string pass, std::string database);
 	int close(void);
 	int exec_query(std::string qry);
-	std::string errortext(void) { return sqlite3_errmsg(m_dbHandle); }
+	std::string errortext(void) { return m_dbHandle ? sqlite3_errmsg(m_dbHandle) : "Unable to open the database file [" + m_database + "]"; }
 	bool isopen(void) { return (m_dbHandle != NULL); }
 	int type_label(InverterData *inverters[]);
 	int device_status(InverterData *inverters[], time_t spottime);
