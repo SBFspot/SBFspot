@@ -40,7 +40,7 @@ DISCLAIMER:
 
 using namespace std;
 
-std::string errlevelText[] = {"", "INFO", "WARNING", "ERROR"};
+std::string errlevelText[] = {"", "DEBUG", "INFO", "WARNING", "ERROR"};
 
 Configuration::Configuration()
 {
@@ -93,6 +93,7 @@ int Configuration::readSettings(std::string me, std::string filename)
 		lineCnt++;
 
 		//Get rid of comments and empty lines
+		boost::trim(line);
 		size_t hashpos = line.find_first_of("#\r");
 		if (hashpos != string::npos) line.erase(hashpos);
 
@@ -108,6 +109,7 @@ int Configuration::readSettings(std::string me, std::string filename)
 				try
 				{
 					boost::to_lower(lineparts[0]);
+					std::string lcValue = boost::to_lower_copy(lineparts[1]);
 
 					if (lineparts[0] == "logdir")
 					{
@@ -121,18 +123,18 @@ int Configuration::readSettings(std::string me, std::string filename)
 						}
 					}
 
-					else if (lineparts[0] == "verbose_level")
+					else if (lineparts[0] == "loglevel")
 					{
-						verbose = boost::lexical_cast<int>(lineparts[1]);
-						if (verbose < 0) verbose = 0;
-						if (verbose > 5) verbose = 5;
-					}
-
-					else if (lineparts[0] == "debug_level")
-					{
-						debug = boost::lexical_cast<int>(lineparts[1]);
-						if (debug < 0) debug = 0;
-						if (debug > 5) debug = 5;
+						if (lcValue == "debug") m_LogLevel = LOG_DEBUG_;
+						else if (lcValue == "info") m_LogLevel = LOG_INFO_;
+						else if (lcValue == "warning") m_LogLevel = LOG_WARNING_;
+						else if (lcValue == "error") m_LogLevel = LOG_ERROR_;
+						else
+						{
+							print_error("Syntax error", lineCnt, m_ConfigFile);
+							m_Status = CFG_ERROR;
+							break;
+						}
 					}
 
 					else if (lineparts[0] == "pvoutput_sid")

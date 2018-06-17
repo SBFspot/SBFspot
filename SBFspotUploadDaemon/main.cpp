@@ -34,10 +34,11 @@ DISCLAIMER:
 // See http://kahimyang.info/kauswagan/code-blogs/1326/a-simple-cc-database-daemon
 // and http://www.boost.org/doc/libs/1_48_0/doc/html/boost_asio/example/fork/daemon.cpp
 
-#define VERSION "1.2.0"
+#define VERSION "1.3.0"
 
 // Fixed Issue 93: Add PID-File for SBFspotUploadDaemon (by wpaesen)
 // Fixed Issue #GH218: .out file not deleted when daemon stops
+// Fixed Issue #GH224: SBFSpotUpload.cfg - log level doesn't work
 
 #include "../SBFspotUploadCommon/CommonServiceCode.h"
 
@@ -51,6 +52,9 @@ DISCLAIMER:
 #include <signal.h>
 #include <syslog.h>
 #include <getopt.h>
+#include <sstream>
+#include <vector>
+#include <string.h>
 
 int quiet;
 int verbose;
@@ -97,18 +101,40 @@ void xwrite(int fd, char *buffer, int count)
 	}
 }
 
-pid_t pidof(const char *ps_name)
+int pidof(const char *ps_name, std::vector<int> &pids)
 {
 	const int BUFSIZE = 256;
     FILE *fp;
-    char cmd[BUFSIZE];
-    snprintf(cmd, BUFSIZE, "pidof %s", ps_name);
-printf("%s\n", cmd);
-    fp = popen(cmd, "r");
-    fread(cmd, 1, BUFSIZE, fp);
-printf("%s\n", cmd);
-    fclose(fp);
-    return atoi(cmd);
+
+    char iobuffer[BUFSIZE + 7] = "pidof ";
+
+    strncat(iobuffer, ps_name, BUFSIZE);
+
+    if (!(fp = popen(iobuffer, "r")))
+        return -1; // Error
+
+    iobuffer[0] = 0;
+    fgets(iobuffer, BUFSIZE, fp);
+
+    if (pclose(fp) == -1)
+        return -1; // Error
+
+    std::istringstream iss(iobuffer);
+    std::string s;
+
+    while (getline(iss, s, ' '))
+    {
+        pids.push_back(atoi(s.c_str()));
+    }
+
+    return pids.size();
+}
+
+int is_daemon_running(const char *d_name)
+{
+    std::vector<int> pids;
+    int num_ps = pidof(d_name, pids);
+    return (num_ps > 1);
 }
 
 int main(int argrc, char *argv[])
@@ -155,15 +181,9 @@ int main(int argrc, char *argv[])
         exit(EXIT_FAILURE);
 	}
 
-	// Daemon should run only once
-	printf("appname=%s\n", argv[0]);
-	printf("getpid=%d\n", getpid());
-	printf("pid=%i\n", pidof(argv[0]));
-	printf("pid=%i\n", pidof("SBFspotUploadDaemon"));
-	
-	if (pidof(argv[0]) > 0)
+	if (is_daemon_running(argv[0]))
 	{
-		printf("Daemon already running - Exiting now.\n");
+		printf("X:Daemon already running - Exiting now.\n");
 		Log("Daemon already running - Exiting now.", LOG_INFO_);
 		exit(EXIT_FAILURE);
 	}

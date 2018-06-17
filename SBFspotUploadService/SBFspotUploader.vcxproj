@@ -219,6 +219,7 @@ del "$(OutDir)*.pdb"
   </ItemGroup>
   <ItemGroup>
     <None Include="SBFspotUpload.cfg" />
+    <None Include="SBFspotUpload.default.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

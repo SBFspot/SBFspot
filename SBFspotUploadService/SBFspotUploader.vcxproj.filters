@@ -81,5 +81,8 @@
     <None Include="SBFspotUpload.cfg">
       <Filter>Support Files</Filter>
     </None>
+    <None Include="SBFspotUpload.default.cfg">
+      <Filter>Support Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

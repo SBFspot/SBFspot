@@ -53,6 +53,7 @@ extern std::string errlevelText[];
 typedef enum
 {
 	LOG_NONE_ = 0,
+	LOG_DEBUG_,
 	LOG_INFO_,
 	LOG_WARNING_,
 	LOG_ERROR_
@@ -69,11 +70,11 @@ private:
 	std::string	m_ConfigFile;			//Fullpath to configuration file
 	std::string	m_AppPath;
 	std::string m_LogDir;
+	ERRLEVEL    m_LogLevel = LOG_INFO_;
     std::string m_SqlDatabase;
     std::string m_SqlHostname;
     std::string m_SqlUsername;
     std::string m_SqlUserPassword;
-	//int			m_PvoSID;
 	std::map<unsigned int, unsigned int> m_PvoSIDs;
 	bool		m_PvoConsolidated;
 	std::string	m_PvoAPIkey;
@@ -94,6 +95,7 @@ public:
 	int getStatus() const { return m_Status; }
 	std::string getAppPath() const { return m_AppPath; }
 	std::string getLogDir() const { return m_LogDir; }
+	ERRLEVEL getLogLevel() const { return m_LogLevel; }
 	std::string getSqlDatabase() const { return m_SqlDatabase; }
 	std::string getSqlHostname() const { return m_SqlHostname; }
 	std::string getSqlUsername() const { return m_SqlUsername; }

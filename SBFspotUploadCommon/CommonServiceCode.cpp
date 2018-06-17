@@ -149,24 +149,30 @@ void CommonServiceCode(void)
 
 int Log(std::string txt, ERRLEVEL level)
 {
-	char buff[32];
-	time_t now = time(NULL);
-	strftime(buff, sizeof(buff), "SBFspotUpload%Y%m%d.log", localtime(&now));
-	std::string fullpath(cfg.getLogDir() + buff);
+	int rc = 0;
+	if (level >= cfg.getLogLevel())
+	{
+		char buff[32];
+		time_t now = time(NULL);
+		strftime(buff, sizeof(buff), "SBFspotUpload%Y%m%d.log", localtime(&now));
+		std::string fullpath(cfg.getLogDir() + buff);
 
-	std::ofstream fs_log;
-	fs_log.open(fullpath.c_str(), std::ios::app | std::ios::out);
+		std::ofstream fs_log;
+		fs_log.open(fullpath.c_str(), std::ios::app | std::ios::out);
 
-    if (fs_log.is_open())
-    {
-        strftime(buff, sizeof(buff), "[%H:%M:%S] ", localtime(&now));
-        fs_log << buff << errlevelText[level] << ": " << txt << std::endl;
-        fs_log.close();
-        return 0;
-    }
-    else
-    {
-        std::cerr << "Unable to write to logfile [" << fullpath << "]" << std::endl;
-        return 1;
-    }
+		if (fs_log.is_open())
+		{
+			strftime(buff, sizeof(buff), "[%H:%M:%S] ", localtime(&now));
+			fs_log << buff << errlevelText[level] << ": " << txt << std::endl;
+			fs_log.close();
+			rc = 0;
+		}
+		else
+		{
+			std::cerr << "Unable to write to logfile [" << fullpath << "]" << std::endl;
+			rc = 1;
+		}
+	}
+
+	return rc;
 }
