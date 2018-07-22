@@ -6,7 +6,7 @@ After=mysql.service mariadb.service network.target
 User=pi
 Type=simple
 TimeoutStopSec=10
-ExecStart=/home/pi/SBFspotUploadDaemon
+ExecStart=/usr/local/bin/sbfspot.3/SBFspotUploadDaemon
 Restart=on-success
 
 [Install]
