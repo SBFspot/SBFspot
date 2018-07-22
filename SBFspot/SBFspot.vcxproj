@@ -142,8 +142,6 @@
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
 copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
-copy "$(ProjectDir)*.dll" "$(OutDir)"
-copy "$(ProjectDir)Create*.sql" "$(OutDir)"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -166,9 +164,6 @@ copy "$(ProjectDir)Create*.sql" "$(OutDir)"
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
 copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
-copy "$(ProjectDir)libcurl.dll" "$(OutDir)"
-copy "$(ProjectDir)zlib1.dll" "$(OutDir)"
-copy "$(ProjectDir)sqlite3.dll" "$(OutDir)"
 copy "$(ProjectDir)CreateSQLite*.sql" "$(OutDir)"
 copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
 </Command>
@@ -193,9 +188,6 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
 copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
-copy "$(ProjectDir)libcurl.dll" "$(OutDir)"
-copy "$(ProjectDir)zlib1.dll" "$(OutDir)"
-copy "$(ProjectDir)libmysql.dll" "$(OutDir)"
 copy "$(ProjectDir)CreateMySQL*.sql" "$(OutDir)"
 copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
 </Command>
@@ -225,7 +217,6 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
       <Command>copy "$(ProjectDir)TagList*.txt" "$(OutDir)"
 copy "$(ProjectDir)date_time_zonespec.csv" "$(OutDir)"
 copy "$(ProjectDir)*.dll" "$(OutDir)"
-copy "$(ProjectDir)Create*.sql" "$(OutDir)"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -270,8 +261,7 @@ copy "$(ProjectDir)zlib1.dll" "$(OutDir)"
 copy "$(ProjectDir)sqlite3.dll" "$(OutDir)"
 copy "$(ProjectDir)CreateSQLite*.sql" "$(OutDir)"
 copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
-copy "$(ProjectDir)SBFspot_Empty.db" "$(OutDir)"
-"C:\Program Files\7-Zip\7z.exe" a -xr!*zip -xr!*.pdb "$(OutDir)SBFspot_Vxxx_Win32_SQLite.zip" "$(OutDir)*.*"
+"C:\Program Files\7-Zip\7z.exe" a -xr!*.zip -xr!*.pdb -xr!*.iobj -xr!*.ipdb -xr!*.tar.gz "$(OutDir)SBFspot_Vxxx_Win32_SQLite.zip" "$(OutDir)*.*"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -314,7 +304,7 @@ copy "$(ProjectDir)zlib1.dll" "$(OutDir)"
 copy "$(ProjectDir)libmysql.dll" "$(OutDir)"
 copy "$(ProjectDir)CreateMySQL*.sql" "$(OutDir)"
 copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
-"C:\Program Files\7-Zip\7z.exe" a -xr!*zip -xr!*.pdb "$(OutDir)SBFspot_Vxxx_Win32_MySQL.zip" "$(OutDir)*.*"</Command>
+"C:\Program Files\7-Zip\7z.exe" a -xr!*.zip -xr!*.pdb -xr!*.iobj -xr!*.ipdb -xr!*.tar.gz "$(OutDir)SBFspot_Vxxx_Win32_MySQL.zip" "$(OutDir)*.*"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying resources...</Message>

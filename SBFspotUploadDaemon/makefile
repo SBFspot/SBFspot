@@ -15,7 +15,6 @@ AR = ar
 LD = g++
 
 INSTALLDIR  = /usr/local/bin/sbfspot.3/
-SYSTEMDFILE  = /etc/systemd/system/SBFspotUpload.service
 
 APPNAME = SBFspotUploadDaemon
 
@@ -59,13 +58,10 @@ CFLAGS     := $(CFLAGS) -DUSE_MYSQL
 LIBS       := $(LIBS) mariadbclient
 else ifeq ($(MAKECMDGOALS),install_sqlite)
 BINDIR     := sqlite/bin/
-SERVICE    := SBFspotUpload.service.default
 else ifeq ($(MAKECMDGOALS),install_mysql)
 BINDIR     := mysql/bin/
-SERVICE    := SBFspotUpload.service.mysql
 else ifeq ($(MAKECMDGOALS),install_mariadb)
 BINDIR     := mariadb/bin/
-SERVICE    := SBFspotUpload.service.mariadb
 endif
 
 TARGET     := $(BINDIR)$(APPNAME)
@@ -101,7 +97,6 @@ build_target: $(TARGET)
 install:
 	$(CMD_COPY) $(TARGET) $(INSTALLDIR)
 	$(CMD_COPY) SBFspotUpload.default.cfg $(INSTALLDIR)
-	$(CMD_COPY) $(SERVICE) $(SYSTEMDFILE)
 
 OBJECTS_NOOPT := $(SRC_NOOPT:%.cpp=$(OBJDIR)%.o)
 

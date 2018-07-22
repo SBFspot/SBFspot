@@ -1,9 +1,10 @@
-#define VERSION "3.4.1"
+#define VERSION "3.5.0"
 
-// Fix #GH207: How to collect battery statistics with v3.4.0
+// Fixed #230: Unknown Inverter Type SBS3.7-10
 
-// SBFspotUploadDaemon
-// Fix #GH218: .out file not deleted when daemon stops
+// SBFspotUploadDaemon v2.0.0 - Redesigned for systemd (Thanks to Jonathan de Boyne Pollard)
+// Fixed #215: Start SBFspotUpload.service failed because the control process exited with error code
+// Fixed #224: SBFSpotUpload.cfg - log level doesn't work
 
 /***
 *
