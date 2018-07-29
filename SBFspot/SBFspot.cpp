@@ -2095,7 +2095,6 @@ void SayHello(int ShowHelp)
 		std::cout << " -ae#                Set #months for archived events: 0-" << MAX_CFG_AE << "\n";
 		std::cout << "                     0=disabled, 1=current month (default), ...\n";
         std::cout << " -cfgX.Y             Set alternative config file to X.Y (multiple inverters)\n";
-        std::cout << " -u                  Upload to online monitoring system (see config file)\n";
         std::cout << " -finq               Force Inquiry (Inquire inverter also during the night)\n";
         std::cout << " -q                  Quiet (No output)\n";
         std::cout << " -nocsv              Disables CSV export (Overrules CSV_Export in config)\n";
