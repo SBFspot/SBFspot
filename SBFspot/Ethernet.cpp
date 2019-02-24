@@ -104,7 +104,12 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
 		FD_ZERO(&readfds);
 		FD_SET(sock, &readfds);
 
-		select(sock+1, &readfds, NULL, NULL, &tv);
+		int rc = select(sock+1, &readfds, NULL, NULL, &tv);
+		if (DEBUG_HIGHEST) printf("select() returned %d\n", rc);
+		if (rc == -1)
+		{
+			if (DEBUG_HIGHEST) printf("errno = %d\n", errno);
+		}
 
 		if (FD_ISSET(sock, &readfds))
 			bytes_read = recvfrom(sock, (char*)buf, bufsize, 0, (struct sockaddr *)&addr_in, &addr_in_len);

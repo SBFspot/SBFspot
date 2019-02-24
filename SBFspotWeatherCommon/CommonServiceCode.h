@@ -1,5 +1,5 @@
 /************************************************************************************************
-	SBFspot - Yet another tool to read power production of SMAÂ® solar inverters
+	SBFspot - Yet another tool to read power production of SMA® solar inverters
 	(c)2012-2018, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share â€” to copy, distribute and transmit the work
-		to Remix â€” to adapt the work
+		to Share — to copy, distribute and transmit the work
+		to Remix — to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -32,42 +32,28 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef OSWINDOWS_H_INCLUDED
-#define OSWINDOWS_H_INCLUDED
+#pragma once
 
-#ifndef WIN32
-#error Do Not include oswindows.h on non-windows systems
+#include "../SBFspot/osselect.h"
+#include "WeatherAPI.h"
+
+#if defined(USE_SQLITE)
+#include "../SBFspot/db_SQLite.h"
+#include "db_SQLite_Weather.h"
 #endif
 
-#define OS "Windows"
+#if defined(USE_MYSQL)
+#include "../SBFspot/db_MySQL.h"
+#endif
 
-// Ignore some of the warnings
-#pragma warning(disable:4996)	// 'strnicmp': The POSIX name for this item is deprecated.
-#pragma warning(disable:4482)	// nonstandard extension used: enum 'enum' used in qualified name
+#include "Configuration.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
-#define _USE_32BIT_TIME_T
+extern Configuration cfg;
+extern bool bStopping;
 
-#include <time.h>
-#include <string.h>
+int Log(std::string txt, ERRLEVEL level);
+void CommonServiceCode(void);
 
-typedef __int16 int16_t;
-typedef unsigned __int16 uint16_t;
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-
-typedef int socklen_t;				
-
-#define sleep(sec) Sleep((sec) * 1000)
-
-char *strptime (const char *buf, const char *format, struct tm *timeptr);
-
-#include <direct.h>	// _mkdir
-#include <io.h>		// filelength
-
-typedef unsigned char BYTE;
-
-#define SYM_DEGREE "\370"
-
-#endif // OSWINDOWS_H_INCLUDED

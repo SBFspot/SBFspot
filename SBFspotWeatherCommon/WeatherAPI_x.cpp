@@ -1,5 +1,5 @@
 /************************************************************************************************
-	SBFspot - Yet another tool to read power production of SMAÂ® solar inverters
+	SBFspot - Yet another tool to read power production of SMA® solar inverters
 	(c)2012-2018, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share â€” to copy, distribute and transmit the work
-		to Remix â€” to adapt the work
+		to Share — to copy, distribute and transmit the work
+		to Remix — to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -32,42 +32,28 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef OSWINDOWS_H_INCLUDED
-#define OSWINDOWS_H_INCLUDED
 
-#ifndef WIN32
-#error Do Not include oswindows.h on non-windows systems
+#include "WeatherAPI.h"
+
+// Static Callback member function
+// Disable Compiler Optimization for this function (Issue 97)
+
+// This function has been moved to its own cpp file to disable optimization, leaving the rest
+// of the code optimized. Previous attempts to disable optimization with __attribute__((optimize("Os")))
+// failed (Linux)
+// Compile without -O switch
+
+#if defined(WIN32)
+#pragma optimize("", off)
 #endif
 
-#define OS "Windows"
+void Weather::writeCallback(char *ptr, size_t size, size_t nmemb, void *f)
+{
+   // Call non-static member function
+   static_cast<Weather *>(f)->writeCallback_impl(ptr, size, nmemb);
+}
 
-// Ignore some of the warnings
-#pragma warning(disable:4996)	// 'strnicmp': The POSIX name for this item is deprecated.
-#pragma warning(disable:4482)	// nonstandard extension used: enum 'enum' used in qualified name
+#if defined(WIN32)
+#pragma optimize("", on)
+#endif
 
-#define _USE_32BIT_TIME_T
-
-#include <time.h>
-#include <string.h>
-
-typedef __int16 int16_t;
-typedef unsigned __int16 uint16_t;
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-
-typedef int socklen_t;				
-
-#define sleep(sec) Sleep((sec) * 1000)
-
-char *strptime (const char *buf, const char *format, struct tm *timeptr);
-
-#include <direct.h>	// _mkdir
-#include <io.h>		// filelength
-
-typedef unsigned char BYTE;
-
-#define SYM_DEGREE "\370"
-
-#endif // OSWINDOWS_H_INCLUDED
