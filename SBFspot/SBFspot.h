@@ -449,7 +449,7 @@ const char *getEventType(unsigned short eventflags);
 int getInverterData(InverterData *inverters[], enum getInverterDataType type);
 int getInverterIndexByAddress(InverterData *inverters[], unsigned char bt_addr[6]);
 int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial);
-int getInverterIndexBySerial(InverterData *inverters[], unsigned long Serial);
+int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial);
 E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command);
 //int get_tzOffset(void);
 void HexDump(unsigned char *buf, int count, int radix);

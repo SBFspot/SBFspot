@@ -77,7 +77,10 @@ int db_SQL_Export::day_data(InverterData *inverters[])
 					if (inverters[inv]->dayData[idx].datetime > 0)
 					{
 						sqlite3_bind_int(pStmt, 1, inverters[inv]->dayData[idx].datetime);
-						sqlite3_bind_int(pStmt, 2, inverters[inv]->Serial);
+						// Fix #269
+						// To store unsigned int32 serial numbers, we're using sqlite3_bind_int64
+						// SQLite will store these uint32 in 4 bytes
+						sqlite3_bind_int64(pStmt, 2, inverters[inv]->Serial);
 						sqlite3_bind_int64(pStmt, 3, inverters[inv]->dayData[idx].totalWh);
 						sqlite3_bind_int64(pStmt, 4, inverters[inv]->dayData[idx].watt);
 						sqlite3_bind_null(pStmt, 5);
@@ -144,7 +147,10 @@ int db_SQL_Export::month_data(InverterData *inverters[])
 				if (inverters[inv]->monthData[idx].datetime > 0)
 				{
 					sqlite3_bind_int(pStmt, 1, inverters[inv]->monthData[idx].datetime);
-					sqlite3_bind_int(pStmt, 2, inverters[inv]->Serial);
+					// Fix #269
+					// To store unsigned int32 serial numbers, we're using sqlite3_bind_int64
+					// SQLite will store these uint32 in 4 bytes
+					sqlite3_bind_int64(pStmt, 2, inverters[inv]->Serial);
 					sqlite3_bind_int64(pStmt, 3, inverters[inv]->monthData[idx].totalWh);
 					sqlite3_bind_int64(pStmt, 4, inverters[inv]->monthData[idx].dayWh);
 
@@ -269,7 +275,10 @@ int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
 
 				sqlite3_bind_int(pStmt,  1, it->EntryID());
 				sqlite3_bind_int(pStmt,  2, it->DateTime());
-				sqlite3_bind_int(pStmt,  3, it->SerNo());
+				// Fix #269
+				// To store unsigned int32 serial numbers, we're using sqlite3_bind_int64
+				// SQLite will store these uint32 in 4 bytes
+				sqlite3_bind_int64(pStmt,  3, it->SerNo());
 				sqlite3_bind_int(pStmt,  4, it->SUSyID());
 				sqlite3_bind_int(pStmt,  5, it->EventCode());
 				sqlite3_bind_text(pStmt, 6, it->EventType().c_str(), it->EventType().size(), SQLITE_TRANSIENT);

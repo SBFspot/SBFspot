@@ -862,7 +862,7 @@ int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, u
 	if (DEBUG_HIGHEST)
 	{
 		printf("getInverterIndexBySerial()\n");
-		printf("Looking up %d:%lu\n", SUSyID, Serial);
+		printf("Looking up %d:%lu\n", SUSyID, (unsigned long)Serial);
 	}
 
     for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
@@ -880,7 +880,7 @@ int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, u
 	return -1;
 }
 
-int getInverterIndexBySerial(InverterData *inverters[], unsigned long Serial)
+int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial)
 {
     for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
@@ -2788,9 +2788,12 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 		break;
 
 	case sbftest:
-		command = 0x64020200;
-		first = 0x00618C00;
-		last = 0x00618FFF;
+//		command = 0x64020200;
+//		first = 0x00618C00;
+//		last = 0x00618FFF;
+		command = 0x54000200;
+		first = 0x00000000;
+		last = 0x00FFFFFF;
 		break;
 
     default:
@@ -3021,7 +3024,9 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                             case MeteringTotWhOut: //SPOT_ETOTAL
                                 if (recordsize == 0) recordsize = 16;
-                                devList[inv]->ETotal = value64;
+								//In case SPOT_ETODAY missing, this function gives us inverter time (eg: SUNNY TRIPOWER 6.0)
+								devList[inv]->InverterDatetime = datetime;
+								devList[inv]->ETotal = value64;
                                 devList[inv]->flags |= type;
                                 if (DEBUG_NORMAL) printf(strkWh, "SPOT_ETOTAL", tokWh(value64), ctime(&datetime));
                                 break;
