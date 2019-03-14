@@ -253,8 +253,8 @@ int main(int argc, char **argv)
 		if ((rc = SetPlantTime(cfg.synchTime, cfg.synchTimeLow, cfg.synchTimeHigh)) != E_OK)
 			std::cerr << "SetPlantTime returned an error: " << rc << std::endl;
 
-	if ((rc = getInverterData(Inverters, sbftest)) != 0)
-        std::cerr << "getInverterData(sbftest) returned an error: " << rc << std::endl;
+//	if ((rc = getInverterData(Inverters, sbftest)) != 0)
+//        std::cerr << "getInverterData(sbftest) returned an error: " << rc << std::endl;
 
 	if ((rc = getInverterData(Inverters, SoftwareVersion)) != 0)
         std::cerr << "getSoftwareVersion returned an error: " << rc << std::endl;
@@ -2785,15 +2785,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 		command = 0x51000200;
 		first = 0x00463600;
 		last = 0x004637FF;
-		break;
-
-	case sbftest:
-//		command = 0x64020200;
-//		first = 0x00618C00;
-//		last = 0x00618FFF;
-		command = 0x54000200;
-		first = 0x00000000;
-		last = 0x00FFFFFF;
 		break;
 
     default:
