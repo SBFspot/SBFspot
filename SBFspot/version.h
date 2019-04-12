@@ -5,6 +5,7 @@
 // Fixed #269: SMA STP6.0-3AV-40 no readout with SBFspot?
 // Fixed #279: Unknown inverter type SMA STP6.0-3AV-40
 // Fixed #281: SBFspotUploadDaemon not uploading
+// Fixed #287: Unknown Inverter Type: STP5.0-3AV-40
 
 /***
 *
