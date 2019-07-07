@@ -11,6 +11,9 @@
 // V3.5.2
 // Fixed #297: 0x000024BA and Inverter Type=SB3.6-1AV-41
 
+// V3.5.3
+// Fixed #302: Unknown Inverter Type - SMA Sunny Tripower 3.0
+
 /***
 *
 * Complete modification history can be found at:
