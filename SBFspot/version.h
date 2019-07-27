@@ -13,6 +13,7 @@
 
 // V3.5.3
 // Fixed #302: Unknown Inverter Type - SMA Sunny Tripower 3.0
+// Fixed #309: Unknown Inverter Type - SMA Sunny Tripower 8.0
 
 /***
 *
