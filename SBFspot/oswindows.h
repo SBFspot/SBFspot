@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2019, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -69,5 +69,7 @@ char *strptime (const char *buf, const char *format, struct tm *timeptr);
 typedef unsigned char BYTE;
 
 #define SYM_DEGREE "\370"
+
+#define FOLDER_SEP "\\"
 
 #endif // OSWINDOWS_H_INCLUDED

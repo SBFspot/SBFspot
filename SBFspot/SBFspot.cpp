@@ -1970,8 +1970,11 @@ int parseCmdline(int argc, char **argv, Config *cfg)
                 InvalidArg(argv[i]);
                 return -1;
             }
-            else
-                strncpy(cfg->SMA_Password, argv[i]+10, sizeof(cfg->SMA_Password));
+			else
+			{
+				memset(cfg->SMA_Password, 0, sizeof(cfg->SMA_Password));
+				strncpy(cfg->SMA_Password, argv[i] + 10, sizeof(cfg->SMA_Password) - 1);
+			}
 
 		else if (strnicmp(argv[i], "-startdate:", 11) == 0)
 		{
@@ -2217,7 +2220,11 @@ int GetConfig(Config *cfg)
 
             if ((value != NULL) && (*rtrim(value) != 0))
             {
-				if(stricmp(variable, "BTaddress") == 0) strncpy(cfg->BT_Address, value, sizeof(cfg->BT_Address));
+				if (stricmp(variable, "BTaddress") == 0)
+				{
+					memset(cfg->BT_Address, 0, sizeof(cfg->BT_Address));
+					strncpy(cfg->BT_Address, value, sizeof(cfg->BT_Address) - 1);
+				}
                 else if(strnicmp(variable, "IP_Address", 10) == 0)
 				{
 					boost::split(cfg->ip_addresslist, value, boost::is_any_of(","));
@@ -2238,17 +2245,36 @@ int GetConfig(Config *cfg)
 					}
 
 					if (rc == 0)
-						strncpy(cfg->IP_Address, cfg->ip_addresslist[0].c_str(), sizeof(cfg->IP_Address));
+					{
+						memset(cfg->IP_Address, 0, sizeof(cfg->IP_Address));
+						strncpy(cfg->IP_Address, cfg->ip_addresslist[0].c_str(), sizeof(cfg->IP_Address) - 1);
+					}
 				}
 				else if(stricmp(variable, "Password") == 0)
                 {
-                    if(cfg->userGroup == UG_USER) strncpy(cfg->SMA_Password, value, sizeof(cfg->SMA_Password));
+					if (cfg->userGroup == UG_USER)
+					{
+						memset(cfg->SMA_Password, 0, sizeof(cfg->SMA_Password));
+						strncpy(cfg->SMA_Password, value, sizeof(cfg->SMA_Password) - 1);
+					}
                 }
-				else if(stricmp(variable, "OutputPath") == 0) strncpy(cfg->outputPath, value, sizeof(cfg->outputPath));
-				else if(stricmp(variable, "OutputPathEvents") == 0) strncpy(cfg->outputPath_Events, value, sizeof(cfg->outputPath_Events));
+				else if (stricmp(variable, "OutputPath") == 0)
+				{
+					memset(cfg->outputPath, 0, sizeof(cfg->outputPath));
+					strncpy(cfg->outputPath, value, sizeof(cfg->outputPath) - 1);
+				}
+				else if (stricmp(variable, "OutputPathEvents") == 0)
+				{
+					memset(cfg->outputPath_Events, 0, sizeof(cfg->outputPath_Events));
+					strncpy(cfg->outputPath_Events, value, sizeof(cfg->outputPath_Events) - 1);
+				}
 				else if(stricmp(variable, "Latitude") == 0) cfg->latitude = (float)atof(value);
 				else if(stricmp(variable, "Longitude") == 0) cfg->longitude = (float)atof(value);
-				else if(stricmp(variable, "Plantname") == 0) strncpy(cfg->plantname, value, sizeof(cfg->plantname));
+				else if (stricmp(variable, "Plantname") == 0)
+				{
+					memset(cfg->plantname, 0, sizeof(cfg->plantname));
+					strncpy(cfg->plantname, value, sizeof(cfg->plantname) - 1);
+				}
 				else if(stricmp(variable, "CalculateMissingSpotValues") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
@@ -2260,9 +2286,21 @@ int GetConfig(Config *cfg)
                         rc = -2;
                     }
                 }
-				else if(stricmp(variable, "DatetimeFormat") == 0) strncpy(cfg->DateTimeFormat, value, sizeof(cfg->DateTimeFormat));
-				else if(stricmp(variable, "DateFormat") == 0) strncpy(cfg->DateFormat, value, sizeof(cfg->DateFormat));
-				else if(stricmp(variable, "TimeFormat") == 0) strncpy(cfg->TimeFormat, value, sizeof(cfg->TimeFormat));
+				else if (stricmp(variable, "DatetimeFormat") == 0)
+				{
+					memset(cfg->DateTimeFormat, 0, sizeof(cfg->DateTimeFormat));
+					strncpy(cfg->DateTimeFormat, value, sizeof(cfg->DateTimeFormat) - 1);
+				}
+				else if (stricmp(variable, "DateFormat") == 0)
+				{
+					memset(cfg->DateFormat, 0, sizeof(cfg->DateFormat));
+					strncpy(cfg->DateFormat, value, sizeof(cfg->DateFormat)-1);
+				}
+				else if (stricmp(variable, "TimeFormat") == 0)
+				{
+					memset(cfg->TimeFormat, 0, sizeof(cfg->TimeFormat));
+					strncpy(cfg->TimeFormat, value, sizeof(cfg->TimeFormat) - 1);
+				}
 				else if(stricmp(variable, "DecimalPoint") == 0)
                 {
 					if (stricmp(value, "comma") == 0) cfg->decimalpoint = ',';
@@ -3082,7 +3120,10 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     {
 										string devtype = tagdefs.getDesc(attribute);
 										if (!devtype.empty())
-											strncpy(devList[inv]->DeviceType, devtype.c_str(), sizeof(devList[inv]->DeviceType));
+										{
+											memset(devList[inv]->DeviceType, 0, sizeof(devList[inv]->DeviceType));
+											strncpy(devList[inv]->DeviceType, devtype.c_str(), sizeof(devList[inv]->DeviceType) - 1);
+										}
 										else
 										{
 											strncpy(devList[inv]->DeviceType, "UNKNOWN TYPE", sizeof(devList[inv]->DeviceType));
@@ -3107,7 +3148,10 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         devList[inv]->DevClass = (DEVICECLASS)attribute;
 										string devclass = tagdefs.getDesc(attribute);
 										if (!devclass.empty())
-											strncpy(devList[inv]->DeviceClass, devclass.c_str(), sizeof(devList[inv]->DeviceClass));
+										{
+											memset(devList[inv]->DeviceClass, 0, sizeof(devList[inv]->DeviceClass));
+											strncpy(devList[inv]->DeviceClass, devclass.c_str(), sizeof(devList[inv]->DeviceClass) - 1);
+										}
 										else
 										{
                                             strncpy(devList[inv]->DeviceClass, "UNKNOWN CLASS", sizeof(devList[inv]->DeviceClass));

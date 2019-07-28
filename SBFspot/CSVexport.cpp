@@ -142,18 +142,17 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData *inverters[])
 			FILE *csv;
 
 			//Expand date specifiers in config::outputPath
-			char exportPath[MAX_PATH];
-			snprintf(exportPath, sizeof(exportPath), "%s", strftime_t(cfg->outputPath, inverters[0]->monthData[0].datetime));
-			CreatePath(exportPath);
+			std::stringstream csvpath;
+			csvpath << strftime_t(cfg->outputPath, inverters[0]->monthData[0].datetime);
+			CreatePath(csvpath.str().c_str());
 
-			char csvpath[MAX_PATH];
-			sprintf(csvpath, "%s/%s-%s.csv", exportPath, cfg->plantname, strfgmtime_t("%Y%m", inverters[0]->monthData[0].datetime));
-
-			if ((csv = fopen(csvpath, "w+")) == NULL)
+			csvpath << FOLDER_SEP << cfg->plantname << "-" << strfgmtime_t("%Y%m", inverters[0]->monthData[0].datetime) << ".csv";
+			
+			if ((csv = fopen(csvpath.str().c_str(), "w+")) == NULL)
 			{
 				if (cfg->quiet == 0)
 				{
-					snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath);
+					snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
 					print_error(stdout, PROC_ERROR, msg);
 				}
 				return -1;
@@ -237,18 +236,17 @@ int ExportDayDataToCSV(const Config *cfg, InverterData *inverters[])
 	if (date == 0) return 0;	// Nothing to export! Silently exit.
 
 	//Expand date specifiers in config::outputPath
-	char exportPath[MAX_PATH];
-	snprintf(exportPath, sizeof(exportPath), "%s", strftime_t(cfg->outputPath, date));
-	CreatePath(exportPath);
+	std::stringstream csvpath;
+	csvpath << strftime_t(cfg->outputPath, date);
+	CreatePath(csvpath.str().c_str());
 
-	char csvpath[MAX_PATH];
-	snprintf(csvpath, sizeof(csvpath), "%s/%s-%s.csv", exportPath, cfg->plantname, strftime_t("%Y%m%d", date));
+	csvpath << FOLDER_SEP << cfg->plantname << "-" << strftime_t("%Y%m%d", date) << ".csv";
 
-	if ((csv = fopen(csvpath, "w+")) == NULL)
+	if ((csv = fopen(csvpath.str().c_str(), "w+")) == NULL)
 	{
 		if (cfg->quiet == 0)
 		{
-			snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath);
+			snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
 			print_error(stdout, PROC_ERROR, msg);
 		}
 		return -1;
@@ -288,15 +286,15 @@ int ExportDayDataToCSV(const Config *cfg, InverterData *inverters[])
 
 	char FormattedFloat[16];
 
-	for (unsigned int idx = 0; idx < sizeof(inverters[0]->dayData)/sizeof(DayData); idx++)
+	for (unsigned int dd = 0; dd < sizeof(inverters[0]->dayData)/sizeof(DayData); dd++)
 	{
 		time_t datetime = 0;
 		unsigned long long totalPower = 0;
 		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-			if (inverters[inv]->dayData[idx].datetime > 0)
+			if (inverters[inv]->dayData[dd].datetime > 0)
 			{
-				datetime = inverters[inv]->dayData[idx].datetime;
-				totalPower += inverters[inv]->dayData[idx].watt;
+				datetime = inverters[inv]->dayData[dd].datetime;
+				totalPower += inverters[inv]->dayData[dd].watt;
 			}
 
 		if (datetime > 0)
@@ -306,8 +304,8 @@ int ExportDayDataToCSV(const Config *cfg, InverterData *inverters[])
 				fprintf(csv, "%s", strftime_t(cfg->DateTimeFormat, datetime));
 				for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				{
-					fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->dayData[idx].totalWh/1000, 0, cfg->precision, cfg->decimalpoint));
-					fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->dayData[idx].watt/1000, 0, cfg->precision, cfg->decimalpoint));
+					fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->dayData[dd].totalWh/1000, 0, cfg->precision, cfg->decimalpoint));
+					fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->dayData[dd].watt/1000, 0, cfg->precision, cfg->decimalpoint));
 				}
 				fputs("\n", csv);
 			}
@@ -463,18 +461,17 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData *inverters[])
 	time_t spottime = cfg->SpotTimeSource == 0 ? inverters[0]->InverterDatetime : time(NULL);
 
 	//Expand date specifiers in config::outputPath
-	char exportPath[MAX_PATH];
-	snprintf(exportPath, sizeof(exportPath), "%s", strftime_t(cfg->outputPath, spottime));
-	CreatePath(exportPath);
+	std::stringstream csvpath;
+	csvpath << strftime_t(cfg->outputPath, spottime);
+	CreatePath(csvpath.str().c_str());
 
-	char csvpath[MAX_PATH];
-	snprintf(csvpath, sizeof(csvpath), "%s/%s-Spot-%s.csv", exportPath, cfg->plantname, strftime_t("%Y%m%d", spottime));
+	csvpath << FOLDER_SEP << cfg->plantname << "-Spot-" << strftime_t("%Y%m%d", spottime) << ".csv";
 
-	if ((csv = fopen(csvpath, "a+")) == NULL)
+	if ((csv = fopen(csvpath.str().c_str(), "a+")) == NULL)
 	{
 		if (cfg->quiet == 0)
 		{
-			snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath);
+			snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
 			print_error(stdout, PROC_ERROR, msg);
 		}
 		return -1;
@@ -486,7 +483,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData *inverters[])
 		if (filelength(fileno(csv)) == 0)
 		#else
 		struct stat fStat;
-		stat(csvpath, &fStat);
+		stat(csvpath.str().c_str(), &fStat);
 		if (fStat.st_size == 0)
 		#endif
 		{
@@ -562,18 +559,17 @@ int ExportEventsToCSV(const Config *cfg, InverterData *inverters[], std::string 
 	FILE *csv;
 
 	//Expand date specifiers in config::outputPath_Events
-	char exportPath[MAX_PATH];
-	snprintf(exportPath, sizeof(exportPath), "%s", strftime_t(cfg->outputPath_Events, time(NULL)));
-	CreatePath(exportPath);
+	std::stringstream csvpath;
+	csvpath << strftime_t(cfg->outputPath_Events, time(NULL));
+	CreatePath(csvpath.str().c_str());
 
-	char csvpath[MAX_PATH];
-	snprintf(csvpath, sizeof(csvpath), "%s/%s-%s-Events-%s.csv", exportPath, cfg->plantname, cfg->userGroup == UG_USER ? "User":"Installer", dt_range_csv.c_str());
+	csvpath << FOLDER_SEP << cfg->plantname << "-" << (cfg->userGroup == UG_USER ? "User" : "Installer") << "-Events-" << dt_range_csv.c_str() << ".csv";
 
-	if ((csv = fopen(csvpath, "w+")) == NULL)
+	if ((csv = fopen(csvpath.str().c_str(), "w+")) == NULL)
 	{
 		if (cfg->quiet == 0)
 		{
-			snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath);
+			snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
 			print_error(stdout, PROC_ERROR, msg);
 		}
 		return -1;
@@ -585,7 +581,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData *inverters[], std::string 
 		if (filelength(fileno(csv)) == 0)
 		#else
 		struct stat fStat;
-		stat(csvpath, &fStat);
+		stat(csvpath.str().c_str(), &fStat);
 		if (fStat.st_size == 0)
 		#endif
 		{
@@ -681,18 +677,17 @@ int ExportBatteryDataToCSV(Config *cfg, InverterData *inverters[])
 	time_t spottime = time(NULL);
 
 	//Expand date specifiers in config::outputPath
-	char exportPath[MAX_PATH];
-	snprintf(exportPath, sizeof(exportPath), "%s", strftime_t(cfg->outputPath, spottime));
-	CreatePath(exportPath);
+	std::stringstream csvpath;
+	csvpath << strftime_t(cfg->outputPath, spottime);
+	CreatePath(csvpath.str().c_str());
 
-	char csvpath[MAX_PATH];
-	snprintf(csvpath, sizeof(csvpath), "%s/%s-Battery-%s.csv", exportPath, cfg->plantname, strftime_t("%Y%m%d", spottime));
+	csvpath << FOLDER_SEP << cfg->plantname << "-Battery-" << strftime_t("%Y%m%d", spottime) << ".csv";
 
-	if ((csv = fopen(csvpath, "a+")) == NULL)
+	if ((csv = fopen(csvpath.str().c_str(), "a+")) == NULL)
 	{
 		if (cfg->quiet == 0)
 		{
-			snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath);
+			snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
 			print_error(stdout, PROC_ERROR, msg);
 		}
 		return -1;
@@ -704,7 +699,7 @@ int ExportBatteryDataToCSV(Config *cfg, InverterData *inverters[])
 		if (filelength(fileno(csv)) == 0)
 		#else
 		struct stat fStat;
-		stat(csvpath, &fStat);
+		stat(csvpath.str().c_str(), &fStat);
 		if (fStat.st_size == 0)
 		#endif
 		{

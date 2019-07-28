@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2019, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -66,5 +66,7 @@ extern unsigned int sleep (unsigned int __seconds); // See unistd.h
 #define SYM_DEGREE "\302\260"
 
 typedef int SOCKET;
+
+#define FOLDER_SEP "/"
 
 #endif // OSLINUX_H_INCLUDED
