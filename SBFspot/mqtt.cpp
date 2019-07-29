@@ -43,7 +43,12 @@ int mqtt_publish(const Config *cfg, InverterData *inverters[])
 {
 	int rc = 0;
 
+#if defined(WIN32)
 	std::string mqtt_command_line = "\"\"" + cfg->mqtt_publish_exe + "\" " + cfg->mqtt_publish_args + "\"";
+#endif
+#if defined(LINUX)
+	std::string mqtt_command_line = cfg->mqtt_publish_exe + " " + cfg->mqtt_publish_args;
+#endif
 
 	// Fill host/port/topic
 	boost::replace_first(mqtt_command_line, "{host}", cfg->mqtt_host);
