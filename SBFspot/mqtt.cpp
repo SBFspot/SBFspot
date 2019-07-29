@@ -45,8 +45,7 @@ int mqtt_publish(const Config *cfg, InverterData *inverters[])
 
 #if defined(WIN32)
 	std::string mqtt_command_line = "\"\"" + cfg->mqtt_publish_exe + "\" " + cfg->mqtt_publish_args + "\"";
-#endif
-#if defined(LINUX)
+#else
 	std::string mqtt_command_line = cfg->mqtt_publish_exe + " " + cfg->mqtt_publish_args;
 #endif
 

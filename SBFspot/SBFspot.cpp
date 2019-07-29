@@ -2212,11 +2212,10 @@ int GetConfig(Config *cfg)
 	// MQTT default values
 	cfg->mqtt_host = "localhost";
 	cfg->mqtt_port = ""; // mosquitto: 1883/8883 for TLS
-#if defined(LINUX)
-	cfg->mqtt_publish_exe = "/usr/bin/mosquitto_pub";
-#endif
 #if defined(WIN32)
 	cfg->mqtt_publish_exe = "%ProgramFiles%\\mosquitto\\mosquitto_pub.exe";
+#else
+	cfg->mqtt_publish_exe = "/usr/bin/mosquitto_pub";
 #endif
 	cfg->mqtt_topic = "sbfspot";
 	cfg->mqtt_publish_args = "-h {host} -t {topic} -m {message}";
