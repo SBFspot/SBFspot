@@ -52,6 +52,9 @@
     <ClCompile Include="endianness.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="mqtt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bluetooth.h">
@@ -115,6 +118,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mqtt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

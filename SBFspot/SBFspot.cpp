@@ -7,7 +7,7 @@
                                                    |_|
 
 	SBFspot - Yet another tool to read power production of SMA® solar/battery inverters
-	(c)2012-2018, SBF
+	(c)2012-2019, SBF
 
 	Latest version can be found at https://github.com/SBFspot/SBFspot
 
@@ -72,6 +72,7 @@ DISCLAIMER:
 #include "SQLselect.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/ip/address.hpp>
+#include "mqtt.h"
 
 using namespace std;
 using namespace boost;
@@ -546,6 +547,18 @@ int main(int argc, char **argv)
 		}
 	}
 	#endif
+
+	/*******
+	* MQTT *
+	********/
+	if (cfg.mqtt == 1) // MQTT enabled
+	{
+		rc = mqtt_publish(&cfg, Inverters);
+		if (rc != 0)
+		{
+			std::cout << "Error " << rc << " while publishing to MQTT Broker" << std::endl;
+		}
+	}
 
 	//SolarInverter -> Continue to get archive data
 	unsigned int idx;
@@ -1789,6 +1802,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
 	cfg->loadlive = 0;	//force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
 	cfg->startdate = 0;
 	cfg->settime = 0;
+	cfg->mqtt = 0;
 
 	bool help_requested = false;
 
@@ -2041,6 +2055,9 @@ int parseCmdline(int argc, char **argv, Config *cfg)
             return 1;	// Caller should terminate, no error
         }
 
+		else if (stricmp(argv[i], "-mqtt") == 0)
+			cfg->mqtt = 1;
+
         //Show Help
         else if (stricmp(argv[i], "-?") == 0)
         {
@@ -2089,7 +2106,7 @@ void SayHello(int ShowHelp)
 #endif
     std::cout << "SBFspot V" << VERSION << "\n";
     std::cout << "Yet another tool to read power production of SMA solar inverters\n";
-    std::cout << "(c) 2012-2018, SBF (https://github.com/SBFspot/SBFspot)\n";
+    std::cout << "(c) 2012-2019, SBF (https://github.com/SBFspot/SBFspot)\n";
     std::cout << "Compiled for " << OS << " (" << BYTEORDER << ") " << sizeof(long) * 8 << " bit";
 #if defined(USE_SQLITE)
 	std::cout << " with SQLite support" << std::endl;
@@ -2119,7 +2136,8 @@ void SayHello(int ShowHelp)
 		std::cout << " -password:xxxx      Installer password\n";
 		std::cout << " -loadlive           Use predefined settings for manual upload to pvoutput.org\n";
 		std::cout << " -startdate:YYYYMMDD Set start date for historic data retrieval\n";
-		std::cout << " -settime            Sync inverter time with host time\n" << std::endl;
+		std::cout << " -settime            Sync inverter time with host time\n";
+		std::cout << " -mqtt               Publish spot data to MQTT broker\n" << std::endl;
 
 		std::cout << "Libraries used:\n";
 #if defined(USE_SQLITE)
@@ -2191,6 +2209,19 @@ int GetConfig(Config *cfg)
 	strcpy(cfg->locale, "en-US");
 	cfg->synchTimeLow = 1;
 	cfg->synchTimeHigh = 3600;
+	// MQTT default values
+	cfg->mqtt_host = "localhost";
+	cfg->mqtt_port = ""; // mosquitto: 1883/8883 for TLS
+#if defined(LINUX)
+	cfg->mqtt_publish_exe = "/usr/bin/mosquitto_pub";
+#endif
+#if defined(WIN32)
+	cfg->mqtt_publish_exe = "%ProgramFiles%\\mosquitto\\mosquitto_pub.exe";
+#endif
+	cfg->mqtt_topic = "sbfspot";
+	cfg->mqtt_publish_args = "-h {host} -t {topic} -m {message}";
+	cfg->mqtt_publish_data = "Timestamp,InvSerial,InvName,InvStatus,EToday,ETotal,PACTot,UDC1,UDC2,IDC1,IDC2,PDC1,PDC2";
+	cfg->mqtt_message_format = "{key}:{value};";
 
     const char *CFG_Boolean = "(0-1)";
     const char *CFG_InvalidValue = "Invalid value for '%s' %s\n";
@@ -2506,6 +2537,23 @@ int GetConfig(Config *cfg)
 				else if(stricmp(variable, "SQL_Password") == 0)
 					cfg->sqlUserPassword = value;
 #endif
+				else if (stricmp(variable, "MQTT_Host") == 0)
+					cfg->mqtt_host = value;
+				else if (stricmp(variable, "MQTT_Port") == 0)
+					cfg->mqtt_port = value;
+				else if (stricmp(variable, "MQTT_Publisher") == 0)
+					cfg->mqtt_publish_exe = value;
+				else if (stricmp(variable, "MQTT_PublisherArgs") == 0)
+					cfg->mqtt_publish_args = value;
+				else if (stricmp(variable, "MQTT_Topic") == 0)
+					cfg->mqtt_topic = value;
+				else if (stricmp(variable, "MQTT_MessageFormat") == 0)
+					cfg->mqtt_message_format = value;
+				else if (stricmp(variable, "MQTT_Data") == 0)
+					cfg->mqtt_publish_data = value;
+
+				// Add more config keys here
+
                 else
                     fprintf(stderr, "Warning: Ignoring keyword '%s'\n", variable);
             }
@@ -2639,6 +2687,17 @@ void ShowConfig(Config *cfg)
 		"\nSQL_Username=" << cfg->sqlUsername << \
 		"\nSQL_Password=<undisclosed>" << std::endl;
 #endif
+
+	if (cfg->mqtt == 1)
+	{
+		std::cout << "MQTT_Host=" << cfg->mqtt_host << \
+			"\nMQTT_Port=" << cfg->mqtt_port << \
+			"\nMQTT_Topic=" << cfg->mqtt_topic << \
+			"\nMQTT_Publish_exe=" << cfg->mqtt_publish_exe << \
+			"\nMQTT_Publish_Args=" << cfg->mqtt_publish_args << \
+			"\nMQTT_Publish_Data=" << cfg->mqtt_publish_data << \
+			"\nMQTT_Message_Format=" << cfg->mqtt_message_format << std::endl;
+	}
 
 	std::cout << "### End of Config ###" << std::endl;
 }

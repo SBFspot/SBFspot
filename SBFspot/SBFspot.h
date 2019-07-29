@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2019, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -248,6 +248,14 @@ typedef struct
 	boost::local_time::time_zone_ptr tz;
 	int		synchTimeLow;			// settime low limit
 	int		synchTimeHigh;			// settime high limit
+	// MQTT Stuff -- Using mosquitto (https://mosquitto.org/)
+	std::string mqtt_publish_exe;	// default /usr/bin/mosquitto_pub ("%ProgramFiles%\mosquitto\mosquitto_pub.exe" on Windows)
+	std::string mqtt_host;			// default localhost
+	std::string mqtt_port;			// default 1883 (8883 for MQTT over TLS)
+	std::string mqtt_topic;			// default sbfspot
+	std::string mqtt_publish_args;	// default and optional arguments for mosquitto_pub (-d for debug messages)
+	std::string mqtt_publish_data;	// comma delimited list of spot data to publish (Timestamp,Serial,MeteringDyWhOut,GridMsTotW,...)
+	std::string mqtt_message_format;// default {key}={value};
 
 	//Commandline settings
 	int		debug;				// -d			Debug level (0-5)
@@ -265,6 +273,7 @@ typedef struct
 	time_t	startdate;			// -startdate	Start reading of historic data at the given date (YYYYMMDD)
     S123_COMMAND	s123;		// -123s		123Solar Web Solar logger support(http://www.123solar.org/)
 	int		settime;			// -settime		Set plant time
+	int		mqtt;				// -mqtt		Publish spot data to mqtt broker
 } Config;
 
 
