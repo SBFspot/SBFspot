@@ -2218,9 +2218,9 @@ int GetConfig(Config *cfg)
 	cfg->mqtt_publish_exe = "/usr/bin/mosquitto_pub";
 #endif
 	cfg->mqtt_topic = "sbfspot";
-	cfg->mqtt_publish_args = "-h {host} -t {topic} -m {message}";
-	cfg->mqtt_publish_data = "Timestamp,InvSerial,InvName,InvStatus,EToday,ETotal,PACTot,UDC1,UDC2,IDC1,IDC2,PDC1,PDC2";
-	cfg->mqtt_message_format = "{key}:{value};";
+	cfg->mqtt_publish_args = "-h {host} -t {topic} -m \"{{message}}\"";
+	cfg->mqtt_publish_data = "Timestamp,SunRise,SunSet,InvSerial,InvName,InvStatus,EToday,ETotal,PACTot,UDC1,UDC2,IDC1,IDC2,PDC1,PDC2";
+	cfg->mqtt_item_format = "\"{key}\": {value}";
 
     const char *CFG_Boolean = "(0-1)";
     const char *CFG_InvalidValue = "Invalid value for '%s' %s\n";
@@ -2246,7 +2246,7 @@ int GetConfig(Config *cfg)
         if (line[0] != '#' && line[0] != 0 && line[0] != 10)
         {
             char *variable = strtok(line,"=");
-            char *value = strtok(NULL,"=");
+            char *value = strtok(NULL,"\n");
 
             if ((value != NULL) && (*rtrim(value) != 0))
             {
@@ -2546,10 +2546,22 @@ int GetConfig(Config *cfg)
 					cfg->mqtt_publish_args = value;
 				else if (stricmp(variable, "MQTT_Topic") == 0)
 					cfg->mqtt_topic = value;
-				else if (stricmp(variable, "MQTT_MessageFormat") == 0)
-					cfg->mqtt_message_format = value;
+				else if (stricmp(variable, "MQTT_ItemFormat") == 0)
+					cfg->mqtt_item_format = value;
 				else if (stricmp(variable, "MQTT_Data") == 0)
 					cfg->mqtt_publish_data = value;
+				else if (stricmp(variable, "MQTT_ItemDelimiter") == 0)
+				{
+					if (stricmp(value, "comma") == 0) cfg->mqtt_item_delimiter = ",";
+					else if (stricmp(value, "semicolon") == 0) cfg->mqtt_item_delimiter = ";";
+					else if (stricmp(value, "blank") == 0) cfg->mqtt_item_delimiter = " ";
+					else if (stricmp(value, "none") == 0) cfg->mqtt_item_delimiter = "";
+					else
+					{
+						fprintf(stderr, CFG_InvalidValue, variable, "(none|blank|comma|semicolon)");
+						rc = -2;
+					}
+				}
 
 				// Add more config keys here
 
@@ -2692,10 +2704,10 @@ void ShowConfig(Config *cfg)
 		std::cout << "MQTT_Host=" << cfg->mqtt_host << \
 			"\nMQTT_Port=" << cfg->mqtt_port << \
 			"\nMQTT_Topic=" << cfg->mqtt_topic << \
-			"\nMQTT_Publish_exe=" << cfg->mqtt_publish_exe << \
-			"\nMQTT_Publish_Args=" << cfg->mqtt_publish_args << \
-			"\nMQTT_Publish_Data=" << cfg->mqtt_publish_data << \
-			"\nMQTT_Message_Format=" << cfg->mqtt_message_format << std::endl;
+			"\nMQTT_Publisher=" << cfg->mqtt_publish_exe << \
+			"\nMQTT_PublisherArgs=" << cfg->mqtt_publish_args << \
+			"\nMQTT_Data=" << cfg->mqtt_publish_data << \
+			"\nMQTT_ItemFormat=" << cfg->mqtt_item_format << std::endl;
 	}
 
 	std::cout << "### End of Config ###" << std::endl;

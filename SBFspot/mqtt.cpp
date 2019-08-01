@@ -43,44 +43,54 @@ int mqtt_publish(const Config *cfg, InverterData *inverters[])
 {
 	int rc = 0;
 
-#if defined(WIN32)
-	std::string mqtt_command_line = "\"\"" + cfg->mqtt_publish_exe + "\" " + cfg->mqtt_publish_args + "\"";
-#else
-	std::string mqtt_command_line = cfg->mqtt_publish_exe + " " + cfg->mqtt_publish_args;
-#endif
-
-	// Fill host/port/topic
-	boost::replace_first(mqtt_command_line, "{host}", cfg->mqtt_host);
-	boost::replace_first(mqtt_command_line, "{port}", cfg->mqtt_port);
-	boost::replace_first(mqtt_command_line, "{topic}", cfg->mqtt_topic);
-
-	// Construct message body
+	// Split message body
 	std::vector<std::string> items;
 	boost::split(items, cfg->mqtt_publish_data, boost::is_any_of(","));
 
 	std::stringstream mqtt_message;
 	std::string key;
-	//std::stringstream value;
 	char value[80];
 	int prec = cfg->precision;
-	char dp = cfg->decimalpoint;
+	char dp = '.';
 
 	for (int inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
 	{
+#if defined(WIN32)
+		std::string mqtt_command_line = "\"\"" + cfg->mqtt_publish_exe + "\" " + cfg->mqtt_publish_args + "\"";
+#else
+		std::string mqtt_command_line = cfg->mqtt_publish_exe + " " + cfg->mqtt_publish_args;
+		// On Linux, message must be inside single quotes
+		std::cout << "mqtt_command_line=" << mqtt_command_line << std::endl;
+		boost::replace_all(mqtt_command_line, "\"", "'");
+
+		std::cout << "mqtt_command_line=" << mqtt_command_line << std::endl;
+#endif
+
+		// Fill host/port/topic
+		boost::replace_first(mqtt_command_line, "{host}", cfg->mqtt_host);
+		boost::replace_first(mqtt_command_line, "{port}", cfg->mqtt_port);
+		boost::replace_first(mqtt_command_line, "{topic}", cfg->mqtt_topic);
+
+		mqtt_message.str("");
+
 		for (std::vector<std::string>::iterator it = items.begin(); it != items.end(); ++it)
 		{
+			time_t timestamp = time(NULL);
 			key = *it;
-			value[0] = 0;
+			memset(value, 0, sizeof(value));
 			std::transform((*it).begin(), (*it).end(), (*it).begin(), ::tolower);
-			if (*it == "timestamp")				snprintf(value, sizeof(value) - 1, "%s", strftime_t(cfg->DateTimeFormat, inverters[inv]->InverterDatetime));
+			if (*it == "timestamp")				snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(cfg->DateTimeFormat, timestamp));
+			else if (*it == "sunrise")			snprintf(value, sizeof(value) - 1, "\"%s %02d:%02d:00\"", strftime_t(cfg->DateFormat, timestamp), (int)cfg->sunrise, (int)((cfg->sunrise - (int)cfg->sunrise) * 60));
+			else if (*it == "sunset")			snprintf(value, sizeof(value) - 1, "\"%s %02d:%02d:00\"", strftime_t(cfg->DateFormat, timestamp), (int)cfg->sunset, (int)((cfg->sunset - (int)cfg->sunset) * 60));
 			else if (*it == "invserial")		snprintf(value, sizeof(value) - 1, "%lu", inverters[inv]->Serial);
-			else if (*it == "invname")			snprintf(value, sizeof(value) - 1, "%s", inverters[inv]->DeviceName);
-			else if (*it == "invclass")			snprintf(value, sizeof(value) - 1, "%s", inverters[inv]->DeviceClass);
-			else if (*it == "invtype")			snprintf(value, sizeof(value) - 1, "%s", inverters[inv]->DeviceType);
-			else if (*it == "invswver")			snprintf(value, sizeof(value) - 1, "%s", inverters[inv]->SWVersion);
-			else if (*it == "invstatus")		snprintf(value, sizeof(value) - 1, "%s", tagdefs.getDesc(inverters[inv]->DeviceStatus, "?").c_str());
+			else if (*it == "invname")			snprintf(value, sizeof(value) - 1, "\"%s\"", inverters[inv]->DeviceName);
+			else if (*it == "invclass")			snprintf(value, sizeof(value) - 1, "\"%s\"", inverters[inv]->DeviceClass);
+			else if (*it == "invtype")			snprintf(value, sizeof(value) - 1, "\"%s\"", inverters[inv]->DeviceType);
+			else if (*it == "invswver")			snprintf(value, sizeof(value) - 1, "\"%s\"", inverters[inv]->SWVersion);
+			else if (*it == "invtime")			snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(cfg->DateTimeFormat, inverters[inv]->InverterDatetime));
+			else if (*it == "invstatus")		snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inverters[inv]->DeviceStatus, "?").c_str());
 			else if (*it == "invtemperature")	FormatFloat(value, (float)inverters[inv]->Temperature / 100, 0, prec, dp);
-			else if (*it == "invgridrelay")		snprintf(value, sizeof(value) - 1, "%s", tagdefs.getDesc(inverters[inv]->GridRelayStatus, "?").c_str());
+			else if (*it == "invgridrelay")		snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inverters[inv]->GridRelayStatus, "?").c_str());
 			else if (*it == "pdc1")				FormatFloat(value, (float)inverters[inv]->Pdc1, 0, prec, dp);
 			else if (*it == "pdc2")				FormatFloat(value, (float)inverters[inv]->Pdc2, 0, prec, dp);
 			else if (*it == "idc1")				FormatFloat(value, (float)inverters[inv]->Idc1 / 1000, 0, prec, dp);
@@ -110,15 +120,30 @@ int mqtt_publish(const Config *cfg, InverterData *inverters[])
 			// None of the above, so it's an unhandled item or a typo...
 			else if (VERBOSE_NORMAL) std::cout << "MQTT: Don't know what to do with '" << key << "'" << std::endl;
 
-			std::string key_value = cfg->mqtt_message_format;
-			boost::replace_first(key_value, "{key}", key);
+			std::string key_value = cfg->mqtt_item_format;
+			boost::replace_all(key_value, "{key}", key);
 			boost::replace_first(key_value, "{value}", value);
+
+			boost::replace_all(key_value, "\"\"", "\"");
+#if defined(WIN32)
+			boost::replace_all(key_value, "\"", "\"\"");
+#endif
+
+			// Append delimiter, except for first item
+			if (mqtt_message.str() != "")
+			{
+				mqtt_message << cfg->mqtt_item_delimiter;
+			}
 
 			mqtt_message << key_value;
 		}
 
 		if (VERBOSE_NORMAL) std::cout << "MQTT: Publishing (" << cfg->mqtt_topic << ") " << mqtt_message.str() << std::endl;
 
+		std::stringstream serial;
+		serial.str("");
+		serial << inverters[inv]->Serial;
+		boost::replace_first(mqtt_command_line, "{serial}", serial.str());
 		boost::replace_first(mqtt_command_line, "{message}", mqtt_message.str());
 
 		int system_rc = ::system(mqtt_command_line.c_str());

@@ -255,7 +255,8 @@ typedef struct
 	std::string mqtt_topic;			// default sbfspot
 	std::string mqtt_publish_args;	// default and optional arguments for mosquitto_pub (-d for debug messages)
 	std::string mqtt_publish_data;	// comma delimited list of spot data to publish (Timestamp,Serial,MeteringDyWhOut,GridMsTotW,...)
-	std::string mqtt_message_format;// default {key}={value};
+	std::string mqtt_item_format;   // default "{key}": {value}
+	std::string mqtt_item_delimiter;// default comma
 
 	//Commandline settings
 	int		debug;				// -d			Debug level (0-5)
