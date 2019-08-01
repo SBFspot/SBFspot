@@ -195,10 +195,13 @@ int db_SQL_Export::spot_data(InverterData *inv[], time_t spottime)
 		inv[i]->Serial << ',' <<
 		inv[i]->Pdc1 << ',' <<
 		inv[i]->Pdc2 << ',' <<
+		inv[i]->Pdc3 << ',' <<
 		(float)inv[i]->Idc1/1000 << ',' <<
 		(float)inv[i]->Idc2/1000 << ',' <<
+		(float)inv[i]->Idc3/1000 << ',' <<
 		(float)inv[i]->Udc1/100 << ',' <<
 		(float)inv[i]->Udc2/100 << ',' <<
+		(float)inv[i]->Udc3/100 << ',' <<
 		inv[i]->Pac1 << ',' <<
 		inv[i]->Pac2 << ',' <<
 		inv[i]->Pac3 << ',' <<

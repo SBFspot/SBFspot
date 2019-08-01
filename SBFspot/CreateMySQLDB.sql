@@ -43,9 +43,9 @@ CREATE View vwInverters AS
 CREATE Table SpotData (
 	TimeStamp int(4) NOT NULL,
 	Serial int(4) NOT NULL,
-	Pdc1 int(4), Pdc2 int(4),
-	Idc1 float, Idc2 float,
-	Udc1 float, Udc2 float,
+	Pdc1 int(4), Pdc2 int(4), Pdc3 int(4),
+	Idc1 float, Idc2 float, Idc3 float,
+	Udc1 float, Udc2 float, Udc3 float,
 	Pac1 int(4), Pac2 int(4), Pac3 int(4),
 	Iac1 float, Iac2 float, Iac3 float,
 	Uac1 float, Uac2 float, Uac3 float,
@@ -70,19 +70,19 @@ CREATE View vwSpotData AS
     Inv.Name,
     Inv.Type,
     Dat.Serial,
-    Pdc1, Pdc2,
-    Idc1, Idc2,
-    Udc1, Udc2,
+    Pdc1, Pdc2, Pdc3,
+    Idc1, Idc2, Idc3,
+    Udc1, Udc2, Udc3,
     Pac1, Pac2, Pac3,
     Iac1, Iac2, Iac3,
     Uac1, Uac2, Uac3,
-    Pdc1+Pdc2 AS PdcTot,
+    Pdc1+Pdc2+Pdc3 AS PdcTot,
     Pac1+Pac2+Pac3 AS PacTot,
-    CASE WHEN Pdc1+Pdc2 = 0 THEN
+    CASE WHEN Pdc1+Pdc2+Pdc3 = 0 THEN
         0
     ELSE
-        CASE WHEN Pdc1+Pdc2>Pac1+Pac2+Pac3 THEN
-            ROUND((Pac1+Pac2+Pac3)/(Pdc1+Pdc2)*100,1)
+        CASE WHEN Pdc1+Pdc2+Pdc3>Pac1+Pac2+Pac3 THEN
+            ROUND((Pac1+Pac2+Pac3)/(Pdc1+Pdc2+Pdc3)*100,1)
         ELSE
             100.0
         END
@@ -189,10 +189,13 @@ CREATE VIEW vwAvgSpotData AS
               serial,
               cast(avg(Pdc1) as decimal(9)) AS Pdc1,
               cast(avg(Pdc2) as decimal(9)) AS Pdc2,
+              cast(avg(Pdc3) as decimal(9)) AS Pdc3,
               cast(avg(Idc1) as decimal(9,3)) AS Idc1,
               cast(avg(Idc2) as decimal(9,3)) AS Idc2,
+              cast(avg(Idc3) as decimal(9,3)) AS Idc3,
               cast(avg(Udc1) as decimal(9,2)) AS Udc1,
               cast(avg(Udc2) as decimal(9,2)) AS Udc2,
+              cast(avg(Udc3) as decimal(9,2)) AS Udc3,
               cast(avg(Pac1) as decimal(9)) AS Pac1,
               cast(avg(Pac2) as decimal(9)) AS Pac2,
               cast(avg(Pac3) as decimal(9)) AS Pac3,

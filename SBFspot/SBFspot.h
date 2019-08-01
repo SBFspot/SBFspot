@@ -141,10 +141,13 @@ typedef struct
     time_t SleepTime;
     long Pdc1;
     long Pdc2;
+    long Pdc3;
     long Udc1;
     long Udc2;
+    long Udc3;
     long Idc1;
     long Idc2;
+    long Idc3;
     long Pmax1;
     long Pmax2;
     long Pmax3;

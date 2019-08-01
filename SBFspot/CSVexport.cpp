@@ -322,7 +322,7 @@ int WriteStandardHeader(FILE *csv, const Config *cfg, DEVICECLASS devclass)
 	char *Header1, *Header2;
 
 	char solar1[] = "||||Watt|Watt|Amp|Amp|Volt|Volt|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|Watt|%|kWh|kWh|Hz|Hours|Hours|%|Status|Status|degC\n";
-	char solar2[] = "|DeviceName|DeviceType|Serial|Pdc1|Pdc2|Idc1|Idc2|Udc1|Udc2|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PdcTot|PacTot|Efficiency|EToday|ETotal|Frequency|OperatingTime|FeedInTime|BT_Signal|Condition|GridRelay|Temperature\n";
+	char solar2[] = "|DeviceName|DeviceType|Serial|Pdc1|Pdc2|Pdc3|Idc1|Idc2|Idc3|Udc1|Udc2|Udc3|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PdcTot|PacTot|Efficiency|EToday|ETotal|Frequency|OperatingTime|FeedInTime|BT_Signal|Condition|GridRelay|Temperature\n";
 
 	char batt1[] = "||||Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|kWh|kWh|Hz|hours|hours|Status|%|degC|Volt|Amp|Watt|Watt\n";
 	char batt2[] = "|DeviceName|DeviceType|Serial|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PacTot|EToday|ETotal|Frequency|OperatingTime|FeedInTime|Condition|SOC|Tempbatt|Ubatt|Ibatt|TotWOut|TotWIn\n";
@@ -517,10 +517,13 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData *inverters[])
 
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pdc1, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pdc2, 0, cfg->precision, cfg->decimalpoint));
+			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pdc3, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Idc1/1000, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Idc2/1000, 0, cfg->precision, cfg->decimalpoint));
+			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Idc3/1000, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Udc1/100, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Udc2/100, 0, cfg->precision, cfg->decimalpoint));
+			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Udc3/100, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac1, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac2, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac3, 0, cfg->precision, cfg->decimalpoint));
@@ -805,10 +808,13 @@ int ExportSpotDataToWSL(const Config *cfg, InverterData *inverters[])
 	printf(strout, strftime_t(cfg->DateTimeFormat, spottime), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pdc1, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pdc2, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
+	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pdc3, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Idc1/1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Idc2/1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
+	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Idc3/1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Udc1/100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Udc2/100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
+	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Udc3/100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pac1, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pac2, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
 	printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pac3, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
@@ -848,7 +854,7 @@ int ExportSpotDataTo123s(Config *cfg, InverterData *inverters[])
 	const char *s123_decimalpoint = ".";
 
 	//Calculated DC Power Values (Sum of Power per string)
-	float calPdcTot = (float)(invdata->Pdc1 + invdata->Pdc2);
+	float calPdcTot = (float)(invdata->Pdc1 + invdata->Pdc2 + invdata->Pdc3);
 
 	//Calculated AC Side Values (Sum of Power & Current / Maximum of Voltage)
 	float calPacTot = (float)(invdata->Pac1 + invdata->Pac2 + invdata->Pac3);
@@ -907,6 +913,12 @@ int ExportSpotDataTo123s(Config *cfg, InverterData *inverters[])
 	printf(strout, FormatFloat(FormattedFloat, (float)invdata->Idc2/1000, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
 	// $I2P = DcMs.Watt[B]
 	printf(strout, FormatFloat(FormattedFloat, (float)invdata->Pdc2, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+	// $I2V = DcMs.Vol[B]
+	printf(strout, FormatFloat(FormattedFloat, (float)invdata->Udc3/100, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+	// $I2A = DcMs.Amp[B]
+	printf(strout, FormatFloat(FormattedFloat, (float)invdata->Idc3/1000, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+	// $I2P = DcMs.Watt[B]
+	printf(strout, FormatFloat(FormattedFloat, (float)invdata->Pdc3, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
 	// $GV = Was grid voltage in single phase 123Solar - For backwards compatibility
 	printf(strout, FormatFloat(FormattedFloat, (float)calUacMax/100, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
 	// $GA = Was grid current in single phase 123Solar - For backwards compatibility

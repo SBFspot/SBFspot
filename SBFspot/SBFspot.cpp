@@ -442,13 +442,14 @@ int main(int argc, char **argv)
 
     for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
-		Inverters[inv]->calPdcTot = Inverters[inv]->Pdc1 + Inverters[inv]->Pdc2;
+		Inverters[inv]->calPdcTot = Inverters[inv]->Pdc1 + Inverters[inv]->Pdc2 + Inverters[inv]->Pdc3;
         if (VERBOSE_NORMAL)
         {
             printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
             puts("DC Spot Data:");
             printf("\tString 1 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(Inverters[inv]->Pdc1), toVolt(Inverters[inv]->Udc1), toAmp(Inverters[inv]->Idc1));
             printf("\tString 2 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(Inverters[inv]->Pdc2), toVolt(Inverters[inv]->Udc2), toAmp(Inverters[inv]->Idc2));
+            printf("\tString 3 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(Inverters[inv]->Pdc3), toVolt(Inverters[inv]->Udc3), toAmp(Inverters[inv]->Idc3));
         }
     }
 
@@ -2624,6 +2625,7 @@ void CalcMissingSpot(InverterData *invData)
 {
 	if (invData->Pdc1 == 0) invData->Pdc1 = (invData->Idc1 * invData->Udc1) / 100000;
 	if (invData->Pdc2 == 0) invData->Pdc2 = (invData->Idc2 * invData->Udc2) / 100000;
+	if (invData->Pdc3 == 0) invData->Pdc3 = (invData->Idc3 * invData->Udc3) / 100000;
 
 	if (invData->Pac1 == 0) invData->Pac1 = (invData->Iac1 * invData->Uac1) / 100000;
 	if (invData->Pac2 == 0) invData->Pac2 = (invData->Iac2 * invData->Uac2) / 100000;
@@ -2980,6 +2982,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     devList[inv]->Pdc2 = value;
                                     if (DEBUG_NORMAL) printf(strWatt, "SPOT_PDC2", value, ctime(&datetime));
                                 }
+                                if (cls == 3)   // MPP3
+                                {
+                                    devList[inv]->Pdc3 = value;
+                                    if (DEBUG_NORMAL) printf(strWatt, "SPOT_PDC3", value, ctime(&datetime));
+                                }
                                 devList[inv]->flags |= type;
                                 break;
 
@@ -2995,6 +3002,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     devList[inv]->Udc2 = value;
                                     if (DEBUG_NORMAL) printf(strVolt, "SPOT_UDC2", toVolt(value), ctime(&datetime));
                                 }
+                                if (cls == 3)
+                                {
+                                    devList[inv]->Udc3 = value;
+                                    if (DEBUG_NORMAL) printf(strVolt, "SPOT_UDC3", toVolt(value), ctime(&datetime));
+                                }
                                 devList[inv]->flags |= type;
                                 break;
 
@@ -3009,6 +3021,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 {
                                     devList[inv]->Idc2 = value;
                                     if (DEBUG_NORMAL) printf(strAmp, "SPOT_IDC2", toAmp(value), ctime(&datetime));
+                                }
+                                if (cls == 3)
+                                {
+                                    devList[inv]->Idc3 = value;
+                                    if (DEBUG_NORMAL) printf(strAmp, "SPOT_IDC3", toAmp(value), ctime(&datetime));
                                 }
                                 devList[inv]->flags |= type;
                                 break;
@@ -3253,6 +3270,7 @@ void resetInverterData(InverterData *inv)
 	inv->Iac3 = 0;
 	inv->Idc1 = 0;
 	inv->Idc2 = 0;
+	inv->Idc3 = 0;
 	inv->InverterDatetime = 0;
 	inv->IPAddress[0] = 0;
 	inv->modelID = 0;
@@ -3263,6 +3281,7 @@ void resetInverterData(InverterData *inv)
 	inv->Pac3 = 0;
 	inv->Pdc1 = 0;
 	inv->Pdc2 = 0;
+	inv->Pdc3 = 0;
 	inv->Pmax1 = 0;
 	inv->Pmax2 = 0;
 	inv->Pmax3 = 0;
@@ -3277,6 +3296,7 @@ void resetInverterData(InverterData *inv)
 	inv->Uac3 = 0;
 	inv->Udc1 = 0;
 	inv->Udc2 = 0;
+	inv->Udc3 = 0;
 	inv->WakeupTime = 0;
 	inv->monthDataOffset = 0;
 	inv->MeteringGridMsTotWIn = 0;
