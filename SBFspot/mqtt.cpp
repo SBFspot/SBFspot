@@ -60,10 +60,7 @@ int mqtt_publish(const Config *cfg, InverterData *inverters[])
 #else
 		std::string mqtt_command_line = cfg->mqtt_publish_exe + " " + cfg->mqtt_publish_args;
 		// On Linux, message must be inside single quotes
-		std::cout << "mqtt_command_line=" << mqtt_command_line << std::endl;
 		boost::replace_all(mqtt_command_line, "\"", "'");
-
-		std::cout << "mqtt_command_line=" << mqtt_command_line << std::endl;
 #endif
 
 		// Fill host/port/topic
