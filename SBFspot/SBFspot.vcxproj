@@ -374,6 +374,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClInclude Include="Ethernet.h" />
     <ClInclude Include="EventData.h" />
     <ClInclude Include="misc.h" />
+    <ClInclude Include="mqtt.h" />
     <ClInclude Include="oslinux.h" />
     <ClInclude Include="osselect.h" />
     <ClInclude Include="oswindows.h" />
@@ -421,6 +422,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClCompile Include="Ethernet.cpp" />
     <ClCompile Include="EventData.cpp" />
     <ClCompile Include="misc.cpp" />
+    <ClCompile Include="mqtt.cpp" />
     <ClCompile Include="SBFNet.cpp" />
     <ClCompile Include="SBFspot.cpp" />
     <ClCompile Include="strptime.cpp" />
