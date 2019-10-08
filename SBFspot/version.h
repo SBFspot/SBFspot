@@ -1,4 +1,4 @@
-#define VERSION "3.5.3"
+#define VERSION "3.5.4"
 
 // V3.5.1
 // Fixed #230: Unknown Inverter Type SBS3.7-10
@@ -15,6 +15,11 @@
 // Fixed #302: Unknown Inverter Type - SMA Sunny Tripower 3.0
 // Fixed #309: Unknown Inverter Type - SMA Sunny Tripower 8.0
 // Fix warnings [-Wformat-truncation=] Raspbian Buster (gcc 8.3)
+
+// V3.5.4
+// Fixed #???: Error! Could not open file C\?\C:\PathToConfig\SBFspot.cfg (Windows only - reported by mail)
+// Fixed #327: Unknown inverter: Sunny Boy Storage 5.0 (SBS5.0-10) & Sunny Tripower 10.0 (STP10.0-3AV-40)
+// Fixed #328: Unknown inverter type Sunny Boy Storage 6.0
 
 /***
 *

@@ -2766,7 +2766,10 @@
 9345=STP5.0-3AV-40\0\Sunny Tripower 5.0
 9346=STP6.0-3AV-40\0\Sunny Tripower 6.0
 9347=STP8.0-3AV-40\0\Sunny Tripower 8.0
+9348=STP10.0-3AV-40\0\Sunny Tripower 10.0
 9356=SBS3.7-1VL-10\0\Sunny Boy Storage 3.7
+9358=SBS5.0-10\0\Sunny Boy Storage 5.0
+9359=SBS6.0-10\0\Sunny Boy Storage 6.0
 9366=STP3.0-3AV-40\0\Sunny Tripower 3.0
 9401=SB3.0-1AV-41\0\Sunny Boy 3.0 AV-41
 9402=SB3.6-1AV-41\0\Sunny Boy 3.6 AV-41

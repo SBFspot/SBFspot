@@ -258,21 +258,24 @@ std::string realpath(const char *path)
 #if defined(WIN32)
 	char pathbuf[MAX_PATH];
 	pathbuf[0] = 0;
+	std::string RealPath(path);
 
 	OFSTRUCT of;
 	HANDLE file = (HANDLE)OpenFile(path, &of, OF_READ);
 
 	DWORD rc = GetFinalPathNameByHandleA(file, pathbuf, sizeof(pathbuf), FILE_NAME_OPENED);
+	CloseHandle(file);
 
 	if (rc < sizeof(pathbuf))
 	{
-		if (strncmp(pathbuf, "\\\\?\\", 4) == 0)
-			memmove(pathbuf, pathbuf + 4, strlen(pathbuf - 4));
+		RealPath = pathbuf;
+		if (RealPath.substr(0, 8).compare("\\\\?\\UNC\\") == 0)
+			RealPath = "\\" + RealPath.substr(7);
+		else if (RealPath.substr(0, 4).compare("\\\\?\\") == 0)
+			RealPath = RealPath.substr(4);
 	}
 
-	CloseHandle(file);
-
-	return std::string(pathbuf);
+	return RealPath;
 #endif
 #if defined (linux)
 	char pathbuf[PATH_MAX];
