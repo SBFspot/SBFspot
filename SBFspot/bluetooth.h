@@ -63,6 +63,7 @@ typedef ULONGLONG BT_ADDR, *PBT_ADDR;
 #endif	/* WIN32 */
 
 #ifdef linux
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
