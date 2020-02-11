@@ -25,7 +25,7 @@ SRC_MARIADB:= $(SRC_MYSQL)
 CFLAGS     := -c -Wall -O2 -Wno-unused-local-typedefs
 INCDIR     :=
 LIBDIR     :=
-LIBS       := pthread bluetooth boost_date_time boost_system boost_filesystem boost_regex
+LIBS       := pthread bluetooth boost_date_time
 LDFLAGS    := -s
 
 # Default Target = Install SQLite
