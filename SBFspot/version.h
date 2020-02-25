@@ -1,4 +1,4 @@
-#define VERSION "3.6.0"
+#define VERSION "3.6.0 beta"
 
 // V3.5.1
 // Fixed #230: Unknown Inverter Type SBS3.7-10
@@ -23,6 +23,13 @@
 
 // V3.6.0
 // MQTT support
+
+// V3.6.1 beta
+// Added support for SB 240 & Multigate-10
+// Fix SB240 not detected when multigate/SB240 comined with other inverters
+// Consolidate day/monthdata of micro-inverters into multigate
+// Fix Logoff Multigate
+// By merging 3.2.1 and 3.6
 
 /***
 *
