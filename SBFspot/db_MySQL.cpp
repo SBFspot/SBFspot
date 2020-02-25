@@ -35,7 +35,7 @@ DISCLAIMER:
 #if defined(USE_MYSQL)
 
 //TODO: MAX_INVERTERS is defined twice (Quick but dirty fix)
-const int MAX_INVERTERS = 10;
+const int MAX_INVERTERS = 20;
 
 #include "db_MySQL.h"
 #include <boost/algorithm/string.hpp>
