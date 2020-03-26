@@ -501,9 +501,6 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData *inverters[])
 
 		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
-			//Calculated Inverter Efficiency
-			float calEfficiency = inverters[inv]->calPdcTot == 0 ? 0 : (float)inverters[inv]->calPacTot / (float)inverters[inv]->calPdcTot * 100;
-
 			if (cfg->SpotWebboxHeader == 0)
 			{
 				fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
@@ -529,7 +526,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData *inverters[])
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Uac3/100, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->calPdcTot, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->TotalPac, 0, cfg->precision, cfg->decimalpoint));
-			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, calEfficiency, 0, cfg->precision, cfg->decimalpoint));
+			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, inverters[inv]->calEfficiency, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->EToday/1000, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->ETotal/1000, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->GridFreq/100, 0, cfg->precision, cfg->decimalpoint));
