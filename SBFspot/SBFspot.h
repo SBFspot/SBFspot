@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2019, SBF
+	(c)2012-2020, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -172,6 +172,7 @@ typedef struct
 	int GridRelayStatus;
 	int flags;
 	DayData dayData[288];
+	bool hasDayData;
 	MonthData monthData[31];
 	bool hasMonthData;
 	time_t monthDataOffset;	// Issue 115
@@ -190,6 +191,8 @@ typedef struct
 	int32_t	MeteringGridMsTotWOut;		// Power grid feed-in (Out)
 	int32_t MeteringGridMsTotWIn;		// Power grid reference (In)
 	bool hasBattery;					// Smart Energy device
+	int logonStatus;
+	int multigateID;
 } InverterData;
 
 typedef enum
@@ -436,6 +439,14 @@ typedef enum
 #define	UG_USER			0x07L
 #define UG_INSTALLER	0x0AL
 
+//Wellknown SUSyID's
+#define SID_MULTIGATE	175
+#define SID_SB240		244
+
+#if !defined(ARRAYSIZE)
+#define ARRAYSIZE(a) sizeof(a) / sizeof(a[0])
+#endif
+
 #define tokWh(value64) (double)(value64)/1000
 #define tokW(value32) (float)(value32)/1000
 #define toHour(value64) (double)(value64)/3600
@@ -469,6 +480,7 @@ int isCrcValid(unsigned char lb, unsigned char hb);
 int isValidSender(unsigned char senderaddr[6], unsigned char address[6]);
 E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *password);
 E_SBFSPOT logoffSMAInverter(InverterData *inverter);
+E_SBFSPOT logoffMultigateDevices(InverterData *inverters[]);
 int parseCmdline(int argc, char **argv, Config *cfg);
 void printHexBytes(BYTE *buf, int num);
 void SayHello(int ShowHelp);
@@ -480,6 +492,7 @@ E_SBFSPOT getInverterWMax(InverterData *inv, Rec40S32 &data);
 E_SBFSPOT setInverterWMax(InverterData *inv, Rec40S32 &data);
 E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &data);
 E_SBFSPOT setDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &data);
+E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID);
 
 extern unsigned char CommBuf[COMMBUFSIZE];
 

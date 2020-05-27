@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2020, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -53,7 +53,7 @@ DISCLAIMER:
 #if defined(USE_SQLITE)
 
 //TODO: MAX_INVERTERS is defined twice (Quick but dirty fix)
-const int MAX_INVERTERS = 10;
+const int MAX_INVERTERS = 20;
 
 #include "db_SQLite.h"
 #include <boost/algorithm/string.hpp>

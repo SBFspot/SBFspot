@@ -7,7 +7,7 @@
                                                    |_|
 
 	SBFspot - Yet another tool to read power production of SMA® solar/battery inverters
-	(c)2012-2019, SBF
+	(c)2012-2020, SBF
 
 	Latest version can be found at https://github.com/SBFspot/SBFspot
 
@@ -83,7 +83,7 @@ using namespace boost::gregorian;
 int MAX_CommBuf = 0;
 int MAX_pcktBuf = 0;
 
-const int MAX_INVERTERS = 10;
+const int MAX_INVERTERS = 20;
 
 //Public vars
 int debug = 0;
@@ -254,8 +254,8 @@ int main(int argc, char **argv)
 		if ((rc = SetPlantTime(cfg.synchTime, cfg.synchTimeLow, cfg.synchTimeHigh)) != E_OK)
 			std::cerr << "SetPlantTime returned an error: " << rc << std::endl;
 
-//	if ((rc = getInverterData(Inverters, sbftest)) != 0)
-//        std::cerr << "getInverterData(sbftest) returned an error: " << rc << std::endl;
+	if ((rc = getInverterData(Inverters, sbftest)) != 0)
+        std::cerr << "getInverterData(sbftest) returned an error: " << rc << std::endl;
 
 	if ((rc = getInverterData(Inverters, SoftwareVersion)) != 0)
         std::cerr << "getSoftwareVersion returned an error: " << rc << std::endl;
@@ -282,6 +282,63 @@ int main(int argc, char **argv)
             }
         }
     }
+
+	// Check for Multigate and get connected devices
+    for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+	{
+		if ((Inverters[inv]->DevClass == CommunicationProduct) && (Inverters[inv]->SUSyID == SID_MULTIGATE))
+		{
+			if (VERBOSE_HIGH)
+				std::cout << "Multigate found. Looking for connected devices..." << std::endl;
+
+			// multigate has its own ID
+			Inverters[inv]->multigateID = inv;
+
+			if ((rc = getDeviceList(Inverters, inv)) != 0)
+				std::cout << "getDeviceList returned an error: " << rc << std::endl;
+			else
+			{
+				if (VERBOSE_HIGH)
+				{
+					std::cout << "Found these devices:" << std::endl;
+					for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					{
+						std::cout << "ID:" << inv << " S/N:" << Inverters[inv]->SUSyID << "-" << Inverters[inv]->Serial << " IP:" << Inverters[inv]->IPAddress << std::endl;
+					}
+				}
+			
+				if (logonSMAInverter(Inverters, cfg.userGroup, cfg.SMA_Password) != E_OK)
+				{
+					snprintf(msg, sizeof(msg), "Logon failed. Check '%s' Password\n", cfg.userGroup == UG_USER? "USER":"INSTALLER");
+					print_error(stdout, PROC_CRITICAL, msg);
+					freemem(Inverters);
+					ethClose();
+					return 1;
+				}
+
+				if ((rc = getInverterData(Inverters, SoftwareVersion)) != 0)
+					printf("getSoftwareVersion returned an error: %d\n", rc);
+
+				if ((rc = getInverterData(Inverters, TypeLabel)) != 0)
+					printf("getTypeLabel returned an error: %d\n", rc);
+				else
+				{
+					for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					{
+						if (VERBOSE_NORMAL)
+						{
+							printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
+							printf("Device Name:      %s\n", Inverters[inv]->DeviceName);
+							printf("Device Class:     %s\n", Inverters[inv]->DeviceClass);
+							printf("Device Type:      %s\n", Inverters[inv]->DeviceType);
+							printf("Software Version: %s\n", Inverters[inv]->SWVersion);
+							printf("Serial number:    %lu\n", Inverters[inv]->Serial);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	if (hasBatteryDevice)
 	{
@@ -707,6 +764,7 @@ int main(int argc, char **argv)
 		logoffSMAInverter(Inverters[0]);
 	else
 	{
+		logoffMultigateDevices(Inverters);
 		for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 			logoffSMAInverter(Inverters[inv]);
 	}
@@ -1563,7 +1621,11 @@ E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *pass
 				pcktID++;
 				now = time(NULL);
 				writePacketHeader(pcktBuf, 0x01, addr_unknown);
-				writePacket(pcktBuf, 0x0E, 0xA0, 0x0100, anySUSyID, anySerial);
+				if (inverters[inv]->SUSyID != SID_SB240)
+					writePacket(pcktBuf, 0x0E, 0xA0, 0x0100, inverters[inv]->SUSyID, inverters[inv]->Serial);
+				else
+					writePacket(pcktBuf, 0x0E, 0xE0, 0x0100, inverters[inv]->SUSyID, inverters[inv]->Serial);
+
 				writeLong(pcktBuf, 0xFFFD040C);
 				writeLong(pcktBuf, userGroup);	// User / Installer
 				writeLong(pcktBuf, 0x00000384); // Timeout = 900sec ?
@@ -2889,7 +2951,12 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 		last = 0x002377FF;
 		break;
 
-	case MeteringGridMsTotW:
+	case sbftest:
+		command = 0x64020200;
+		first = 0x00618D00;
+		last = 0x00618DFF;
+
+		case MeteringGridMsTotW:
 		command = 0x51000200;
 		first = 0x00463600;
 		last = 0x004637FF;
@@ -2904,8 +2971,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 		do
 		{
 			pcktID++;
-			writePacketHeader(pcktBuf, 0x01, devList[i]->BTAddress);
-			writePacket(pcktBuf, 0x09, 0xA0, 0, devList[i]->SUSyID, devList[i]->Serial);
+			writePacketHeader(pcktBuf, 0x01, addr_unknown);
+			if (devList[i]->SUSyID == SID_SB240)
+				writePacket(pcktBuf, 0x09, 0xE0, 0, devList[i]->SUSyID, devList[i]->Serial);
+			else
+				writePacket(pcktBuf, 0x09, 0xA0, 0, devList[i]->SUSyID, devList[i]->Serial);
 			writeLong(pcktBuf, command);
 			writeLong(pcktBuf, first);
 			writeLong(pcktBuf, last);
@@ -2967,7 +3037,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                             }
                             else if ((dataType != 0x10) && (dataType != 0x08))	//Not TEXT or STATUS, so it should be DWORD
                             {
-                                value = (int32_t)get_long(pcktBuf + ii + 8);
+                                value = (int32_t)get_long(pcktBuf + ii + 16);
                                 if ((value == (int32_t)NaN_S32) || (value == (int32_t)NaN_U32)) value = 0;
                             }
 
@@ -3393,6 +3463,7 @@ void resetInverterData(InverterData *inv)
 	inv->Udc2 = 0;
 	inv->WakeupTime = 0;
 	inv->monthDataOffset = 0;
+	inv->multigateID = -1;
 	inv->MeteringGridMsTotWIn = 0;
 	inv->MeteringGridMsTotWOut = 0;
 	inv->hasBattery = false;
@@ -3442,12 +3513,14 @@ E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &d
 	E_SBFSPOT rc = E_OK;
 
 	const int recordsize = 40;
-
 	do
 	{
 		pcktID++;
 		writePacketHeader(pcktBuf, 0x01, inv->BTAddress);
-		writePacket(pcktBuf, 0x09, 0xA0, 0, inv->SUSyID, inv->Serial);
+		if (inv->SUSyID == SID_SB240)
+			writePacket(pcktBuf, 0x09, 0xE0, 0, inv->SUSyID, inv->Serial);
+		else
+			writePacket(pcktBuf, 0x09, 0xA0, 0, inv->SUSyID, inv->Serial);
 		writeShort(pcktBuf, 0x0200);
 		writeShort(pcktBuf, cmd);
 		writeLong(pcktBuf, lri);
@@ -3513,3 +3586,129 @@ E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &d
     return rc;
 }
 
+E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
+{
+	E_SBFSPOT rc = E_OK;
+	
+	const int recordsize = 32;
+
+	uint32_t devcount = 0;
+	while ((devList[devcount] != NULL) && (devcount < MAX_INVERTERS))
+		devcount++;
+
+	if (devcount >= MAX_INVERTERS)
+	{
+		std::cerr << "ERROR: MAX_INVERTERS too low." << std::endl;
+		return E_BUFOVRFLW;
+	}
+
+	do
+	{
+		pcktID++;
+		writePacketHeader(pcktBuf, 0x01, NULL);
+		writePacket(pcktBuf, 0x09, 0xE0, 0, devList[multigateID]->SUSyID, devList[multigateID]->Serial);
+		writeShort(pcktBuf, 0x0200);
+		writeShort(pcktBuf, 0xFFF5);
+		writeLong(pcktBuf, 0);
+		writeLong(pcktBuf, 0xFFFFFFFF);
+		writePacketTrailer(pcktBuf);
+		writePacketLength(pcktBuf);
+	}
+	while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+
+	if (ethSend(pcktBuf, devList[multigateID]->IPAddress) == -1)	// SOCKET_ERROR
+		return E_NODATA;
+
+	int validPcktID = 0;
+    do
+    {
+        rc = ethGetPacket();
+
+        if (rc != E_OK) return rc;
+
+		int16_t errorcode = get_short(pcktBuf + 23);
+		if (errorcode != 0)
+		{
+			std::cerr << "Received errorcode=" << errorcode << std::endl;
+			return (E_SBFSPOT)errorcode;
+		}
+
+		unsigned short rcvpcktID = get_short(pcktBuf+27) & 0x7FFF;
+        if (pcktID == rcvpcktID)
+        {
+			//uint32_t lastrec = get_long(pcktBuf + 37);
+
+			uint32_t serial = get_long(pcktBuf + 17);
+			if (serial == devList[multigateID]->Serial)
+            {
+				rc = E_NODATA;
+                validPcktID = 1;
+                for (int i = 41; i < packetposition - 3; i += recordsize)
+                {
+					uint16_t devclass = get_short(pcktBuf + i + 4);
+					if ((devclass == 3) && (devcount < (uint32_t)MAX_INVERTERS))
+					{
+						devList[devcount] = new InverterData;
+						resetInverterData(devList[devcount]);
+						devList[devcount]->SUSyID = get_short(pcktBuf + i + 6);
+						devList[devcount]->Serial = get_long(pcktBuf + i + 8);
+						strcpy(devList[devcount]->IPAddress, devList[multigateID]->IPAddress);
+						devList[devcount]->multigateID = multigateID;
+						if (++devcount >= MAX_INVERTERS)
+						{
+							std::cerr << "ERROR: MAX_INVERTERS too low." << std::endl;
+							rc = E_BUFOVRFLW;
+							break;
+						}
+						else
+							rc = E_OK;
+					}
+                }
+            }
+			else if (DEBUG_HIGHEST) printf("Serial Nr mismatch. Expected %lu, received %d\n", devList[multigateID]->Serial, serial);
+        }
+        else if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
+    }
+    while (validPcktID == 0);
+
+    return rc;
+}
+
+E_SBFSPOT logoffMultigateDevices(InverterData *inverters[])
+{
+    if (DEBUG_NORMAL) puts("logoffMultigateDevices()");
+	for (int mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
+	{
+		InverterData *pmg = inverters[mg];
+		if (pmg->SUSyID == SID_MULTIGATE)
+		{
+			pmg->hasDayData = true;
+			for (int sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
+			{
+				InverterData *psb = inverters[sb240];
+				if ((psb->SUSyID == SID_SB240) && (psb->multigateID == mg))
+				{		
+					do
+					{
+						pcktID++;
+						writePacketHeader(pcktBuf, 0, NULL);
+						writePacket(pcktBuf, 0x08, 0xE0, 0x0300, psb->SUSyID, psb->Serial);
+						writeLong(pcktBuf, 0xFFFD010E);
+						writeLong(pcktBuf, 0xFFFFFFFF);
+						writePacketTrailer(pcktBuf);
+						writePacketLength(pcktBuf);
+					}
+					while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+
+					ethSend(pcktBuf, psb->IPAddress);
+
+					psb->logonStatus = 0; // logged of
+
+					if (VERBOSE_NORMAL) std::cout << "Logoff " << psb->SUSyID << ":" << psb->Serial << std::endl;
+				}
+			}
+		}
+	}
+
+    return E_OK;
+}

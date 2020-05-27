@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2020, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -49,6 +49,8 @@ E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
         puts("********************");
     }
 
+	bool hasMultigate = false;
+
 	startTime -= 86400;		// fix Issue CP23: to overcome problem with DST transition - RB@20140330
 
     E_SBFSPOT rc = E_OK;
@@ -65,6 +67,9 @@ E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
         printf("startTime = %08lX -> %s\n", startTime, strftime_t("%d/%m/%Y %H:%M:%S", startTime));
 
     for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+	{
+		if (inverters[inv]->SUSyID == SID_MULTIGATE) hasMultigate = true;
+		inverters[inv]->hasDayData = false;
         for(unsigned int i=0; i<sizeof(inverters[inv]->dayData)/sizeof(DayData); i++)
 		{
 			DayData *pdayData = &inverters[inv]->dayData[i];
@@ -72,7 +77,7 @@ E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
 			pdayData->totalWh = 0;
 			pdayData->watt = 0;
 		}
-
+	}
 
     int packetcount = 0;
     int validPcktID = 0;
@@ -81,116 +86,153 @@ E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
 
     for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
-        do
-        {
-            pcktID++;
-            writePacketHeader(pcktBuf, 0x01, inverters[inv]->BTAddress);
-            writePacket(pcktBuf, 0x09, 0xE0, 0, inverters[inv]->SUSyID, inverters[inv]->Serial);
-            writeLong(pcktBuf, 0x70000200);
-            writeLong(pcktBuf, startTime - 300);
-            writeLong(pcktBuf, startTime + 86100);
-            writePacketTrailer(pcktBuf);
-            writePacketLength(pcktBuf);
-        }
-        while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+		if ((inverters[inv]->DevClass != CommunicationProduct) && (inverters[inv]->SUSyID != SID_MULTIGATE))
+		{
+			do
+			{
+				pcktID++;
+				writePacketHeader(pcktBuf, 0x01, inverters[inv]->BTAddress);
+				writePacket(pcktBuf, 0x09, 0xE0, 0, inverters[inv]->SUSyID, inverters[inv]->Serial);
+				writeLong(pcktBuf, 0x70000200);
+				writeLong(pcktBuf, startTime - 300);
+				writeLong(pcktBuf, startTime + 86100);
+				writePacketTrailer(pcktBuf);
+				writePacketLength(pcktBuf);
+			}
+			while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
 
-        if (ConnType == CT_BLUETOOTH)
-            bthSend(pcktBuf);
-        else
-            ethSend(pcktBuf, inverters[inv]->IPAddress);
+			if (ConnType == CT_BLUETOOTH)
+				bthSend(pcktBuf);
+			else
+				ethSend(pcktBuf, inverters[inv]->IPAddress);
 
-        do
-        {
-            unsigned long long totalWh = 0;
-            unsigned long long totalWh_prev = 0;
-            time_t datetime = 0;
-            time_t datetime_prev = 0;
-            time_t datetime_next = 0;
-			bool dblrecord = false;		// Flag for double records (twins)
+			do
+			{
+				unsigned long long totalWh = 0;
+				unsigned long long totalWh_prev = 0;
+				time_t datetime = 0;
+				time_t datetime_prev = 0;
+				time_t datetime_next = 0;
+				bool dblrecord = false;		// Flag for double records (twins)
 
-            const int recordsize = 12;
+				const int recordsize = 12;
 
-            do
-            {
-                if (ConnType == CT_BLUETOOTH)
-                    rc = getPacket(inverters[inv]->BTAddress, 1);
-                else
-                    rc = ethGetPacket();
+				do
+				{
+					if (ConnType == CT_BLUETOOTH)
+						rc = getPacket(inverters[inv]->BTAddress, 1);
+					else
+						rc = ethGetPacket();
 
-                if (rc != E_OK) return rc;
+					if (rc != E_OK) return rc;
 
-                packetcount = pcktBuf[25];
+					packetcount = pcktBuf[25];
 
-                //TODO: Move checksum validation to getPacket
-                if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
-                    return E_CHKSUM;
-                else
-                {
-					unsigned short rcvpcktID = get_short(pcktBuf+27) & 0x7FFF;
-                    if ((validPcktID == 1) || (pcktID == rcvpcktID))
-                    {
-                        validPcktID = 1;
-                        for(int x = 41; x < (packetposition - 3); x += recordsize)
-                        {
-                            datetime_next = (time_t)get_long(pcktBuf + x);
-							if (0 != (datetime_next - datetime)) // Fix Issue 108: sbfspot v307 crashes for daily export (-adnn)
+					//TODO: Move checksum validation to getPacket
+					if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
+						return E_CHKSUM;
+					else
+					{
+						unsigned short rcvpcktID = get_short(pcktBuf+27) & 0x7FFF;
+						if ((validPcktID == 1) || (pcktID == rcvpcktID))
+						{
+							validPcktID = 1;
+							for(int x = 41; x < (packetposition - 3); x += recordsize)
 							{
-								totalWh_prev = totalWh;
-								datetime_prev = datetime;
-								datetime = datetime_next;
-								dblrecord = false;
-							}
-							else
-								dblrecord = true;
-
-							totalWh = (unsigned long long)get_longlong(pcktBuf + x + 4);
-                            if (totalWh != NaN_U64) // Fix Issue 109: Bad request 400: Power value too high for system size
-							{
-								if (totalWh > 0) hasData = E_OK;
-								if (totalWh_prev != 0)
+								datetime_next = (time_t)get_long(pcktBuf + x);
+								if (0 != (datetime_next - datetime)) // Fix Issue 108: sbfspot v307 crashes for daily export (-adnn)
 								{
-									struct tm timeinfo;
-									memcpy(&timeinfo, localtime(&datetime), sizeof(timeinfo));
-									if (start_tm.tm_mday == timeinfo.tm_mday)
+									totalWh_prev = totalWh;
+									datetime_prev = datetime;
+									datetime = datetime_next;
+									dblrecord = false;
+								}
+								else
+									dblrecord = true;
+
+								totalWh = (unsigned long long)get_longlong(pcktBuf + x + 4);
+								if (totalWh != NaN_U64) // Fix Issue 109: Bad request 400: Power value too high for system size
+								{
+									if (totalWh > 0) hasData = E_OK;
+									if (totalWh_prev != 0)
 									{
-										unsigned int idx = (timeinfo.tm_hour * 12) + (timeinfo.tm_min / 5);
-										if (idx < sizeof(inverters[inv]->dayData)/sizeof(DayData))
+										struct tm timeinfo;
+										memcpy(&timeinfo, localtime(&datetime), sizeof(timeinfo));
+										if (start_tm.tm_mday == timeinfo.tm_mday)
 										{
-											if (VERBOSE_HIGHEST && dblrecord)
+											unsigned int idx = (timeinfo.tm_hour * 12) + (timeinfo.tm_min / 5);
+											if (idx < sizeof(inverters[inv]->dayData)/sizeof(DayData))
 											{
-												std::cout << "Overwriting existing record: " << strftime_t("%d/%m/%Y %H:%M:%S", datetime);
-												std::cout << " - " << std::fixed << std::setprecision(3) << (double)inverters[inv]->dayData[idx].totalWh/1000 << "kWh";
-												std::cout << " - " << std::fixed << std::setprecision(0) << inverters[inv]->dayData[idx].watt << "W" << std::endl;
+												if (VERBOSE_HIGHEST && dblrecord)
+												{
+													std::cout << "Overwriting existing record: " << strftime_t("%d/%m/%Y %H:%M:%S", datetime);
+													std::cout << " - " << std::fixed << std::setprecision(3) << (double)inverters[inv]->dayData[idx].totalWh/1000 << "kWh";
+													std::cout << " - " << std::fixed << std::setprecision(0) << inverters[inv]->dayData[idx].watt << "W" << std::endl;
+												}
+												if (VERBOSE_HIGHEST && ((datetime - datetime_prev) > 300))
+												{
+													std::cout << "Missing records in datastream " << strftime_t("%d/%m/%Y %H:%M:%S", datetime_prev);
+													std::cout << " -> " << strftime_t("%H:%M:%S", datetime) << std::endl;
+												}
+												inverters[inv]->dayData[idx].datetime = datetime;
+												inverters[inv]->dayData[idx].totalWh = totalWh;
+												//inverters[inv]->dayData[idx].watt = (totalWh - totalWh_prev) * 12;	// 60:5
+												// Fix Issue 105 - Don't assume each interval is 5 mins
+												// This is also a bug in SMA's Sunny Explorer V1.07.17 and before
+												inverters[inv]->dayData[idx].watt = (totalWh - totalWh_prev) * 3600 / (datetime - datetime_prev);
+												inverters[inv]->hasDayData = true;
 											}
-											if (VERBOSE_HIGHEST && ((datetime - datetime_prev) > 300))
-											{
-												std::cout << "Missing records in datastream " << strftime_t("%d/%m/%Y %H:%M:%S", datetime_prev);
-												std::cout << " -> " << strftime_t("%H:%M:%S", datetime) << std::endl;
-											}
-											inverters[inv]->dayData[idx].datetime = datetime;
-											inverters[inv]->dayData[idx].totalWh = totalWh;
-											//inverters[inv]->dayData[idx].watt = (totalWh - totalWh_prev) * 12;	// 60:5
-											// Fix Issue 105 - Don't assume each interval is 5 mins
-											// This is also a bug in SMA's Sunny Explorer V1.07.17 and before
-											inverters[inv]->dayData[idx].watt = (totalWh - totalWh_prev) * 3600 / (datetime - datetime_prev);
 										}
 									}
 								}
-							}
-                        } //for
-                    }
-                    else
-                    {
-                        if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-                        validPcktID = 0;
-                        packetcount = 0;
-                    }
-                }
-            }
-            while (packetcount > 0);
-        }
-        while (validPcktID == 0);
+							} //for
+						}
+						else
+						{
+							if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
+							validPcktID = 0;
+							packetcount = 0;
+						}
+					}
+				}
+				while (packetcount > 0);
+			}
+			while (validPcktID == 0);
+		}
     }
+
+	if (hasMultigate)
+	{
+		/*
+		 *	Consolidate micro-inverter daydata into multigate
+		 *	For each multigate search its connected devices
+		 *	Add totalWh and power of each device to multigate daydata
+		 */
+		
+		if (VERBOSE_HIGHEST) std::cout << "Consolidating daydata of micro-inverters into multigate..." << std::endl;
+
+		for (int mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
+		{
+			InverterData *pmg = inverters[mg];
+			if (pmg->SUSyID == SID_MULTIGATE)
+			{
+				pmg->hasDayData = true;
+				for (int sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
+				{
+					InverterData *psb = inverters[sb240];
+					if ((psb->SUSyID == SID_SB240) && (psb->multigateID == mg))
+					{
+						for (int dd=0; dd < ARRAYSIZE(inverters[0]->dayData); dd++)
+						{
+							pmg->dayData[dd].datetime = psb->dayData[dd].datetime;
+							pmg->dayData[dd].totalWh += psb->dayData[dd].totalWh;
+							pmg->dayData[dd].watt += psb->dayData[dd].watt;
+						}
+					}
+				}
+			}
+		}
+	}
 
     return hasData;
 }
@@ -203,6 +245,8 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
         puts("* ArchiveMonthData() *");
         puts("**********************");
     }
+
+	bool hasMultigate = false;
 
     E_SBFSPOT rc = E_OK;
 
@@ -218,6 +262,7 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
 
     for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 	{
+		if (inverters[inv]->SUSyID == SID_MULTIGATE) hasMultigate = true;
 		inverters[inv]->hasMonthData = false;
         for(unsigned int i=0; i<sizeof(inverters[inv]->monthData)/sizeof(MonthData); i++)
 		{
@@ -232,92 +277,129 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
 
     for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
-        do
-        {
-            pcktID++;
-            writePacketHeader(pcktBuf, 0x01, inverters[inv]->BTAddress);
-            writePacket(pcktBuf, 0x09, 0xE0, 0, inverters[inv]->SUSyID, inverters[inv]->Serial);
-            writeLong(pcktBuf, 0x70200200);
-            writeLong(pcktBuf, startTime - 86400 - 86400);
-            writeLong(pcktBuf, startTime + 86400 * (sizeof(inverters[inv]->monthData)/sizeof(MonthData) +1));
-            writePacketTrailer(pcktBuf);
-            writePacketLength(pcktBuf);
-        }
-        while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+		if ((inverters[inv]->DevClass != CommunicationProduct) && (inverters[inv]->SUSyID != SID_MULTIGATE))
+		{
+			do
+			{
+				pcktID++;
+				writePacketHeader(pcktBuf, 0x01, inverters[inv]->BTAddress);
+				writePacket(pcktBuf, 0x09, 0xE0, 0, inverters[inv]->SUSyID, inverters[inv]->Serial);
+				writeLong(pcktBuf, 0x70200200);
+				writeLong(pcktBuf, startTime - 86400 - 86400);
+				writeLong(pcktBuf, startTime + 86400 * (sizeof(inverters[inv]->monthData)/sizeof(MonthData) +1));
+				writePacketTrailer(pcktBuf);
+				writePacketLength(pcktBuf);
+			}
+			while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
 
-        if (ConnType == CT_BLUETOOTH)
-            bthSend(pcktBuf);
-        else
-            ethSend(pcktBuf, inverters[inv]->IPAddress);
+			if (ConnType == CT_BLUETOOTH)
+				bthSend(pcktBuf);
+			else
+				ethSend(pcktBuf, inverters[inv]->IPAddress);
 
-        do
-        {
-            unsigned long long totalWh = 0;
-            unsigned long long totalWh_prev = 0;
-            const int recordsize = 12;
-            time_t datetime;
+			do
+			{
+				unsigned long long totalWh = 0;
+				unsigned long long totalWh_prev = 0;
+				const int recordsize = 12;
+				time_t datetime;
 
-            unsigned int idx = 0;
-            do
-            {
-                if (ConnType == CT_BLUETOOTH)
-                    rc = getPacket(inverters[inv]->BTAddress, 1);
-                else
-                    rc = ethGetPacket();
+				unsigned int idx = 0;
+				do
+				{
+					if (ConnType == CT_BLUETOOTH)
+						rc = getPacket(inverters[inv]->BTAddress, 1);
+					else
+						rc = ethGetPacket();
 
-                if (rc != E_OK) return rc;
+					if (rc != E_OK) return rc;
 
-                //TODO: Move checksum validation to getPacket
-                if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
-                    return E_CHKSUM;
-                else
-                {
-                    packetcount = pcktBuf[25];
-					unsigned short rcvpcktID = get_short(pcktBuf+27) & 0x7FFF;
-                    if ((validPcktID == 1) || (pcktID == rcvpcktID))
-                    {
-                        validPcktID = 1;
+					//TODO: Move checksum validation to getPacket
+					if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
+						return E_CHKSUM;
+					else
+					{
+						packetcount = pcktBuf[25];
+						unsigned short rcvpcktID = get_short(pcktBuf+27) & 0x7FFF;
+						if ((validPcktID == 1) || (pcktID == rcvpcktID))
+						{
+							validPcktID = 1;
 
-                        for(int x = 41; x < (packetposition - 3); x += recordsize)
-                        {
-                            datetime = (time_t)get_long(pcktBuf + x);
-							//datetime -= (datetime % 86400) + 43200; // 3.0 - Round to UTC 12:00 - Removed 3.0.1 see issue C54
-							datetime += inverters[inv]->monthDataOffset; // Issues 115/130
-                            totalWh = get_longlong(pcktBuf + x + 4);
-                            if (totalWh != MAXULONGLONG)
-                            {
-                                if (totalWh_prev != 0)
-                                {
-                                    struct tm utc_tm;
-                                    memcpy(&utc_tm, gmtime(&datetime), sizeof(utc_tm));
-                                    if (utc_tm.tm_mon == start_tm->tm_mon)
-                                    {
-                                        if (idx < sizeof(inverters[inv]->monthData)/sizeof(MonthData))
-                                        {
-											inverters[inv]->hasMonthData = true;
-											inverters[inv]->monthData[idx].datetime = datetime;
-                                            inverters[inv]->monthData[idx].totalWh = totalWh;
-                                            inverters[inv]->monthData[idx].dayWh = totalWh - totalWh_prev;
-                                            idx++;
-                                        }
-                                    }
-                                }
-                                totalWh_prev = totalWh;
-                            }
-                        } //for
+							for(int x = 41; x < (packetposition - 3); x += recordsize)
+							{
+								datetime = (time_t)get_long(pcktBuf + x);
+								//datetime -= (datetime % 86400) + 43200; // 3.0 - Round to UTC 12:00 - Removed 3.0.1 see issue C54
+								datetime += inverters[inv]->monthDataOffset; // Issues 115/130
+								totalWh = get_longlong(pcktBuf + x + 4);
+								if (totalWh != MAXULONGLONG)
+								{
+									if (totalWh_prev != 0)
+									{
+										struct tm utc_tm;
+										memcpy(&utc_tm, gmtime(&datetime), sizeof(utc_tm));
+										if (utc_tm.tm_mon == start_tm->tm_mon)
+										{
+											if (idx < sizeof(inverters[inv]->monthData)/sizeof(MonthData))
+											{
+												inverters[inv]->hasMonthData = true;
+												inverters[inv]->monthData[idx].datetime = datetime;
+												inverters[inv]->monthData[idx].totalWh = totalWh;
+												inverters[inv]->monthData[idx].dayWh = totalWh - totalWh_prev;
+												idx++;
+											}
+										}
+									}
+									totalWh_prev = totalWh;
+								}
+							} //for
+						}
+						else
+						{
+							if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
+							validPcktID = 0;
+							packetcount = 0;
+						}
 					}
-                    else
-                    {
-                        if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-                        validPcktID = 0;
-                        packetcount = 0;
-                    }
-                }
-            }
-            while (packetcount > 0);
-        }
-        while (validPcktID == 0);
+				}
+				while (packetcount > 0);
+			}
+			while (validPcktID == 0);
+		}
     }
+
+	if (hasMultigate)
+	{
+		/*
+		 *	Consolidate micro-inverter monthdata into multigate
+		 *	For each multigate search its connected devices
+		 *	Add totalWh and power of each device to multigate daydata
+		 */
+
+		if (VERBOSE_HIGHEST) std::cout << "Consolidating monthdata of micro-inverters into multigate..." << std::endl;
+
+		for (int mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
+		{
+			InverterData *pmg = inverters[mg];
+			if (pmg->SUSyID == SID_MULTIGATE)
+			{
+				pmg->hasMonthData = true;
+				for (int sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
+				{
+					InverterData *psb = inverters[sb240];
+					if ((psb->SUSyID == SID_SB240) && (psb->multigateID == mg))
+					{
+						for (int md=0; md < ARRAYSIZE(inverters[0]->monthData); md++)
+						{
+							pmg->monthData[md].datetime = psb->monthData[md].datetime;
+							pmg->monthData[md].totalWh += psb->monthData[md].totalWh;
+							pmg->monthData[md].dayWh += psb->monthData[md].dayWh;
+						}
+					}
+				}
+			}
+		}
+	}
+
     return E_OK;
 }
 
@@ -423,6 +505,7 @@ E_SBFSPOT getMonthDataOffset(InverterData *inverters[])
 	{
 	    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
+			inverters[inv]->monthDataOffset = 0;
 			if (inverters[inv]->hasMonthData)
 			{
 				// Get last record of monthdata
