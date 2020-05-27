@@ -7,7 +7,7 @@
                                                    |_|
 
 	SBFspot - Yet another tool to read power production of SMA® solar/battery inverters
-	(c)2012-2019, SBF
+	(c)2012-2020, SBF
 
 	Latest version can be found at https://github.com/SBFspot/SBFspot
 
