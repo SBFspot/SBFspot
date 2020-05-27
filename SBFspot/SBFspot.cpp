@@ -301,9 +301,9 @@ int main(int argc, char **argv)
 				if (VERBOSE_HIGH)
 				{
 					std::cout << "Found these devices:" << std::endl;
-					for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (int ii=0; Inverters[ii]!=NULL && ii<MAX_INVERTERS; ii++)
 					{
-						std::cout << "ID:" << inv << " S/N:" << Inverters[inv]->SUSyID << "-" << Inverters[inv]->Serial << " IP:" << Inverters[inv]->IPAddress << std::endl;
+						std::cout << "ID:" << ii << " S/N:" << Inverters[ii]->SUSyID << "-" << Inverters[ii]->Serial << " IP:" << Inverters[ii]->IPAddress << std::endl;
 					}
 				}
 			
@@ -323,16 +323,16 @@ int main(int argc, char **argv)
 					printf("getTypeLabel returned an error: %d\n", rc);
 				else
 				{
-					for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (int ii=0; Inverters[ii]!=NULL && ii<MAX_INVERTERS; ii++)
 					{
 						if (VERBOSE_NORMAL)
 						{
-							printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
-							printf("Device Name:      %s\n", Inverters[inv]->DeviceName);
-							printf("Device Class:     %s\n", Inverters[inv]->DeviceClass);
-							printf("Device Type:      %s\n", Inverters[inv]->DeviceType);
-							printf("Software Version: %s\n", Inverters[inv]->SWVersion);
-							printf("Serial number:    %lu\n", Inverters[inv]->Serial);
+							printf("SUSyID: %d - SN: %lu\n", Inverters[ii]->SUSyID, Inverters[ii]->Serial);
+							printf("Device Name:      %s\n", Inverters[ii]->DeviceName);
+							printf("Device Class:     %s\n", Inverters[ii]->DeviceClass);
+							printf("Device Type:      %s\n", Inverters[ii]->DeviceType);
+							printf("Software Version: %s\n", Inverters[ii]->SWVersion);
+							printf("Serial number:    %lu\n", Inverters[ii]->Serial);
 						}
 					}
 				}
