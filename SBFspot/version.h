@@ -7,6 +7,7 @@
 //		Fix: Logoff Multigate
 // PR371: Some bugfixes with a SMA Home Manager 2.0 in the network
 // PR374: Fixed bug where efficiency was always 0 in ExportSpotDataToCSV
+// PR361: Openwrt
 
 /***
 *
