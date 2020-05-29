@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2020, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -137,8 +137,7 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
 		else
 			printf("recvfrom() returned an error: %d\n", bytes_read);
 
-		//if (bytes_read == 600) timeout--;	// decrease timeout if the packet received within the timeout is an energymeter packet
-	} while (bytes_read == 600 || bytes_read == 608);			// keep on reading if only energymeter-data was received
+	} while (bytes_read == 600 || bytes_read == 608); // keep on reading if data received from Energy Meter (600 bytes) or Sunny Home Manager (608 bytes)
 
     return bytes_read;
 }
