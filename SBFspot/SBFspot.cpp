@@ -507,6 +507,7 @@ int main(int argc, char **argv)
             puts("DC Spot Data:");
             printf("\tString 1 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(Inverters[inv]->Pdc1), toVolt(Inverters[inv]->Udc1), toAmp(Inverters[inv]->Idc1));
             printf("\tString 2 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(Inverters[inv]->Pdc2), toVolt(Inverters[inv]->Udc2), toAmp(Inverters[inv]->Idc2));
+            printf("\tCalculated Total Pdc: %7.3fkW\n", tokW(Inverters[inv]->calPdcTot));
         }
     }
 
@@ -525,6 +526,9 @@ int main(int argc, char **argv)
 
     for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
+        Inverters[inv]->calPacTot = Inverters[inv]->Pac1 + Inverters[inv]->Pac2 + Inverters[inv]->Pac3;
+        //Calculated Inverter Efficiency
+        Inverters[inv]->calEfficiency = Inverters[inv]->calPdcTot == 0 ? 0.0f : 100.0f * (float)Inverters[inv]->calPacTot / (float)Inverters[inv]->calPdcTot;
         if (VERBOSE_NORMAL)
         {
             printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
@@ -532,7 +536,8 @@ int main(int argc, char **argv)
             printf("\tPhase 1 Pac : %7.3fkW - Uac: %6.2fV - Iac: %6.3fA\n", tokW(Inverters[inv]->Pac1), toVolt(Inverters[inv]->Uac1), toAmp(Inverters[inv]->Iac1));
             printf("\tPhase 2 Pac : %7.3fkW - Uac: %6.2fV - Iac: %6.3fA\n", tokW(Inverters[inv]->Pac2), toVolt(Inverters[inv]->Uac2), toAmp(Inverters[inv]->Iac2));
             printf("\tPhase 3 Pac : %7.3fkW - Uac: %6.2fV - Iac: %6.3fA\n", tokW(Inverters[inv]->Pac3), toVolt(Inverters[inv]->Uac3), toAmp(Inverters[inv]->Iac3));
-            printf("\tTotal Pac   : %7.3fkW\n", tokW(Inverters[inv]->TotalPac));
+            printf("\tTotal Pac   : %7.3fkW - Calculated Pac: %7.3fkW\n", tokW(Inverters[inv]->TotalPac), tokW(Inverters[inv]->calPacTot));
+            printf("\tEfficiency  : %7.2f%%\n", Inverters[inv]->calEfficiency);
         }
     }
 
