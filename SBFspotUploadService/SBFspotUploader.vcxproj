@@ -159,7 +159,7 @@ del "$(OutDir)*.pdb"
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)SBFspotUpload.cfg" "$(OutDir)SBFspotUpload.default.cfg"
-"C:\Program Files\7-Zip\7z.exe" a -xr!*zip -xr!*.pdb -xr!*.iobj -xr!*.ipdb "$(OutDir)SBFspot_Vxxx_Win32_SQLite.zip" "$(OutDir)*.*"</Command>
+"C:\Program Files\7-Zip\7z.exe" a -xr!*.zip -xr!*.pdb -xr!*.iobj -xr!*.ipdb -xr!*.tar.gz "$(OutDir)SBFspot_Vxxx_Win32_SQLite.zip" "$(OutDir)*.*"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_MySQL|Win32'">
@@ -185,7 +185,7 @@ del "$(OutDir)*.pdb"
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)SBFspotUpload.cfg" "$(OutDir)SBFspotUpload.default.cfg"
-"C:\Program Files\7-Zip\7z.exe" a -xr!*zip -xr!*.pdb -xr!*.iobj -xr!*.ipdb "$(OutDir)SBFspot_Vxxx_Win32_MySQL.zip" "$(OutDir)*.*"</Command>
+"C:\Program Files\7-Zip\7z.exe" a -xr!*.zip -xr!*.pdb -xr!*.iobj -xr!*.ipdb -xr!*.tar.gz "$(OutDir)SBFspot_Vxxx_Win32_MySQL.zip" "$(OutDir)*.*"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

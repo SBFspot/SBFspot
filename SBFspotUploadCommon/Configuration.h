@@ -75,7 +75,7 @@ private:
     std::string m_SqlHostname;
     std::string m_SqlUsername;
     std::string m_SqlUserPassword;
-	std::map<unsigned int, unsigned int> m_PvoSIDs;
+	std::map<SMASerial, PVOSystemID> m_PvoSIDs;
 	bool		m_PvoConsolidated;
 	std::string	m_PvoAPIkey;
 

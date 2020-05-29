@@ -157,7 +157,7 @@ int Configuration::readSettings(std::string me, std::string filename)
 									try
 									{
 										SMASerial Serial = boost::lexical_cast<SMASerial>(sys_serial[0]);
-										unsigned int SID = boost::lexical_cast<PVOSystemID>(sys_serial[1]);
+										PVOSystemID SID = boost::lexical_cast<PVOSystemID>(sys_serial[1]);
 										m_PvoSIDs[Serial] = SID;
 									}
 									catch(...)
