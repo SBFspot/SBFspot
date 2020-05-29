@@ -130,7 +130,7 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
 		   	if (DEBUG_NORMAL)
 		   	{
 				printf("Received %d bytes from IP [%s]\n", bytes_read, inet_ntoa(addr_in.sin_addr));
-		   		if (bytes_read == 600 || bytes_read == 0)
+		   		if (bytes_read == 600 || bytes_read == 608 || bytes_read == 0)
 		   			printf(" ==> packet ignored\n");
 			}
 		}
@@ -138,7 +138,7 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
 			printf("recvfrom() returned an error: %d\n", bytes_read);
 
 		//if (bytes_read == 600) timeout--;	// decrease timeout if the packet received within the timeout is an energymeter packet
-	} while (bytes_read == 600);			// keep on reading if only energymeter-data was received
+	} while (bytes_read == 600 || bytes_read == 608);			// keep on reading if only energymeter-data was received
 
     return bytes_read;
 }

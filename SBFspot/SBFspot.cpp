@@ -1021,6 +1021,8 @@ E_SBFSPOT ethGetPacket(void)
                         HexDump(pcktBuf, packetposition, 10);
                         printf("<<<=================================>>>\n");
                     }
+                    
+                    rc = E_OK;
                 }
                 else
                 {
