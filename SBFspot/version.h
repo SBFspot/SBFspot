@@ -8,6 +8,9 @@
 // PR371: Some bugfixes with a SMA Home Manager 2.0 in the network
 // PR374: Fixed bug where efficiency was always 0 in ExportSpotDataToCSV
 // PR361: Openwrt
+// Fix #337: Unknown Inverter Type SB7.7-1SP-US-41
+// Fix #352: Unknown Inverter Type SBS6.0-US-10
+// Added Edimax Smart Plugs and some newer inverters
 
 /***
 *
