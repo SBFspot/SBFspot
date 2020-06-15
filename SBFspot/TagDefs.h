@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2020, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -32,8 +32,7 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef _TAGDEFS_H_
-#define _TAGDEFS_H_
+#pragma once
 
 #include "osselect.h"
 
@@ -81,7 +80,7 @@ private:
 	{
 		std::cerr << "Error: " << msg << " on line " << line << " [" << fpath << "]\n";
 	}
-	void add(unsigned int tagID, std::string tag, unsigned int lri, std::string desc)
+	void addTag(unsigned int tagID, std::string tag, unsigned int lri, std::string desc)
 	{
 		m_tagdefmap.insert(std::make_pair(tagID, TD(tag, lri, desc)));
 	}
@@ -97,5 +96,3 @@ public:
 	std::string getDesc(unsigned int tagID, std::string _default) { return m_tagdefmap[tagID].getDesc().empty() ? _default : m_tagdefmap[tagID].getDesc(); }
 	std::map<unsigned int, TD>::size_type size(void) const { return m_tagdefmap.size(); }
 };
-
-#endif
