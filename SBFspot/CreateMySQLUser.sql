@@ -1,4 +1,4 @@
-#DROP USER 'SBFspotUser'@'localhost';
-CREATE USER 'SBFspotUser'@'localhost' IDENTIFIED BY 'SBFspotPassword';
-GRANT DELETE,INSERT,SELECT,UPDATE ON SBFspot.* TO 'SBFspotUser'@'localhost';
+#DROP USER 'SBFspotUser'@'%';
+CREATE USER 'SBFspotUser'@'%' IDENTIFIED BY 'SBFspotPassword';
+GRANT DELETE,INSERT,SELECT,UPDATE ON SBFspot.* TO 'SBFspotUser'@'%';
 FLUSH PRIVILEGES;
