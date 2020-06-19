@@ -13,6 +13,7 @@
 // Added Edimax Smart Plugs and some newer inverters
 // Renamed Optical Global Peak to SMA ShadeFix
 // Fix #350 Limitation for MQTT keywords?
+// Fix #391 Unknown Inverter: SMA Sunny Island 4.4M-13
 
 /***
 *
