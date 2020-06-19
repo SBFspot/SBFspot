@@ -15,6 +15,7 @@
 // Fix #350 Limitation for MQTT keywords?
 // Fix #391 Unknown Inverter: SMA Sunny Island 4.4M-13
 // Fix #390 sbfspot and mysql/mariadb
+// Fix #334 MQTT JSON Publish - different attribute notation on multiple instances
 
 /***
 *
