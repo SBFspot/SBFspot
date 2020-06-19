@@ -11,6 +11,8 @@
 // Fix #337: Unknown Inverter Type SB7.7-1SP-US-41
 // Fix #352: Unknown Inverter Type SBS6.0-US-10
 // Added Edimax Smart Plugs and some newer inverters
+// Renamed Optical Global Peak to SMA ShadeFix
+// Fix #350 Limitation for MQTT keywords?
 
 /***
 *

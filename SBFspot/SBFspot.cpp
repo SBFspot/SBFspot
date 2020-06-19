@@ -2175,7 +2175,7 @@ void SayHello(int ShowHelp)
 #endif
     std::cout << "SBFspot V" << VERSION << "\n";
     std::cout << "Yet another tool to read power production of SMA solar inverters\n";
-    std::cout << "(c) 2012-2019, SBF (https://github.com/SBFspot/SBFspot)\n";
+    std::cout << "(c) 2012-2020, SBF (https://github.com/SBFspot/SBFspot)\n";
     std::cout << "Compiled for " << OS << " (" << BYTEORDER << ") " << sizeof(long) * 8 << " bit";
 #if defined(USE_SQLITE)
 	std::cout << " with SQLite support" << std::endl;
@@ -2307,8 +2307,12 @@ int GetConfig(Config *cfg)
 
     char *pEnd = NULL;
     long lValue = 0;
-    char line[200];
-    int rc = 0;
+
+ 	// Quick fix #350 Limitation for MQTT keywords?
+	// Input buffer increased from 200 to 512 bytes
+	// TODO: Rewrite by using std::getline()
+	char line[512];
+	int rc = 0;
 
     while ((rc == 0) && (fgets(line, sizeof(line), fp) != NULL))
     {
