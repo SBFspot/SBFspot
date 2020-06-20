@@ -222,7 +222,7 @@ E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
 					InverterData *psb = inverters[sb240];
 					if ((psb->SUSyID == SID_SB240) && (psb->multigateID == mg))
 					{
-						for (int dd=0; dd < ARRAYSIZE(inverters[0]->dayData); dd++)
+						for (unsigned int dd=0; dd < ARRAYSIZE(inverters[0]->dayData); dd++)
 						{
 							pmg->dayData[dd].datetime = psb->dayData[dd].datetime;
 							pmg->dayData[dd].totalWh += psb->dayData[dd].totalWh;
@@ -388,7 +388,7 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
 					InverterData *psb = inverters[sb240];
 					if ((psb->SUSyID == SID_SB240) && (psb->multigateID == mg))
 					{
-						for (int md=0; md < ARRAYSIZE(inverters[0]->monthData); md++)
+						for (unsigned int md=0; md < ARRAYSIZE(inverters[0]->monthData); md++)
 						{
 							pmg->monthData[md].datetime = psb->monthData[md].datetime;
 							pmg->monthData[md].totalWh += psb->monthData[md].totalWh;
