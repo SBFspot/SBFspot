@@ -387,6 +387,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     </ClInclude>
     <ClInclude Include="sunrise_sunset.h" />
     <ClInclude Include="TagDefs.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
@@ -421,6 +422,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClCompile Include="endianness.h" />
     <ClCompile Include="Ethernet.cpp" />
     <ClCompile Include="EventData.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="mqtt.cpp" />
     <ClCompile Include="SBFNet.cpp" />
