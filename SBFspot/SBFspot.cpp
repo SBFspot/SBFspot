@@ -556,6 +556,24 @@ int main(int argc, char **argv)
     }
 
     if (Inverters[0]->DevClass == SolarInverter)
+    {
+        if ((rc = getInverterData(Inverters, MeteringGridMsTotW)) != 0)
+            std::cerr << "getMeteringGridMsTotW returned an error: " << rc << std::endl;
+        else
+        {
+            for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            {
+                if (VERBOSE_NORMAL)
+                {
+                    printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
+                    printf("Metering: GridMsTotWIn: %d\n", Inverters[inv]->MeteringGridMsTotWIn);
+                    printf("Metering: GridMsTotWOut: %d\n", Inverters[inv]->MeteringGridMsTotWOut);
+                }
+            }
+        }
+    }
+
+    if (Inverters[0]->DevClass == SolarInverter)
 	{
 		for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
@@ -3391,15 +3409,15 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 								devList[inv]->flags |= type;
 								break;
 
-							case MeteringGridMsTotWhOut:
+                           case MeteringGridMsTotWOut:
                                 if (recordsize == 0) recordsize = 28;
-								devList[inv]->MeteringGridMsTotWOut = value;
-								break;
+                                devList[inv]->MeteringGridMsTotWOut = value;
+                                break;
 
-							case MeteringGridMsTotWhIn:
+                           case MeteringGridMsTotWIn:
                                 if (recordsize == 0) recordsize = 28;
-								devList[inv]->MeteringGridMsTotWIn = value;
-								break;
+                                devList[inv]->MeteringGridMsTotWIn = value;
+                                break;
 
                             default:
                                 if (recordsize == 0) recordsize = 12;

@@ -113,6 +113,12 @@ int mqtt_publish(const Config *cfg, InverterData *inverters[])
 			else if (key == "batvol")			FormatFloat(value, ((float)inverters[inv]->BatVol) / 100, 0, prec, dp);
 			else if (key == "batamp")			FormatFloat(value, ((float)inverters[inv]->BatAmp) / 1000, 0, prec, dp);
 			else if (key == "batchastt")		FormatFloat(value, ((float)inverters[inv]->BatChaStt), 0, prec, dp);
+			else if (key == "meteringwin")                  FormatFloat(value, (float)inverters[inv]->MeteringGridMsTotWIn, 0, prec, dp);
+                        else if (key == "meteringwout")                 FormatFloat(value, (float)inverters[inv]->MeteringGridMsTotWOut, 0, prec, dp);
+                        else if (key == "meteringwtot")                 FormatFloat(value, (float)inverters[inv]->MeteringGridMsTotWIn - (float)inverters[inv]->MeteringGridMsTotWOut, 0, prec, dp);
+
+
+
 
 			// None of the above, so it's an unhandled item or a typo...
 			else if (VERBOSE_NORMAL) std::cout << "MQTT: Don't know what to do with '" << *it << "'" << std::endl;
