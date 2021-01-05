@@ -1175,16 +1175,18 @@ E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::str
 			inverters[devcount]->SUSyID = btohs(pckt->Source.SUSyID);
 			inverters[devcount]->Serial = btohl(pckt->Source.Serial);
 			if (VERBOSE_NORMAL) printf("Inverter replied: %s SUSyID: %d - Serial: %lu\n", inverters[devcount]->IPAddress, inverters[devcount]->SUSyID, inverters[devcount]->Serial);
+
+			logoffSMAInverter(inverters[devcount]);
 		}
 		else
 		{
 			std::cerr << "ERROR: Connection to inverter failed!" << std::endl;
 			std::cerr << "Is " << inverters[devcount]->IPAddress << " the correct IP?" << std::endl;
 			std::cerr << "Please check IP_Address in SBFspot.cfg!" << std::endl;
-			return E_INIT;
+			// Fix #412 skipping unresponsive inverter
+			// Continue with next device instead of returning E_INIT and skipping the remaining devices
+			// return E_INIT;
 		}
-
-		logoffSMAInverter(inverters[devcount]);
 	}
 
     return rc;

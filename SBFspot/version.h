@@ -4,6 +4,7 @@
 // Fix makefile - make should copy *ALL* .sql files
 // Fix undefined reference to 'boost::system::system_category()' introduced in #394
 // Fix #409: Invalid timezone specified (updated date_time_zonespec.csv)
+// Fix #412: skipping unresponsive inverter
 
 /***
 *
