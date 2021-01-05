@@ -103,13 +103,13 @@ install:
 	$(CMD_COPY) date_time_zonespec.csv $(INSTALLDIR)
 	$(CMD_COPY) SBFspot.cfg $(INSTALLDIR)SBFspot.default.cfg
 ifeq ($(MAKECMDGOALS),install_sqlite)
-	$(CMD_COPY) *SQLite.sql $(INSTALLDIR)
+	$(CMD_COPY) *SQLite*.sql $(INSTALLDIR)
 endif
 ifeq ($(MAKECMDGOALS),install_mysql)
-	$(CMD_COPY) *MySQL.sql $(INSTALLDIR)
+	$(CMD_COPY) *MySQL*.sql $(INSTALLDIR)
 endif
 ifeq ($(MAKECMDGOALS),install_mariadb)
-	$(CMD_COPY) *MySQL.sql $(INSTALLDIR)
+	$(CMD_COPY) *MySQL*.sql $(INSTALLDIR)
 endif
 	
 $(OBJDIR)%.o: %.cpp
