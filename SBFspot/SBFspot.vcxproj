@@ -335,10 +335,6 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <None Include="TagListFR-FR.txt" />
     <None Include="TagListIT-IT.txt" />
     <None Include="TagListNL-NL.txt" />
-    <None Include="Update_300_301_MySQL.sql" />
-    <None Include="Update_300_301_SQLite.sql" />
-    <None Include="Update_30x_302_MySQL.sql" />
-    <None Include="Update_30x_302_SQLite.sql" />
     <None Include="Update_340_MySQL.sql" />
     <None Include="Update_340_SQLite.sql" />
   </ItemGroup>

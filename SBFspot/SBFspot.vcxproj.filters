@@ -158,18 +158,6 @@
     <None Include="SBFspot.cfg">
       <Filter>Support Files</Filter>
     </None>
-    <None Include="Update_300_301_SQLite.sql">
-      <Filter>Support Files</Filter>
-    </None>
-    <None Include="Update_300_301_MySQL.sql">
-      <Filter>Support Files</Filter>
-    </None>
-    <None Include="Update_30x_302_MySQL.sql">
-      <Filter>Support Files</Filter>
-    </None>
-    <None Include="Update_30x_302_SQLite.sql">
-      <Filter>Support Files</Filter>
-    </None>
     <None Include="Update_340_SQLite.sql">
       <Filter>Support Files</Filter>
     </None>
