@@ -52,6 +52,9 @@ DISCLAIMER:
 	SMA, Speedwire and SMAdata2 are registered trademarks of SMA Solar Technology AG
 
 ************************************************************************************************/
+// Fix undefined reference to 'boost::system::system_category()' introduced in #394
+#define BOOST_ERROR_CODE_HEADER_ONLY
+
 #include "version.h"
 #include "osselect.h"
 #include "endianness.h"
