@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA® solar inverters
-    (c)2012-2018, SBF
+    (c)2012-2021, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
     http://creativecommons.org/licenses/by-nc-sa/3.0/
 
     You are free:
-        to Share — to copy, distribute and transmit the work
-        to Remix — to adapt the work
+        to Share - to copy, distribute and transmit the work
+        to Remix - to adapt the work
     Under the following conditions:
     Attribution:
         You must attribute the work in the manner specified by the author or licensor
@@ -38,6 +38,8 @@ DISCLAIMER:
 #include "SQLselect.h"
 #include "mqtt.h"
 #include "sunrise_sunset.h"
+
+const uint32_t MAX_INVERTERS = 20;
 
 using namespace boost;
 
@@ -103,7 +105,7 @@ int main(int argc, char **argv)
 
     //Allocate array to hold InverterData structs
     InverterData *Inverters[MAX_INVERTERS];
-    for (int i=0; i<MAX_INVERTERS; Inverters[i++]=NULL);
+    for (uint32_t i=0; i<MAX_INVERTERS; Inverters[i++]=NULL);
 
     if (ConnType == CT_BLUETOOTH)
     {
@@ -210,7 +212,7 @@ int main(int argc, char **argv)
         std::cerr << "getTypeLabel returned an error: " << rc << std::endl;
     else
     {
-        for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             if ((Inverters[inv]->DevClass == BatteryInverter) || (Inverters[inv]->SUSyID == 292))	//SB 3600-SE (Smart Energy)
                 hasBatteryDevice = Inverters[inv]->hasBattery = true;
@@ -230,7 +232,7 @@ int main(int argc, char **argv)
     }
 
     // Check for Multigate and get connected devices
-    for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
         if ((Inverters[inv]->DevClass == CommunicationProduct) && (Inverters[inv]->SUSyID == SID_MULTIGATE))
         {
@@ -247,7 +249,7 @@ int main(int argc, char **argv)
                 if (VERBOSE_HIGH)
                 {
                     std::cout << "Found these devices:" << std::endl;
-                    for (int ii=0; Inverters[ii]!=NULL && ii<MAX_INVERTERS; ii++)
+                    for (uint32_t ii=0; Inverters[ii]!=NULL && ii<MAX_INVERTERS; ii++)
                     {
                         std::cout << "ID:" << ii << " S/N:" << Inverters[ii]->SUSyID << "-" << Inverters[ii]->Serial << " IP:" << Inverters[ii]->IPAddress << std::endl;
                     }
@@ -269,7 +271,7 @@ int main(int argc, char **argv)
                     printf("getTypeLabel returned an error: %d\n", rc);
                 else
                 {
-                    for (int ii=0; Inverters[ii]!=NULL && ii<MAX_INVERTERS; ii++)
+                    for (uint32_t ii=0; Inverters[ii]!=NULL && ii<MAX_INVERTERS; ii++)
                     {
                         if (VERBOSE_NORMAL)
                         {
@@ -292,7 +294,7 @@ int main(int argc, char **argv)
             std::cerr << "getBatteryChargeStatus returned an error: " << rc << std::endl;
         else
         {
-            for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
             {
                 if ((Inverters[inv]->DevClass == BatteryInverter) || (Inverters[inv]->hasBattery))
                 {
@@ -309,7 +311,7 @@ int main(int argc, char **argv)
             std::cerr << "getBatteryInfo returned an error: " << rc << std::endl;
         else
         {
-            for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
             {
                 if ((Inverters[inv]->DevClass == BatteryInverter) || (Inverters[inv]->hasBattery))
                 {
@@ -328,7 +330,7 @@ int main(int argc, char **argv)
             std::cerr << "getMeteringGridInfo returned an error: " << rc << std::endl;
         else
         {
-            for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
             {
                 if ((Inverters[inv]->DevClass == BatteryInverter) || (Inverters[inv]->hasBattery))
                 {
@@ -347,7 +349,7 @@ int main(int argc, char **argv)
         std::cerr << "getDeviceStatus returned an error: " << rc << std::endl;
     else
     {
-        for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             if (VERBOSE_NORMAL)
             {
@@ -361,7 +363,7 @@ int main(int argc, char **argv)
         std::cerr << "getInverterTemperature returned an error: " << rc << std::endl;
     else
     {
-        for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             if (VERBOSE_NORMAL)
             {
@@ -377,7 +379,7 @@ int main(int argc, char **argv)
             std::cerr << "getGridRelayStatus returned an error: " << rc << std::endl;
         else
         {
-            for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
             {
                 if (Inverters[inv]->DevClass == SolarInverter)
                 {
@@ -400,7 +402,7 @@ int main(int argc, char **argv)
             std::cerr << "getMaxACPower2 returned an error: " << rc << std::endl;
         else
         {
-            for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
             {
                 if (VERBOSE_NORMAL)
                 {
@@ -420,7 +422,7 @@ int main(int argc, char **argv)
         std::cerr << "getOperationTime returned an error: " << rc << std::endl;
     else
     {
-        for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             if (VERBOSE_NORMAL)
             {
@@ -444,7 +446,7 @@ int main(int argc, char **argv)
     if (cfg.calcMissingSpot == 1)
         CalcMissingSpot(Inverters[0]);
 
-    for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
         Inverters[inv]->calPdcTot = Inverters[inv]->Pdc1 + Inverters[inv]->Pdc2;
         if (VERBOSE_NORMAL)
@@ -470,7 +472,7 @@ int main(int argc, char **argv)
     if (cfg.calcMissingSpot == 1)
         CalcMissingSpot(Inverters[0]);
 
-    for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
         Inverters[inv]->calPacTot = Inverters[inv]->Pac1 + Inverters[inv]->Pac2 + Inverters[inv]->Pac3;
         //Calculated Inverter Efficiency
@@ -491,7 +493,7 @@ int main(int argc, char **argv)
         std::cerr << "getSpotGridFrequency returned an error: " << rc << std::endl;
     else
     {
-        for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             if (VERBOSE_NORMAL)
             {
@@ -503,7 +505,7 @@ int main(int argc, char **argv)
 
     if (Inverters[0]->DevClass == SolarInverter)
     {
-        for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             if (VERBOSE_NORMAL)
             {
@@ -587,7 +589,7 @@ int main(int argc, char **argv)
         {
             if (VERBOSE_HIGH)
             {
-                for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+                for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
                 {
                     printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
                     for (idx=0; idx<sizeof(Inverters[inv]->dayData)/sizeof(DayData); idx++)
@@ -630,7 +632,7 @@ int main(int argc, char **argv)
 
             if (VERBOSE_HIGH)
             {
-                for (int inv = 0; Inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
+                for (uint32_t inv = 0; Inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                 {
                     printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
                     for (unsigned int ii = 0; ii < sizeof(Inverters[inv]->monthData) / sizeof(MonthData); ii++)
@@ -717,7 +719,7 @@ int main(int argc, char **argv)
     else
     {
         logoffMultigateDevices(Inverters);
-        for (int inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv=0; Inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
             logoffSMAInverter(Inverters[inv]);
     }
 

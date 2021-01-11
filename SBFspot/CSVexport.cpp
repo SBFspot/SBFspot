@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -163,19 +163,19 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData *inverters[])
 				{
 					fprintf(csv, "sep=%c\n", cfg->delimiter);
 					fprintf(csv, "Version CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s|Decimalpoint %s|Precision %d\n\n", cfg->prgVersion, OS, linebreak2txt(), delim2txt(cfg->delimiter), dp2txt(cfg->decimalpoint), cfg->precision);
-					for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 						fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName, cfg->delimiter, inverters[inv]->DeviceName);
 					fputs("\n", csv);
-					for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 						fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType, cfg->delimiter, inverters[inv]->DeviceType);
 					fputs("\n", csv);
-					for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 						fprintf(csv, "%c%lu%c%lu", cfg->delimiter, inverters[inv]->Serial, cfg->delimiter, inverters[inv]->Serial);
 					fputs("\n", csv);
-					for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 						fprintf(csv, "%cTotal yield%cDay yield", cfg->delimiter, cfg->delimiter);
 					fputs("\n", csv);
-					for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 						fprintf(csv, "%cCounter%cAnalog", cfg->delimiter, cfg->delimiter);
 					fputs("\n", csv);
 				}
@@ -184,7 +184,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData *inverters[])
 					char *DMY = DateTimeFormatToDMY(cfg->DateFormat);
 					fprintf(csv, "%s", DMY);
 					free(DMY);
-					for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 						fprintf(csv, "%ckWh%ckWh", cfg->delimiter, cfg->delimiter);
 					fputs("\n", csv);
 				}
@@ -195,14 +195,14 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData *inverters[])
 			for (unsigned int idx=0; idx<sizeof(inverters[0]->monthData)/sizeof(MonthData); idx++)
 			{
 				time_t datetime = 0;
-				for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+				for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 					if (inverters[inv]->monthData[idx].datetime > 0)
 						datetime = inverters[inv]->monthData[idx].datetime;
 
 				if (datetime > 0)
 				{
 					fprintf(csv, "%s", strfgmtime_t(cfg->DateFormat, datetime));
-					for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+					for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 					{
 						fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->monthData[idx].totalWh/1000, 0, cfg->precision, cfg->decimalpoint));
 						fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->monthData[idx].dayWh/1000, 0, cfg->precision, cfg->decimalpoint));
@@ -257,19 +257,19 @@ int ExportDayDataToCSV(const Config *cfg, InverterData *inverters[])
 		{
 			fprintf(csv, "sep=%c\n", cfg->delimiter);
 			fprintf(csv, "Version CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s|Decimalpoint %s|Precision %d\n\n", cfg->prgVersion, OS, linebreak2txt(), delim2txt(cfg->delimiter), dp2txt(cfg->decimalpoint), cfg->precision);
-			for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+			for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName, cfg->delimiter, inverters[inv]->DeviceName);
 			fputs("\n", csv);
-			for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+			for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType, cfg->delimiter, inverters[inv]->DeviceType);
 			fputs("\n", csv);
-			for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+			for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				fprintf(csv, "%c%lu%c%lu", cfg->delimiter, inverters[inv]->Serial, cfg->delimiter, inverters[inv]->Serial);
 			fputs("\n", csv);
-			for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+			for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				fprintf(csv, "%cTotal yield%cPower", cfg->delimiter, cfg->delimiter);
 			fputs("\n", csv);
-			for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+			for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				fprintf(csv, "%cCounter%cAnalog", cfg->delimiter, cfg->delimiter);
 			fputs("\n", csv);
 		}
@@ -278,7 +278,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData *inverters[])
 			char *DMY = DateTimeFormatToDMY(cfg->DateTimeFormat);
 			fputs(DMY, csv);
 			free(DMY);
-			for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+			for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				fprintf(csv, "%ckWh%ckW", cfg->delimiter, cfg->delimiter);
 			fputs("\n", csv);
 		}
@@ -290,7 +290,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData *inverters[])
 	{
 		time_t datetime = 0;
 		unsigned long long totalPower = 0;
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 			if (inverters[inv]->dayData[dd].datetime > 0)
 			{
 				datetime = inverters[inv]->dayData[dd].datetime;
@@ -302,7 +302,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData *inverters[])
 			if ((cfg->CSV_SaveZeroPower == 1) || (totalPower > 0))
 			{
 				fprintf(csv, "%s", strftime_t(cfg->DateTimeFormat, datetime));
-				for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+				for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 				{
 					fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->dayData[dd].totalWh/1000, 0, cfg->precision, cfg->decimalpoint));
 					fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->dayData[dd].watt/1000, 0, cfg->precision, cfg->decimalpoint));
@@ -398,17 +398,17 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData *inverters[])
 				colcnt++;
 			}
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 			for (int i = 0; i<colcnt; i++)
 				fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceName);
 		fputs("\n", csv);
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 			for (int i = 0; i < colcnt; i++)
 				fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceType);
 		fputs("\n", csv);
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 			for (int i = 0; i < colcnt; i++)
 				fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
 		fputs("\n", csv);
@@ -417,7 +417,7 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData *inverters[])
 	if (cfg->CSV_Header == 1)
 	{
 		fputs("TimeStamp", csv);
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 			fputs(Header1, csv);
 		fputs("\n", csv);
 	}
@@ -425,10 +425,10 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData *inverters[])
 
 	if (cfg->CSV_ExtendedHeader == 1)
 	{
-		for (int i=0; Header2[i]!=0; i++)
+		for (uint32_t i=0; Header2[i]!=0; i++)
 			if (Header2[i]=='|') Header2[i]=cfg->delimiter;
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 			fputs(Header2, csv);
 		fputs("\n", csv);
 
@@ -436,9 +436,9 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData *inverters[])
 		fputs(DMY, csv);
 		free(DMY);
 
-		for (int i=0; Header3[i]!=0; i++)
+		for (uint32_t i=0; Header3[i]!=0; i++)
 			if (Header3[i]=='|') Header3[i]=cfg->delimiter;
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 			fputs(Header3, csv);
 		fputs("\n", csv);
 	}
@@ -499,7 +499,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData *inverters[])
 		if (cfg->SpotWebboxHeader == 1)
 			fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
 			if (cfg->SpotWebboxHeader == 0)
 			{
@@ -597,7 +597,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData *inverters[], std::string 
 			}
 		}
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
 			// Sort events on ascending Entry_ID
 			std::sort(inverters[inv]->eventData.begin(), inverters[inv]->eventData.end(), SortEntryID_Asc);
@@ -712,7 +712,7 @@ int ExportBatteryDataToCSV(Config *cfg, InverterData *inverters[])
 		if (cfg->SpotWebboxHeader == 1)
 			fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
 			if (cfg->SpotWebboxHeader == 0)
 			{

@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2020, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -66,7 +66,7 @@ E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
     if (VERBOSE_NORMAL)
         printf("startTime = %08lX -> %s\n", startTime, strftime_t("%d/%m/%Y %H:%M:%S", startTime));
 
-    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 	{
 		if (inverters[inv]->SUSyID == SID_MULTIGATE) hasMultigate = true;
 		inverters[inv]->hasDayData = false;
@@ -84,7 +84,7 @@ E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
 
     E_SBFSPOT hasData = E_ARCHNODATA;
 
-    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
 		if ((inverters[inv]->DevClass != CommunicationProduct) && (inverters[inv]->SUSyID != SID_MULTIGATE))
 		{
@@ -211,13 +211,13 @@ E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
 		
 		if (VERBOSE_HIGHEST) std::cout << "Consolidating daydata of micro-inverters into multigate..." << std::endl;
 
-		for (int mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
+		for (uint32_t mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
 		{
 			InverterData *pmg = inverters[mg];
 			if (pmg->SUSyID == SID_MULTIGATE)
 			{
 				pmg->hasDayData = true;
-				for (int sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
+				for (uint32_t sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
 				{
 					InverterData *psb = inverters[sb240];
 					if ((psb->SUSyID == SID_SB240) && (psb->multigateID == mg))
@@ -260,7 +260,7 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
     if (VERBOSE_NORMAL)
         printf("startTime = %08lX -> %s\n", startTime, strftime_t("%d/%m/%Y %H:%M:%S", startTime));
 
-    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 	{
 		if (inverters[inv]->SUSyID == SID_MULTIGATE) hasMultigate = true;
 		inverters[inv]->hasMonthData = false;
@@ -275,7 +275,7 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
     int packetcount = 0;
     int validPcktID = 0;
 
-    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
 		if ((inverters[inv]->DevClass != CommunicationProduct) && (inverters[inv]->SUSyID != SID_MULTIGATE))
 		{
@@ -377,13 +377,13 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
 
 		if (VERBOSE_HIGHEST) std::cout << "Consolidating monthdata of micro-inverters into multigate..." << std::endl;
 
-		for (int mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
+		for (uint32_t mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
 		{
 			InverterData *pmg = inverters[mg];
 			if (pmg->SUSyID == SID_MULTIGATE)
 			{
 				pmg->hasMonthData = true;
-				for (int sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
+				for (uint32_t sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
 				{
 					InverterData *psb = inverters[sb240];
 					if ((psb->SUSyID == SID_SB240) && (psb->multigateID == mg))
@@ -413,7 +413,7 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
 	time_t startTime = to_time_t(startDate);
 	time_t endTime = startTime + 86400 * startDate.end_of_month().day();
 
-    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
         do
         {
@@ -503,7 +503,7 @@ E_SBFSPOT getMonthDataOffset(InverterData *inverters[])
 
 	if (rc == E_OK)
 	{
-	    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+	    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
 			inverters[inv]->monthDataOffset = 0;
 			if (inverters[inv]->hasMonthData)

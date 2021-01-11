@@ -7,7 +7,7 @@
                                                    |_|
 
 	SBFspot - Yet another tool to read power production of SMA® solar/battery inverters
-	(c)2012-2020, SBF
+	(c)2012-2021, SBF
 
 	Latest version can be found at https://github.com/SBFspot/SBFspot
 
@@ -29,8 +29,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -87,8 +87,6 @@ using namespace boost::gregorian;
 int MAX_CommBuf = 0;
 int MAX_pcktBuf = 0;
 
-const int MAX_INVERTERS = 20;
-
 //Public vars
 int debug = 0;
 int verbose = 0;
@@ -102,7 +100,7 @@ bool hasBatteryDevice = false;	// Plant has 1 or more battery device(s)
 //Free memory allocated by initialiseSMAConnection()
 void freemem(InverterData *inverters[])
 {
-    for (int i=0; i<MAX_INVERTERS; i++)
+    for (uint32_t i=0; i<MAX_INVERTERS; i++)
         if (inverters[i] != NULL)
         {
             delete inverters[i];
@@ -252,7 +250,7 @@ int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, u
 		printf("Looking up %d:%lu\n", SUSyID, (unsigned long)Serial);
 	}
 
-    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
 		if (DEBUG_HIGHEST)
 			printf("Inverter[%d] %d:%lu\n", inv, inverters[inv]->SUSyID, inverters[inv]->Serial);
@@ -269,7 +267,7 @@ int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, u
 
 int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial)
 {
-    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
         if (inverters[inv]->Serial == Serial)
             return inv;
@@ -280,7 +278,7 @@ int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial)
 
 int getInverterIndexByAddress(InverterData *inverters[], unsigned char bt_addr[6])
 {
-    for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
         int byt;
         for (byt=0; byt<6; byt++)
@@ -595,7 +593,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 
     //Get network topology
     int pcktsize = get_short(pcktBuf+1);
-    int devcount = 0;
+	uint32_t devcount = 0;
     for (int ptr=18; ptr <= pcktsize-8; ptr+=8)
     {
         if (DEBUG_NORMAL)
@@ -764,7 +762,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
     bthSend(pcktBuf);
 
     //All inverters *should* reply with their SUSyID & SerialNr (and some other unknown info)
-    for (int idx=0; inverters[idx]!=NULL && idx<MAX_INVERTERS; idx++)
+    for (uint32_t idx=0; inverters[idx]!=NULL && idx<MAX_INVERTERS; idx++)
     {
         if (getPacket(addr_unknown, 0x01) != E_OK)
             return E_INIT;
@@ -895,7 +893,7 @@ E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *pass
         do	//while (validPcktID == 0);
         {
             // In a multi inverter plant we get a reply from all inverters
-            for (int i=0; inverters[i]!=NULL && i<MAX_INVERTERS; i++)
+            for (uint32_t i=0; inverters[i]!=NULL && i<MAX_INVERTERS; i++)
             {
                 if ((rc  = getPacket(addr_unknown, 1)) != E_OK)
                     return rc;
@@ -934,7 +932,7 @@ E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *pass
     }
     else    // CT_ETHERNET
     {
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
 			do
 			{
@@ -2290,7 +2288,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
         return E_BADARG;
     };
 
-    for (int i=0; devList[i]!=NULL && i<MAX_INVERTERS; i++)
+    for (uint32_t i=0; devList[i]!=NULL && i<MAX_INVERTERS; i++)
     {
 		do
 		{
@@ -2787,7 +2785,7 @@ void resetInverterData(InverterData *inv)
 	inv->Udc2 = 0;
 	inv->WakeupTime = 0;
 	inv->monthDataOffset = 0;
-	inv->multigateID = -1;
+	inv->multigateID = NaN_U32;
 	inv->MeteringGridMsTotWIn = 0;
 	inv->MeteringGridMsTotWOut = 0;
 	inv->hasBattery = false;
@@ -3001,13 +2999,13 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
 E_SBFSPOT logoffMultigateDevices(InverterData *inverters[])
 {
     if (DEBUG_NORMAL) puts("logoffMultigateDevices()");
-	for (int mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
+	for (uint32_t mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)
 	{
 		InverterData *pmg = inverters[mg];
 		if (pmg->SUSyID == SID_MULTIGATE)
 		{
 			pmg->hasDayData = true;
-			for (int sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
+			for (uint32_t sb240=0; inverters[sb240]!=NULL && sb240<MAX_INVERTERS; sb240++)
 			{
 				InverterData *psb = inverters[sb240];
 				if ((psb->SUSyID == SID_SB240) && (psb->multigateID == mg))

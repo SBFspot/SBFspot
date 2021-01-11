@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -56,7 +56,7 @@ int db_SQL_Export::day_data(InverterData *inverters[])
 	{
 		exec_query("START TRANSACTION");
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
 			const unsigned int numelements = sizeof(inverters[inv]->dayData)/sizeof(DayData);
 			unsigned int first_rec, last_rec;
@@ -158,7 +158,7 @@ int db_SQL_Export::month_data(InverterData *inverters[])
 	{
 		exec_query("START TRANSACTION");
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
 			for (unsigned int idx = 0; idx < sizeof(inverters[inv]->monthData)/sizeof(MonthData); idx++)
 			{
@@ -219,7 +219,7 @@ int db_SQL_Export::spot_data(InverterData *inv[], time_t spottime)
 	stringstream sql;
 	int rc = SQL_OK;
 
-	for (int i=0; inv[i]!=NULL && i<MAX_INVERTERS; i++)
+	for (uint32_t i=0; inv[i]!=NULL && i<MAX_INVERTERS; i++)
 	{
 		sql.str("");
 		sql << "INSERT INTO SpotData VALUES(" <<
@@ -278,7 +278,7 @@ int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
 	{
 		exec_query("START TRANSACTION");
 
-		for (int i=0; inv[i]!=NULL && i<MAX_INVERTERS; i++)
+		for (uint32_t i=0; inv[i]!=NULL && i<MAX_INVERTERS; i++)
 		{
 			for (vector<EventData>::iterator it=inv[i]->eventData.begin(); it!=inv[i]->eventData.end(); ++it)
 			{
@@ -427,7 +427,7 @@ int db_SQL_Export::battery_data(InverterData *inverters[], time_t spottime)
 	{
 		exec_query("START TRANSACTION");
 
-		for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+		for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 		{
 			InverterData* id = inverters[inv];
 		    if ((id->DevClass == BatteryInverter) || (id->hasBattery))

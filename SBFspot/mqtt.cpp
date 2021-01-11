@@ -53,7 +53,7 @@ int mqtt_publish(const Config *cfg, InverterData *inverters[])
 	int prec = cfg->precision;
 	char dp = '.';
 
-	for (int inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+	for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
 	{
 #if defined(WIN32)
 		std::string mqtt_command_line = "\"\"" + cfg->mqtt_publish_exe + "\" " + cfg->mqtt_publish_args + "\"";

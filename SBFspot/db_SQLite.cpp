@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2020, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -32,28 +32,7 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-/***********************************************************************************************
- ** SQLite is a software library that implements a self-contained, serverless, zero-configuration,
- ** transactional SQL database engine. SQLite is the most widely deployed SQL database engine in
- ** the world. The source code for SQLite is in the public domain.
- **
- ** Configuration for Windows build
- ** Visit http://www.sqlite.org/download.html
- **	Download sqlite-dll-win32-x86-3080403.zip (V3.8.4.3) (Precompiled Binaries for Windows)
- **	Extract sqlite3.dll to %windir%\System32
- **	Extract sqlite3.def to %ProgramFiles%\Microsoft Visual Studio 10.0\VC\lib\SQLite
- **	Start Visual Studio Command Prompt
- **	CD %ProgramFiles%\Microsoft Visual Studio 10.0\VC\lib\SQLite
- **	LIB.EXE /DEF:sqlite3.def /MACHINE:x86
- ** => this will create sqlite3.lib (needed by Linker)
- ** Download sqlite-amalgamation-3080403.zip (Source Code V3.8.4.3)
- ** Extract sqlite3.h to %ProgramFiles%\Microsoft Visual Studio 10.0\VC\include\SQLite
- ***********************************************************************************************/
-
 #if defined(USE_SQLITE)
-
-//TODO: MAX_INVERTERS is defined twice (Quick but dirty fix)
-const int MAX_INVERTERS = 20;
 
 #include "db_SQLite.h"
 #include <boost/algorithm/string.hpp>
@@ -158,7 +137,7 @@ int db_SQL_Base::type_label(InverterData *inverters[])
 	std::stringstream sql;
 	int rc = SQLITE_OK;
 
-	for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+	for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 	{
 		sql.str("");
 
@@ -197,7 +176,7 @@ int db_SQL_Base::device_status(InverterData *inverters[], time_t spottime)
 	// Take time from computer instead of inverter
 	//time_t spottime = cfg->SpotTimeSource == 0 ? inverters[0]->InverterDatetime : time(NULL);
 
-	for (int inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+	for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 	{
 		sql.str("");
 

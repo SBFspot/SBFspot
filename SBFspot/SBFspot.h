@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2020, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -90,15 +90,11 @@ int DaysInMonth(int month, int year);
 int getBT_SignalStrength(InverterData *invData);
 void freemem(InverterData *inverters[]);
 int GetConfig(Config *cfg);
-const char *getEventCategory(unsigned short eFlags);
-const char *getEventGroup(unsigned long eGroup);
-const char *getEventType(unsigned short eventflags);
 int getInverterData(InverterData *inverters[], enum getInverterDataType type);
 int getInverterIndexByAddress(InverterData *inverters[], unsigned char bt_addr[6]);
 int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial);
 int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial);
 E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command);
-//int get_tzOffset(void);
 void HexDump(unsigned char *buf, int count, int radix);
 E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], int MIS);
 void InvalidArg(char *arg);
@@ -108,14 +104,11 @@ E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *pass
 E_SBFSPOT logoffSMAInverter(InverterData *inverter);
 E_SBFSPOT logoffMultigateDevices(InverterData *inverters[]);
 int parseCmdline(int argc, char **argv, Config *cfg);
-void printHexBytes(BYTE *buf, int num);
 void SayHello(int ShowHelp);
 E_SBFSPOT SetPlantTime(time_t ndays, time_t lowerlimit = 0, time_t upperlimit = 0);
 E_SBFSPOT ethGetPacket(void);
 void resetInverterData(InverterData *inv);
 void ShowConfig(Config *cfg);
-E_SBFSPOT getInverterWMax(InverterData *inv, Rec40S32 &data);
-E_SBFSPOT setInverterWMax(InverterData *inv, Rec40S32 &data);
 E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &data);
 E_SBFSPOT setDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &data);
 E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID);
@@ -134,7 +127,7 @@ extern unsigned short AppSUSyID;
 extern unsigned long AppSerial;
 extern const unsigned short anySUSyID;
 extern const unsigned long anySerial;
-extern const int MAX_INVERTERS;
+extern const uint32_t MAX_INVERTERS;
 
 extern const char *IP_Broadcast;
 extern const char *IP_Inverter;
