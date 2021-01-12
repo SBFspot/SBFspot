@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 	Log("SBFspotUploadDaemon Version " + std::string(VERSION), LOG_INFO_);
 
 	// Check if DB is accessible
-	db_SQL_Base db = db_SQL_Base();
+	db_SQL_Base db;
 	db.open(cfg.getSqlHostname(), cfg.getSqlUsername(), cfg.getSqlPassword(), cfg.getSqlDatabase());
 	if (!db.isopen())
 	{

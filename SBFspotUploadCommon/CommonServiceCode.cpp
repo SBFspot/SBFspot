@@ -46,7 +46,7 @@ void CommonServiceCode(void)
 	int nextStatusCheck = 0;
 	const int timeBetweenChecks = 2 * 60 * 60;	// every 2 hours
 
-	db_SQL_Base db = db_SQL_Base();
+	db_SQL_Base db;
 
     // Periodically check if the service is stopping.
     while (!bStopping)

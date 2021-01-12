@@ -542,7 +542,7 @@ int main(int argc, char **argv)
         ExportBatteryDataToCSV(&cfg, Inverters);
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
-    db_SQL_Export db = db_SQL_Export();
+    db_SQL_Export db;
     if (!cfg.nosql)
     {
         db.open(cfg.sqlHostname, cfg.sqlUsername, cfg.sqlUserPassword, cfg.sqlDatabase);
