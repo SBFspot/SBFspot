@@ -68,6 +68,10 @@ int db_SQL_Export::day_data(InverterData *inverters[])
 					break;
 			}
 
+			// Include zero record, just after production stopped
+			if ((last_rec < numelements - 1) && (inverters[inv]->dayData[last_rec + 1].datetime != 0))
+				last_rec++;
+
 			if (first_rec < last_rec) // Production data found or all zero?
 			{
 				// Store data from first to last record
