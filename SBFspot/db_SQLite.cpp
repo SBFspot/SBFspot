@@ -60,7 +60,7 @@ string db_SQL_Base::status_text(int status)
 	}
 }
 
-int db_SQL_Base::open(string server, string user, string pass, string database)
+int db_SQL_Base::open(const string database)
 {
 	int result = SQLITE_OK;
 

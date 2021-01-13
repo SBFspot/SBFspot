@@ -68,7 +68,7 @@ protected:
 public:
 	db_SQL_Base() { m_dbHandle = NULL; }
 	~db_SQL_Base() { if (m_dbHandle) close(); }
-	int open(std::string server, std::string user, std::string pass, std::string database);
+	int open(const std::string database);
 	int close(void);
 	int exec_query(std::string qry);
 	std::string errortext(void) { return m_dbHandle ? sqlite3_errmsg(m_dbHandle) : "Unable to open the database file [" + m_database + "]"; }

@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -29,14 +29,6 @@ DISCLAIMER:
 	the use or application of the software.
 
 ************************************************************************************************/
-
-#define VERSION "2.0.0"
-
-// Redesigned for systemd (Thanks to Jonathan de Boyne Pollard)
-
-// Fixed #215: Start SBFspotUpload.service failed because the control process exited with error code
-// Fixed #224: SBFSpotUpload.cfg - log level doesn't work
-
 
 #include "../SBFspotUploadCommon/CommonServiceCode.h"
 
@@ -109,11 +101,19 @@ int main(int argc, char *argv[])
 	if (cfg.readSettings(argv[0], config_file) != Configuration::CFG_OK)
 		return EXIT_FAILURE;
 
-	Log("SBFspotUploadDaemon Version " + std::string(VERSION), LOG_INFO_);
+	std::clog << "SBFspotUploadDaemon Version " << cfg.getVersion();
+	std::clog << "\nLoglevel=" << cfg.getLogLevel();
+	std::clog << "\nLogDir=" << cfg.getLogDir() << std::endl;
+	
+	Log("SBFspotUploadDaemon Version " + cfg.getVersion(), LOG_INFO_);
 
 	// Check if DB is accessible
 	db_SQL_Base db;
-	db.open(cfg.getSqlHostname(), cfg.getSqlUsername(), cfg.getSqlPassword(), cfg.getSqlDatabase());
+#if defined(USE_MYSQL)
+	db.open(cfg.getSqlHostname(), cfg.getSqlUsername(), cfg.getSqlPassword(), cfg.getSqlDatabase(), cfg.getSqlPort());
+#elif defined(USE_SQLITE)
+	db.open(cfg.getSqlDatabase());
+#endif
 	if (!db.isopen())
 	{
 		std::clog << "Unable to open database. Check configuration." << std::endl;

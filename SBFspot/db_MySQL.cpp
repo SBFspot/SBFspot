@@ -60,7 +60,7 @@ string db_SQL_Base::status_text(int status)
 	}
 }
 
-int db_SQL_Base::open(string server, string user, string pass, string database)
+int db_SQL_Base::open(const string server, const string user, const string pass, const string database, const unsigned int port)
 {
 	int result = SQL_OK;
 
@@ -71,7 +71,7 @@ int db_SQL_Base::open(string server, string user, string pass, string database)
 		if (database.size() > 0)
 		{
 			m_dbHandle = mysql_init(NULL);
-			if (!mysql_real_connect(m_dbHandle, server.c_str(), user.c_str(), pass.c_str(), database.c_str(), 0, NULL, 0))
+			if (!mysql_real_connect(m_dbHandle, server.c_str(), user.c_str(), pass.c_str(), database.c_str(), port, NULL, 0))
 			{
 			    m_errortext = mysql_error(m_dbHandle);
 				result = SQL_ERROR;

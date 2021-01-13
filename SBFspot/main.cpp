@@ -545,7 +545,11 @@ int main(int argc, char **argv)
     db_SQL_Export db;
     if (!cfg.nosql)
     {
-        db.open(cfg.sqlHostname, cfg.sqlUsername, cfg.sqlUserPassword, cfg.sqlDatabase);
+#if defined(USE_MYSQL)
+		db.open(cfg.sqlHostname, cfg.sqlUsername, cfg.sqlUserPassword, cfg.sqlDatabase, cfg.sqlPort);
+#elif defined(USE_SQLITE)
+		db.open(cfg.sqlDatabase);
+#endif
         if (db.isopen())
         {
             time_t spottime = time(NULL);

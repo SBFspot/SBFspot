@@ -80,6 +80,7 @@ typedef struct
     std::string sqlHostname;
     std::string sqlUsername;
     std::string sqlUserPassword;
+	unsigned int sqlPort;
     int		synchTime;				// 1=Synch inverter time with computer time (default=0)
     float	sunrise;
     float	sunset;

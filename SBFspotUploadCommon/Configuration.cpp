@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -32,8 +32,6 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#define VERSION "1.0.0"
-
 #include "Configuration.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -42,11 +40,6 @@ using namespace std;
 
 std::string errlevelText[] = {"", "DEBUG", "INFO", "WARNING", "ERROR"};
 
-Configuration::Configuration()
-{
-	m_PrgVersion = VERSION;
-	m_PvoConsolidated = true;
-}
 
 int Configuration::readSettings(std::wstring wme, std::wstring wfilename)
 {
@@ -185,6 +178,17 @@ int Configuration::readSettings(std::string me, std::string filename)
 
 					else if (lineparts[0] == "sql_password")
 						m_SqlUserPassword = lineparts[1];
+					else if (lineparts[0] == "sql_port")
+						try
+						{
+							m_SqlPort = boost::lexical_cast<unsigned int>(lineparts[1]);
+						}
+						catch (...)
+						{
+							print_error("Syntax error", lineCnt, m_ConfigFile);
+							m_Status = CFG_ERROR;
+							break;
+						}
 #endif
 					else
 						cerr << "WARNING: Ignoring '" << lineparts[0] << "'" << endl;

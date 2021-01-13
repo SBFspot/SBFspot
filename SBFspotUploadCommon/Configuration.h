@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -33,6 +33,9 @@ DISCLAIMER:
 ************************************************************************************************/
 
 #pragma once
+
+// Upload daemon/service Version
+#define VERSION "3.0.0"
 
 #include "../SBFspot/osselect.h"
 #include <string>
@@ -66,7 +69,7 @@ public:
 
 private:
 	std::string	m_PrgVersion;
-	int			m_Status;
+	int			m_Status = 0;
 	std::string	m_ConfigFile;			//Fullpath to configuration file
 	std::string	m_AppPath;
 	std::string m_LogDir;
@@ -75,8 +78,8 @@ private:
     std::string m_SqlHostname;
     std::string m_SqlUsername;
     std::string m_SqlUserPassword;
+	unsigned int m_SqlPort = 3306;	// Default 3306
 	std::map<SMASerial, PVOSystemID> m_PvoSIDs;
-	bool		m_PvoConsolidated;
 	std::string	m_PvoAPIkey;
 
 	std::ifstream m_fs;
@@ -87,7 +90,7 @@ private:
 	int		verbose;			// -v			Verbose output level (0-5)
 
 public:
-	Configuration(void);
+	Configuration() { m_PrgVersion = VERSION; }
 	~Configuration();
 	int readSettings(std::string me, std::string filename);
 	int readSettings(std::wstring wme, std::wstring wfilename);
@@ -100,6 +103,7 @@ public:
 	std::string getSqlHostname() const { return m_SqlHostname; }
 	std::string getSqlUsername() const { return m_SqlUsername; }
 	std::string getSqlPassword() const { return m_SqlUserPassword; }
+	unsigned int getSqlPort() const { return m_SqlPort; }
 	const std::map<SMASerial, PVOSystemID>& getPvoSIDs() const { return m_PvoSIDs; }
 	std::string getPvoApiKey() const { return m_PvoAPIkey; }
 

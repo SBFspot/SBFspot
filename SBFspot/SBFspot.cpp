@@ -19,12 +19,6 @@
 	Snowmiss   : User manual
 	All other users for their contribution to the success of this project
 
-	The Windows version of this project is developed using Visual C++ 2010 Express
-		=> Use SBFspot.sln / SBFspot.vcxproj
-	For Linux, project can be built using Code::Blocks or Make tool
-		=> Use SBFspot.cbp for Code::Blocks
-		=> Use makefile for make tool (converted from .cbp project file)
-
 	License: Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
@@ -1602,6 +1596,8 @@ int GetConfig(Config *cfg)
 	cfg->mqtt_publish_data = "Timestamp,SunRise,SunSet,InvSerial,InvName,InvStatus,EToday,ETotal,PACTot,UDC1,UDC2,IDC1,IDC2,PDC1,PDC2";
 	cfg->mqtt_item_format = "\"{key}\": {value}";
 
+	cfg->sqlPort = 3306;
+
     const char *CFG_Boolean = "(0-1)";
     const char *CFG_InvalidValue = "Invalid value for '%s' %s\n";
 
@@ -1919,6 +1915,17 @@ int GetConfig(Config *cfg)
 					cfg->sqlUsername = value;
 				else if(stricmp(variable, "SQL_Password") == 0)
 					cfg->sqlUserPassword = value;
+				else if (stricmp(variable, "SQL_Port") == 0)
+					try
+						{
+						cfg->sqlPort = boost::lexical_cast<unsigned int>(value);
+						}
+						catch (...)
+						{
+							fprintf(stderr, CFG_InvalidValue, variable, "");
+							rc = -2;
+							break;
+						}
 #endif
 				else if (stricmp(variable, "MQTT_Host") == 0)
 					cfg->mqtt_host = value;

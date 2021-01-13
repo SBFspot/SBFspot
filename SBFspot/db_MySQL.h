@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA® solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -70,7 +70,7 @@ protected:
 public:
 	db_SQL_Base() { m_dbHandle = NULL; }
 	~db_SQL_Base() { if (m_dbHandle) close(); }
-	int open(std::string server, std::string user, std::string pass, std::string database);
+	int open(const std::string server, const std::string user, const std::string pass, const std::string database, const unsigned int port);
 	int close(void);
 	int exec_query(std::string qry);
 	std::string errortext(void) const { return m_errortext; }
