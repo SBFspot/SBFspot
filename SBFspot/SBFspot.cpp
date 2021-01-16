@@ -1480,7 +1480,7 @@ void SayHello(int ShowHelp)
 #endif
     std::cout << "SBFspot V" << VERSION << "\n";
     std::cout << "Yet another tool to read power production of SMA solar inverters\n";
-    std::cout << "(c) 2012-2020, SBF (https://github.com/SBFspot/SBFspot)\n";
+    std::cout << "(c) 2012-2021, SBF (https://github.com/SBFspot/SBFspot)\n";
     std::cout << "Compiled for " << OS << " (" << BYTEORDER << ") " << sizeof(long) * 8 << " bit";
 #if defined(USE_SQLITE)
 	std::cout << " with SQLite support" << std::endl;
@@ -1539,7 +1539,7 @@ int DaysInMonth(int month, int year)
     const int days[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     if ((month < 0) || (month > 11)) return 0;  //Error - Invalid month
-    // If febuary, check for leap year
+    // If february, check for leap year
     if ((month == 1) && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)))
         return 29;
     else

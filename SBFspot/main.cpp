@@ -322,7 +322,7 @@ int main(int argc, char **argv)
                     if (VERBOSE_NORMAL)
                     {
                         printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
-                        printf("Batt. Temperature: %3.1f%sC\n", (float)(Inverters[inv]->BatTmpVal / 10), SYM_DEGREE); // degree symbol is different on windows/linux
+                        printf("Batt. Temperature: %3.1f%s\n", (float)(Inverters[inv]->BatTmpVal / 10), tagdefs.getDesc(tagdefs.DEG_C).c_str());
                         printf("Batt. Voltage    : %3.2fV\n", toVolt(Inverters[inv]->BatVol));
                         printf("Batt. Current    : %2.3fA\n", toAmp(Inverters[inv]->BatAmp));
                     }
@@ -372,7 +372,7 @@ int main(int argc, char **argv)
             if (VERBOSE_NORMAL)
             {
                 printf("SUSyID: %d - SN: %lu\n", Inverters[inv]->SUSyID, Inverters[inv]->Serial);
-                printf("Device Temperature: %3.1f%sC\n", ((float)Inverters[inv]->Temperature / 100), SYM_DEGREE); // degree symbol is different on windows/linux
+                printf("Device Temperature: %3.1f%s\n", ((float)Inverters[inv]->Temperature / 100), tagdefs.getDesc(tagdefs.DEG_C).c_str());
             }
         }
     }
