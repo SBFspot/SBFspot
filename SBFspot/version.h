@@ -5,6 +5,7 @@ V3.8.0
 	Fix memory leaks (see #318)
 	Fix #7 MariaDB10 with Port 3307
 	Fix SQL daydata export (for PVoutput) : Include zero record, just after production stopped
+	Fix #395 Mix of ISO-8859-1 and UTF-8, CRLF and LF line endings
 */
 
 /***

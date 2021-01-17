@@ -1,5 +1,5 @@
 /************************************************************************************************
-	SBFspot - Yet another tool to read power production of SMA® solar inverters
+	SBFspot - Yet another tool to read power production of SMA solar inverters
 	(c)2012-2018, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
@@ -8,8 +8,8 @@
 	http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 	You are free:
-		to Share — to copy, distribute and transmit the work
-		to Remix — to adapt the work
+		to Share - to copy, distribute and transmit the work
+		to Remix - to adapt the work
 	Under the following conditions:
 	Attribution:
 		You must attribute the work in the manner specified by the author or licensor
@@ -31,58 +31,6 @@ DISCLAIMER:
 	SMA is a registered trademark of SMA Solar Technology AG
 
 ************************************************************************************************/
-
-/***********************************************************************************************
- **                                 _   _ ____  _
- **                             ___| | | |  _ \| |
- **                            / __| | | | |_) | |
- **                           | (__| |_| |  _ <| |___
- **                            \___|\___/|_| \_\_____|
- **
- ** Curl is a command line tool for transferring data specified with URL
- ** syntax. Find out how to use curl by reading the curl.1 man page or the
- ** MANUAL document. Find out how to install Curl by reading the INSTALL
- ** document.
- **
- ** COPYRIGHT AND PERMISSION NOTICE
- **
- ** Copyright (c) 1996 - 2008, Daniel Stenberg, <daniel@haxx.se>.
- **
- ** All rights reserved.
- **
- ** Permission to use, copy, modify, and distribute this software for any purpose
- ** with or without fee is hereby granted, provided that the above copyright
- ** notice and this permission notice appear in all copies.
- **
- ** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- ** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- ** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN
- ** NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- ** DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- ** OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
- ** OR OTHER DEALINGS IN THE SOFTWARE.
- **
- ** Except as contained in this notice, the name of a copyright holder shall not
- ** be used in advertising or otherwise to promote the sale, use or other dealings
- ** in this Software without prior written authorization of the copyright holder.
- **
- ***********************************************************************************************/
-
-/***********************************************************************************************
- ** Configuration for Windows build (Visual Studio 2010)
- ** Visit http://curl.haxx.se/download.html
- **	Download latest development version for Windows (libcurl-7.18.0-win32-msvc.zip found at
- ** http://curl.haxx.se/latest.cgi?curl=win32-devel-msvc)
- **	Extract libcurl.lib to %ProgramFiles%\Microsoft Visual Studio 10.0\VC\lib
- ** Extract include\curl\*.* to %ProgramFiles%\Microsoft Visual Studio 10.0\VC\include\curl
- ** Extract libcurl.dll to %windir%\system32 or Release/Debug folder
- ** curl needs zlib1.dll - See http://sourceforge.net/projects/gnuwin32/files/zlib/1.2.3/
- ***********************************************************************************************/
-
-/***********************************************************************************************
- ** Configuration for Linux build (Ubuntu)
- ** sudo apt-get install curl libcurl3 libcurl4-nss-dev
- ***********************************************************************************************/
 
 #include "PVOutput.h"
 #include <boost/algorithm/string.hpp>

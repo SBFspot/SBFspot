@@ -1,5 +1,5 @@
 /************************************************************************************************
-	SBFspot - Yet another tool to read power production of SMA® solar inverters
+	SBFspot - Yet another tool to read power production of SMA solar inverters
 	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
