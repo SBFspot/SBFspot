@@ -46,7 +46,7 @@ SOCKET sock = 0;
 //http://www.winsocketdotnetworkprogramming.com/winsock2programming/winsock2advancedotherprotocol4p.html
 //Windows Sockets Error Codes: http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
 
-int bthConnect(char *btAddr)
+int bthConnect(const char *btAddr)
 {
 	WSADATA wsd;
 	SOCKADDR_BTH sab;
@@ -296,7 +296,7 @@ void bthClear()
 
 struct sockaddr_rc addr = {0};
 
-int bthConnect(char *btAddr)
+int bthConnect(const char *btAddr)
 {
     int status = 0;
     sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
@@ -427,4 +427,3 @@ int bthRead(unsigned char *buf, unsigned int bufsize)
 
     return bytes_read;
 }
-

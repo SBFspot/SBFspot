@@ -54,7 +54,7 @@ typedef enum
     S123_STATE = 4	// Send inverter state data
 } S123_COMMAND;
 
-typedef struct
+struct Config
 {
     std::string	ConfigFile;			//Fullpath to configuration file
     std::string	AppPath;
@@ -131,7 +131,8 @@ typedef struct
     S123_COMMAND	s123;		// -123s		123Solar Web Solar logger support(http://www.123solar.org/)
     int		settime;			// -settime		Set plant time
     int		mqtt;				// -mqtt		Publish spot data to mqtt broker
-} Config;
+    int		ble = 0;			// -ble			Publish spot data via Bluetooth LE
+};
 
 typedef struct
 {
@@ -199,7 +200,7 @@ typedef enum
     DT_SLONG = 64
 } SMA_DATATYPE;
 
-typedef struct
+struct InverterData
 {
     char DeviceName[33];    //32 bytes + terminating zero
     unsigned char BTAddress[6];
@@ -264,8 +265,8 @@ typedef struct
     int32_t MeteringGridMsTotWIn;		// Power grid reference (In)
     bool hasBattery;					// Smart Energy device
     int logonStatus;
-	uint32_t multigateID;
-} InverterData;
+	uint32_t multigateID; 
+};
 
 //SMA Structs must be aligned on byte boundaries
 #pragma pack(push, 1)

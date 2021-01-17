@@ -39,7 +39,7 @@ DISCLAIMER:
 #include <boost/algorithm/string.hpp>
 #include "CSVexport.h" // FormatFloat(), FormatDouble()
 
-int mqtt_publish(const Config *cfg, InverterData *inverters[])
+int mqtt_publish(const Config *cfg, InverterData* const inverters[])
 {
 	int rc = 0;
 

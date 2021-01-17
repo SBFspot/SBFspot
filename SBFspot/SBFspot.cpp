@@ -270,7 +270,7 @@ int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial)
     return -1;
 }
 
-int getInverterIndexByAddress(InverterData *inverters[], unsigned char bt_addr[6])
+int getInverterIndexByAddress(InverterData* const inverters[], unsigned char bt_addr[6])
 {
     for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
@@ -346,7 +346,7 @@ E_SBFSPOT ethGetPacket(void)
     return rc;
 }
 
-E_SBFSPOT ethInitConnection(InverterData *inverters[], char *IP_Address)
+E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
 {
     if (VERBOSE_NORMAL) puts("Initializing...");
 
@@ -784,7 +784,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 
 // Init function used in SBFspot 2.0.6
 // Called when MIS_Enabled=0
-E_SBFSPOT initialiseSMAConnection(InverterData *invData)
+E_SBFSPOT initialiseSMAConnection(InverterData* const invData)
 {
 	//Wait for announcement/broadcast message from PV inverter
 	if (getPacket(invData->BTAddress, 2) != E_OK)
@@ -843,7 +843,7 @@ E_SBFSPOT initialiseSMAConnection(InverterData *invData)
     return E_OK;
 }
 
-E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *password)
+E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, const char *password)
 {
 #define MAX_PWLENGTH 12
     unsigned char pw[MAX_PWLENGTH] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -978,7 +978,7 @@ E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *pass
     return rc;
 }
 
-E_SBFSPOT logoffSMAInverter(InverterData *inverter)
+E_SBFSPOT logoffSMAInverter(InverterData* const inverter)
 {
     if (DEBUG_NORMAL) puts("logoffSMAInverter()");
     do
@@ -1431,6 +1431,9 @@ int parseCmdline(int argc, char **argv, Config *cfg)
 
 		else if (stricmp(argv[i], "-mqtt") == 0)
 			cfg->mqtt = 1;
+
+        else if (stricmp(argv[i], "-ble") == 0)
+            cfg->ble = 1;
 
         //Show Help
         else if (stricmp(argv[i], "-?") == 0)
@@ -3003,7 +3006,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
     return rc;
 }
 
-E_SBFSPOT logoffMultigateDevices(InverterData *inverters[])
+E_SBFSPOT logoffMultigateDevices(InverterData* const inverters[])
 {
     if (DEBUG_NORMAL) puts("logoffMultigateDevices()");
 	for (uint32_t mg=0; inverters[mg]!=NULL && mg<MAX_INVERTERS; mg++)

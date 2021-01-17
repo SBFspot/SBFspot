@@ -28,6 +28,9 @@
     <ClCompile Include="EventData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Inverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="boost_ext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -88,6 +91,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EventData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Inverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="boost_ext.h">

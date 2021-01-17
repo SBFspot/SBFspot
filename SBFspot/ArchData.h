@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+    (c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -31,8 +31,8 @@ DISCLAIMER:
 	SMA is a registered trademark of SMA Solar Technology AG
 
 ************************************************************************************************/
-#ifndef _ARCHDATA_H_
-#define _ARCHDATA_H_
+
+#pragma once
 
 #include "SBFspot.h"
 #include "misc.h"
@@ -44,9 +44,7 @@ DISCLAIMER:
 #include "boost/date_time/gregorian/gregorian.hpp"
 #include "boost/format.hpp"
 
-E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime);
+E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime);
 E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date startDate, unsigned long UserGroup);
 E_SBFSPOT ArchiveMonthData(InverterData *invData[], tm *start_tm);
 E_SBFSPOT getMonthDataOffset(InverterData *inverters[]);
-
-#endif

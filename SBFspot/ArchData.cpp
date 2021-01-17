@@ -40,7 +40,7 @@ using namespace boost::date_time;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
-E_SBFSPOT ArchiveDayData(InverterData *inverters[], time_t startTime)
+E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
 {
     if (VERBOSE_NORMAL)
     {

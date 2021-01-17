@@ -12,6 +12,7 @@ set(COMMON_SOURCES
     CSVexport.cpp
     Ethernet.cpp
     EventData.cpp
+    Inverter.cpp
     SBFNet.cpp
     SBFspot.cpp
     TagDefs.cpp
