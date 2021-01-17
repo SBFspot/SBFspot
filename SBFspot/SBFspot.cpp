@@ -1885,7 +1885,7 @@ int GetConfig(Config *cfg)
 					boost::local_time::tz_database tzDB;
 					string tzdbPath = cfg->AppPath + "date_time_zonespec.csv";
 					// load the time zone database which comes with boost
-					// file must be UNIX file format (line delimiter=CR)
+					// file must be UNIX file format (line delimiter=LF)
 					// if not: bad lexical cast: source type value could not be interpreted as target
 					try
 					{
