@@ -1,5 +1,5 @@
 /************************************************************************************************
-    SBFspot - Yet another tool to read power production of SMA® solar inverters
+    SBFspot - Yet another tool to read power production of SMA solar inverters
     (c)2012-2021, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
@@ -45,7 +45,7 @@ Inverter::Inverter(const Config& config)
 {
     //Allocate array to hold InverterData structs
     m_inverters = new InverterData*[MAX_INVERTERS];
-    for (int i=0; i<MAX_INVERTERS; m_inverters[i++]=NULL);
+    for (uint32_t i=0; i<MAX_INVERTERS; m_inverters[i++]=NULL);
 }
 
 Inverter::~Inverter()
