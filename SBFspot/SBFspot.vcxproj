@@ -369,6 +369,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     </ClInclude>
     <ClInclude Include="Ethernet.h" />
     <ClInclude Include="EventData.h" />
+    <ClInclude Include="Inverter.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="mqtt.h" />
     <ClInclude Include="oslinux.h" />
@@ -418,6 +419,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClCompile Include="endianness.h" />
     <ClCompile Include="Ethernet.cpp" />
     <ClCompile Include="EventData.cpp" />
+    <ClCompile Include="Inverter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="mqtt.cpp" />

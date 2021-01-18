@@ -60,7 +60,7 @@ string db_SQL_Base::status_text(int status)
 	}
 }
 
-int db_SQL_Base::open(const string database)
+int db_SQL_Base::open(const string& database)
 {
 	int result = SQLITE_OK;
 
@@ -137,7 +137,7 @@ int db_SQL_Base::type_label(InverterData *inverters[])
 	std::stringstream sql;
 	int rc = SQLITE_OK;
 
-	for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 	{
 		sql.str("");
 
@@ -176,7 +176,7 @@ int db_SQL_Base::device_status(InverterData *inverters[], time_t spottime)
 	// Take time from computer instead of inverter
 	//time_t spottime = cfg->SpotTimeSource == 0 ? inverters[0]->InverterDatetime : time(NULL);
 
-	for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
 	{
 		sql.str("");
 

@@ -96,7 +96,7 @@ extern int debug;
 extern int verbose;
 
 //Function prototypes
-int bthConnect(char *btAddr);
+int bthConnect(const char *btAddr);
 int bthClose();
 int bthRead(unsigned char *buf, unsigned int bufsize);
 int bthSend(unsigned char *btbuffer);

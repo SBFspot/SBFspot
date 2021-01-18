@@ -83,7 +83,7 @@ DISCLAIMER:
 
 //Function prototypes
 E_SBFSPOT initialiseSMAConnection(InverterData *invData);
-E_SBFSPOT ethInitConnection(InverterData *inverters[], char *IP_Address);
+E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address);
 E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::string> IPaddresslist);
 void CalcMissingSpot(InverterData *invData);
 int DaysInMonth(int month, int year);
@@ -91,7 +91,7 @@ int getBT_SignalStrength(InverterData *invData);
 void freemem(InverterData *inverters[]);
 int GetConfig(Config *cfg);
 int getInverterData(InverterData *inverters[], enum getInverterDataType type);
-int getInverterIndexByAddress(InverterData *inverters[], unsigned char bt_addr[6]);
+int getInverterIndexByAddress(InverterData* const inverters[], unsigned char bt_addr[6]);
 int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial);
 int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial);
 E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command);
@@ -100,9 +100,9 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 void InvalidArg(char *arg);
 int isCrcValid(unsigned char lb, unsigned char hb);
 int isValidSender(unsigned char senderaddr[6], unsigned char address[6]);
-E_SBFSPOT logonSMAInverter(InverterData *inverters[], long userGroup, char *password);
-E_SBFSPOT logoffSMAInverter(InverterData *inverter);
-E_SBFSPOT logoffMultigateDevices(InverterData *inverters[]);
+E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, const char *password);
+E_SBFSPOT logoffSMAInverter(InverterData* const inverter);
+E_SBFSPOT logoffMultigateDevices(InverterData* const inverters[]);
 int parseCmdline(int argc, char **argv, Config *cfg);
 void SayHello(int ShowHelp);
 E_SBFSPOT SetPlantTime(time_t ndays, time_t lowerlimit = 0, time_t upperlimit = 0);

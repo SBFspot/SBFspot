@@ -36,4 +36,4 @@ DISCLAIMER:
 
 #include "SBFspot.h"
 
-int mqtt_publish(const Config *cfg, InverterData *inverters[]);
+int mqtt_publish(const Config *cfg, InverterData* const inverters[]);
