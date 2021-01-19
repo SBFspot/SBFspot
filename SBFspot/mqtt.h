@@ -34,6 +34,19 @@ DISCLAIMER:
 
 #pragma once
 
-#include "SBFspot.h"
+#include <vector>
 
-int mqtt_publish(const Config *cfg, InverterData* const inverters[]);
+struct Config;
+struct InverterData;
+
+class MqttExport
+{
+public:
+    MqttExport(const Config& config);
+    ~MqttExport();
+
+    int exportInverterData(const std::vector<InverterData>& inverterData);
+
+private:
+    const Config& m_config;
+};

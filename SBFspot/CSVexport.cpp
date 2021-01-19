@@ -65,22 +65,6 @@ const char *linebreak2txt(void)
 #endif
 }
 
-char *FormatFloat(char *str, float value, int width, int precision, char decimalpoint)
-{
-	sprintf(str, "%*.*f", width, precision, value);
-	char *dppos = strrchr(str, '.');
-	if (dppos != NULL) *dppos = decimalpoint;
-	return str;
-}
-
-char *FormatDouble(char *str, double value, int width, int precision, char decimalpoint)
-{
-	sprintf(str, "%*.*f", width, precision, value);
-	char *dppos = strrchr(str, '.');
-	if (dppos != NULL) *dppos = decimalpoint;
-	return str;
-}
-
 // Convert format string like %d/%m/%Y %H:%M:%S to dd/mm/yyyy HH:mm:ss
 // Returns a pointer to DMY string
 // Caller is responsible to free the memory
