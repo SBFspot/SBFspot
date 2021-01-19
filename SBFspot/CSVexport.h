@@ -41,8 +41,6 @@ DISCLAIMER:
 const char *delim2txt(const char delim);
 const char *dp2txt(char dp);
 const char *linebreak2txt(void);
-char *FormatFloat(char *str, float value, int width, int precision, char decimalpoint);
-char *FormatDouble(char *str, double value, int width, int precision, char decimalpoint);
 char *DateTimeFormatToDMY(const char *dtf);
 int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[]);
 int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::string dt_range_csv);
