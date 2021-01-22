@@ -34,28 +34,28 @@ DISCLAIMER:
 
 #pragma once
 
-#include "Export.h"
-#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
-#include <mosquittopp.h>
-#endif
+#include <string>
+#include <vector>
 
-struct Config;
 struct InverterData;
 
-class MqttExport : public Export
-#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
-        , mosqpp::mosquittopp
-#endif
+class Export
 {
 public:
-    MqttExport(const Config& config);
-    ~MqttExport();
+    enum class InverterProperty : uint8_t
+    {
+        Version = 0,
+        Timestamp = 1,
+        YieldTotal = 2,
+        YieldToday = 3,
+        PowerAc = 4,
+        PowerAcMaxToday = 5,
+        PowerDc = 6,
+        PowerDcMaxToday = 7,
+    };
 
-    std::string name() const override;
-    int exportInverterData(const std::vector<InverterData>& inverterData) override;
+    virtual ~Export() = default;
 
-private:
-    int exportMsgPack(const std::vector<InverterData>& inverterData);
-
-    const Config& m_config;
+    virtual std::string name() const = 0;
+    virtual int exportInverterData(const std::vector<InverterData>& inverterData) = 0;
 };
