@@ -36,17 +36,52 @@ DISCLAIMER:
 
 #include "SBFspot.h"
 
+#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
+#include <chrono>
+#include <thread>
+#include <msgpack.hpp>
+using namespace std::chrono_literals;
+#endif
+
 MqttExport::MqttExport(const Config& config)
     : m_config(config)
 {
+#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
+    mosqpp::lib_init();
+    if (VERBOSE_HIGH)
+        std::cout << "MQTT: Connecting broker: " << m_config.mqtt_host << std::endl;
+    if (connect(m_config.mqtt_host.c_str()) != 0)
+    {
+        std::cout << "MQTT: Failed to connect broker: " << m_config.mqtt_host << std::endl;
+        return;
+    }
+
+    // Do NOT start loop before being connected.
+    loop_start();
+#endif
 }
 
 MqttExport::~MqttExport()
 {
+#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
+    // Let's sleep a little bit. mosquitto expects to run in an event loop.
+    std::this_thread::sleep_for(100ms);
+    disconnect();
+    loop_stop();
+    mosqpp::lib_cleanup();
+#endif
+}
+
+std::string MqttExport::name() const
+{
+    return "mqtt";
 }
 
 int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData)
 {
+    if (m_config.mqtt_item_format == "MSGPACK")
+        return exportMsgPack(inverterData);
+
 	int rc = 0;
 
 	// Split message body
@@ -154,10 +189,63 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
 
 		if (system_rc != 0) // Error
 		{
-            std::cout << "MQTT: Failed te execute '" << m_config.mqtt_publish_exe << "' mosquitto clients installed?" << std::endl;
+            std::cout << "MQTT: Failed to execute '" << m_config.mqtt_publish_exe << "' mosquitto clients installed?" << std::endl;
 			rc = system_rc;
 		}
-	}
+    } // for (const auto& inv : inverterData)
 
 	return rc;
+}
+
+int MqttExport::exportMsgPack(const std::vector<InverterData>& inverterData)
+{
+#if(!defined MOSQUITTO_FOUND || !defined MSGPACK_FOUND)
+    return -1;
+#else
+    for (const auto& inv : inverterData)
+    {
+        std::string topic = m_config.mqtt_topic;
+        boost::replace_first(topic, "{plantname}", m_config.plantname);
+        boost::replace_first(topic, "{serial}", std::to_string(inv.Serial));
+        topic += "/now";
+
+        // Pack manually (because a float in map gets stored as double and timestamp is not supported yet).
+        msgpack::sbuffer sbuf;
+        msgpack::packer<msgpack::sbuffer> packer(sbuf);
+        // Map with number of elements
+        packer.pack_map(6);
+        // 1. Protocol version
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Version));
+        packer.pack_uint8(0);
+        // 2. Timestamp
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Timestamp));
+        auto t = htonl(time(nullptr));
+        packer.pack_ext(4, -1); // Timestamp type
+        packer.pack_ext_body((const char*)(&t), 4);
+        // 3. Yield Total
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::YieldTotal));
+        packer.pack_float(static_cast<float>(inv.ETotal));
+        // 4. Yield Today
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::YieldToday));
+        packer.pack_float(static_cast<float>(inv.EToday));
+        // 5. Power AC
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PowerAc));
+        packer.pack_float(static_cast<float>(inv.TotalPac));
+        // 6. Power DC
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PowerDc));
+        packer.pack_array(2);   // Store an array to provide data for each Mpp.
+        packer.pack_float(static_cast<float>(inv.Pdc1));
+        packer.pack_float(static_cast<float>(inv.Pdc2));
+
+        if (VERBOSE_HIGH) std::cout << "MQTT: Publishing topic: " << topic
+                                    << ", data size: " << sbuf.size() << std::endl;
+        if (publish(nullptr, topic.c_str(), sbuf.size(), sbuf.data(), 0, true) != 0)
+        {
+            std::cout << "MQTT: Failed to publish topic" << std::endl;
+            continue;
+        }
+    }
+
+    return 0;
+#endif
 }

@@ -2,7 +2,12 @@ project(SBFspot)
 
 cmake_minimum_required(VERSION 3.10)
 
+find_package(PkgConfig)
 find_package(Boost REQUIRED COMPONENTS date_time)
+
+pkg_check_modules(Bluetooth REQUIRED IMPORTED_TARGET bluez)
+
+set(CMAKE_CXX_FLAGS "-Wno-deprecated-declarations")
 
 set(DB "SQLITE" CACHE STRING "DB backend to use: NOSQL, SQLITE, MYSQL, MARIADB")
 
@@ -67,9 +72,22 @@ add_executable(${PROJECT_NAME}
     ${COMMON_SOURCES}
 )
 
+# Optional libs
+pkg_check_modules(MessagePack IMPORTED_TARGET msgpack)
+if (MessagePack_FOUND)
+    add_compile_definitions(MSGPACK_FOUND MSGPACK_USE_BOOST)
+    target_link_libraries(${PROJECT_NAME} PkgConfig::MessagePack)
+endif()
+pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquittopp)
+if (Mosquitto_FOUND)
+    add_compile_definitions(MOSQUITTO_FOUND)
+    target_link_libraries(${PROJECT_NAME} PkgConfig::Mosquitto)
+endif()
+
+
 target_link_libraries(${PROJECT_NAME}
     Boost::date_time
-    bluetooth
+    PkgConfig::Bluetooth
     ${COMMON_LIBRARIES}
 )
 
