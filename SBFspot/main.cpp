@@ -33,7 +33,9 @@ DISCLAIMER:
 ************************************************************************************************/
 
 #include "Inverter.h"
-#include "sunrise_sunset.h"
+#include "Timer.h"
+
+#include <thread>
 
 const uint32_t MAX_INVERTERS = 20;
 
@@ -46,12 +48,9 @@ int main(int argc, char **argv)
 	SetConsoleOutputCP(CP_UTF8);
 #endif
 
-    int rc = 0;
-
-    Config cfg;
-
     //Read the command line and store settings in config struct
-    rc = parseCmdline(argc, argv, &cfg);
+    Config cfg;
+    int rc = parseCmdline(argc, argv, &cfg);
     if (rc == -1) return 1;	//Invalid commandline - Quit, error
     if (rc == 1) return 0;	//Nothing to do - Quit, no error
 
@@ -76,23 +75,11 @@ int main(int argc, char **argv)
 
     if (VERBOSE_NORMAL) print_error(stdout, PROC_INFO, "Starting...\n");
 
-    // If co-ordinates provided, calculate sunrise & sunset times
-    // for this location
-    if ((cfg.latitude != 0) || (cfg.longitude != 0))
+    Timer timer(cfg);
+    if (!timer.isBright() && (cfg.forceInq == 0) && (!cfg.loop))
     {
-        cfg.isLight = sunrise_sunset(cfg.latitude, cfg.longitude, &cfg.sunrise, &cfg.sunset, (float)cfg.SunRSOffset / 3600);
-
-        if (VERBOSE_NORMAL)
-        {
-            printf("sunrise: %02d:%02d\n", (int)cfg.sunrise, (int)((cfg.sunrise - (int)cfg.sunrise) * 60));
-            printf("sunset : %02d:%02d\n", (int)cfg.sunset, (int)((cfg.sunset - (int)cfg.sunset) * 60));
-        }
-
-        if ((cfg.forceInq == 0) && (cfg.isLight == 0))
-        {
-            if (quiet == 0) puts("Nothing to do... it's dark. Use -finq to force inquiry.");
-            return 0;
-        }
+        if (quiet == 0) puts("Nothing to do... it's dark. Use -finq to force inquiry.");
+        return 0;
     }
 
     int status = tagdefs.readall(cfg.AppPath, cfg.locale);
@@ -102,8 +89,15 @@ int main(int argc, char **argv)
         return(2);
     }
 
-    Inverter inverter(cfg);
-    inverter.process();
+    do
+    {
+        auto timePoint = timer.nextTimePoint();
+        std::this_thread::sleep_until(timePoint);
+
+        Inverter inverter(cfg);
+        inverter.process(timePoint.time_since_epoch() / std::chrono::seconds(1));
+    }
+    while(cfg.loop);
 
     if (VERBOSE_NORMAL) print_error(stdout, PROC_INFO, "Done.\n");
 

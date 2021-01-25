@@ -21,6 +21,7 @@ set(COMMON_SOURCES
     SBFNet.cpp
     SBFspot.cpp
     TagDefs.cpp
+    Timer.cpp
     boost_ext.cpp
     main.cpp
     misc.cpp

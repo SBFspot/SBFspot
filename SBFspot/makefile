@@ -17,7 +17,7 @@ LD = g++
 APPNAME = SBFspot
 INSTALLDIR = /usr/local/bin/sbfspot.3/
 
-SRC_NOSQL  := boost_ext.cpp main.cpp misc.cpp sunrise_sunset.cpp SBFNet.cpp CSVexport.cpp Ethernet.cpp EventData.cpp Inverter.cpp ArchData.cpp SBFspot.cpp TagDefs.cpp Bluetooth.cpp mqtt.cpp
+SRC_NOSQL  := boost_ext.cpp main.cpp misc.cpp sunrise_sunset.cpp SBFNet.cpp CSVexport.cpp Ethernet.cpp EventData.cpp Inverter.cpp ArchData.cpp SBFspot.cpp TagDefs.cpp Timer.cpp Bluetooth.cpp mqtt.cpp
 SRC_SQLITE := $(SRC_NOSQL) db_SQLite.cpp db_SQLite_Export.cpp
 SRC_MYSQL  := $(SRC_NOSQL) db_MySQL.cpp db_MySQL_Export.cpp
 SRC_MARIADB:= $(SRC_MYSQL)
