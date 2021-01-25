@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+    (c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -32,8 +32,7 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef _SUNRISE_SUNSET_H_
-#define _SUNRISE_SUNSET_H_
+#pragma once
 
 #include "osselect.h"
 
@@ -47,6 +46,4 @@ DISCLAIMER:
 #define dtr(x) (pi / 180) * (x) //Convert degrees to radians
 #define rtd(x) (180 / pi) * (x) //Convert radians to degrees
 
-int sunrise_sunset(const float latit, const float longit, float *sunrise, float *sunset, const float offset);
-
-#endif
+bool sunrise_sunset(const float latit, const float longit, float *sunrise, float *sunset, const float offset);

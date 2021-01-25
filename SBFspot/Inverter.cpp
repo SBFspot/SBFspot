@@ -53,9 +53,8 @@ Inverter::~Inverter()
     delete[] m_inverters;
 }
 
-int Inverter::process()
+int Inverter::process(uint32_t secondsSinceEpoch)
 {
-    char msg[80];
     int rc = logOn();
     if (rc != 0)
     {
@@ -83,6 +82,150 @@ int Inverter::process()
         if ((rc = SetPlantTime(m_config.synchTime, m_config.synchTimeLow, m_config.synchTimeHigh)) != E_OK)
             std::cerr << "SetPlantTime returned an error: " << rc << std::endl;
 
+    rc = importSpotData();
+    if (rc != 0)
+        return rc;
+    exportSpotData(secondsSinceEpoch);
+
+    // Only export archive data, when not running in loop mode OR
+    // when in loop mode and current timestamp matches archive interval.
+    if (!m_config.loop ||
+            (m_config.archiveInterval > 0 &&
+            (secondsSinceEpoch % m_config.archiveInterval == 0)))
+    {
+        importDayData();
+        importMonthData();
+        importEventData();
+    }
+
+    logOff();
+    bthClose();
+    dbClose();
+
+    return rc;
+}
+
+int Inverter::logOn()
+{
+    char msg[80];
+    int rc = 0;
+
+    if (m_config.ConnectionType == CT_BLUETOOTH)
+    {
+        int attempts = 1;
+        do
+        {
+            if (attempts != 1) sleep(1);
+            {
+                if (VERBOSE_NORMAL) printf("Connecting to %s (%d/%d)\n", m_config.BT_Address, attempts, m_config.BT_ConnectRetries);
+                rc = bthConnect(m_config.BT_Address);
+            }
+            attempts++;
+        }
+        while ((attempts <= m_config.BT_ConnectRetries) && (rc != 0));
+
+
+        if (rc != 0)
+        {
+            snprintf(msg, sizeof(msg), "bthConnect() returned %d\n", rc);
+            print_error(stdout, PROC_CRITICAL, msg);
+            return rc;
+        }
+
+        rc = initialiseSMAConnection(m_config.BT_Address, m_inverters, m_config.MIS_Enabled);
+
+        if (rc != E_OK)
+        {
+            print_error(stdout, PROC_CRITICAL, "Failed to initialize communication with inverter.\n");
+            bthClose();
+            return rc;
+        }
+
+        rc = getBT_SignalStrength(m_inverters[0]);
+        if (VERBOSE_NORMAL) printf("BT Signal=%0.1f%%\n", m_inverters[0]->BT_Signal);
+
+    }
+    else // CT_ETHERNET
+    {
+        if (VERBOSE_NORMAL) printf("Connecting to Local Network...\n");
+        rc = ethConnect(m_config.IP_Port);
+        if (rc != 0)
+        {
+            print_error(stdout, PROC_CRITICAL, "Failed to set up socket connection.");
+            return rc;
+        }
+
+        if (m_config.ip_addresslist.size() > 1)
+            // New method for multiple inverters with fixed IP
+            rc = ethInitConnectionMulti(m_inverters, m_config.ip_addresslist);
+        else
+            // Old method for one inverter (fixed IP or broadcast)
+            rc = ethInitConnection(m_inverters, m_config.IP_Address);
+
+        if (rc != E_OK)
+        {
+            print_error(stdout, PROC_CRITICAL, "Failed to initialize Speedwire connection.");
+            ethClose();
+            return rc;
+        }
+    }
+
+    if (logonSMAInverter(m_inverters, m_config.userGroup, m_config.SMA_Password) != E_OK)
+    {
+        snprintf(msg, sizeof(msg), "Logon failed. Check '%s' Password\n", m_config.userGroup == UG_USER? "USER":"INSTALLER");
+        print_error(stdout, PROC_CRITICAL, msg);
+        bthClose();
+        return 1;
+    }
+
+    /*************************************************
+     * At this point we are logged on to the inverter
+     *************************************************/
+
+    return rc;
+}
+
+void Inverter::logOff()
+{
+    if (m_config.ConnectionType == CT_BLUETOOTH)
+        logoffSMAInverter(m_inverters[0]);
+    else
+    {
+        logoffMultigateDevices(m_inverters);
+        for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            logoffSMAInverter(m_inverters[inv]);
+    }
+
+    freemem(m_inverters);
+}
+
+bool Inverter::dbOpen()
+{
+    if (m_config.nosql)
+        return false;
+
+#if defined(USE_MYSQL)
+    m_db.open(m_config.sqlHostname, m_config.sqlUsername, m_config.sqlUserPassword, m_config.sqlDatabase, m_config.sqlPort);
+    return m_db.isopen();
+#elif defined(USE_SQLITE)
+    m_db.open(m_config.sqlDatabase);
+    return m_db.isopen();
+#endif
+
+    return false;
+}
+
+void Inverter::dbClose()
+{
+#if defined(USE_SQLITE) || defined(USE_MYSQL)
+    if ((!m_config.nosql) && m_db.isopen())
+        m_db.close();
+#endif
+}
+
+int Inverter::importSpotData()
+{
+    int rc = 0;
     if ((rc = getInverterData(m_inverters, sbftest)) != 0)
         std::cerr << "getInverterData(sbftest) returned an error: " << rc << std::endl;
 
@@ -138,6 +281,7 @@ int Inverter::process()
 
                 if (logonSMAInverter(m_inverters, m_config.userGroup, m_config.SMA_Password) != E_OK)
                 {
+                    char msg[80];
                     snprintf(msg, sizeof(msg), "Logon failed. Check '%s' Password\n", m_config.userGroup == UG_USER? "USER":"INSTALLER");
                     print_error(stdout, PROC_CRITICAL, msg);
                     logOff();
@@ -403,29 +547,12 @@ int Inverter::process()
         }
     }
 
-    // Open DB
-#if defined(USE_SQLITE) || defined(USE_MYSQL)
-    if (!m_config.nosql)
-    {
-#if defined(USE_MYSQL)
-        m_db.open(m_config.sqlHostname, m_config.sqlUsername, m_config.sqlUserPassword, m_config.sqlDatabase, m_config.sqlPort);
-#elif defined(USE_SQLITE)
-        m_db.open(m_config.sqlDatabase);
-#endif
-        if (m_db.isopen())
-        {
-            time_t spottime = time(NULL);
-            m_db.type_label(m_inverters);
-            m_db.device_status(m_inverters, spottime);
-            m_db.exportSpotData(m_inverters, spottime);
-            if (hasBatteryDevice)
-                m_db.exportBatteryData(m_inverters, spottime);
-        }
-    }
-#endif
+    return 0;
+}
 
-    exportSpotData();
-
+void Inverter::importDayData()
+{
+    int rc = 0;
     //SolarInverter -> Continue to get archive data
     unsigned int idx;
 
@@ -464,14 +591,17 @@ int Inverter::process()
         //Goto previous day
         arch_time -= 86400;
     }
+}
 
+void Inverter::importMonthData()
+{
     /*****************
     * Get Month Data *
     ******************/
     if (m_config.archMonths > 0)
     {
         getMonthDataOffset(m_inverters); //Issues 115/130
-        arch_time = (0 == m_config.startdate) ? time(NULL) : m_config.startdate;
+        time_t arch_time = (0 == m_config.startdate) ? time(NULL) : m_config.startdate;
         struct tm arch_tm;
         memcpy(&arch_tm, gmtime(&arch_time), sizeof(arch_tm));
 
@@ -501,7 +631,11 @@ int Inverter::process()
             }
         }
     }
+}
 
+void Inverter::importEventData()
+{
+    int rc = 0;
     /*****************
     * Get Event Data *
     ******************/
@@ -549,156 +683,41 @@ int Inverter::process()
         dt_range_csv = str(format("%d%02d-%s") % dt_utc.year() % static_cast<short>(dt_utc.month()) % dt_range_csv);
         exportEventData(dt_range_csv);
     }
-
-    if (m_config.ConnectionType == CT_BLUETOOTH)
-        logoffSMAInverter(m_inverters[0]);
-    else
-    {
-        logoffMultigateDevices(m_inverters);
-        for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-            logoffSMAInverter(m_inverters[inv]);
-    }
-
-    logOff();
-    bthClose();
-
-#if defined(USE_SQLITE) || defined(USE_MYSQL)
-    if ((!m_config.nosql) && m_db.isopen())
-        m_db.close();
-#endif
-
-    return rc;
 }
 
-int Inverter::logOn()
+void Inverter::exportSpotData(uint32_t secondsSinceEpoch)
 {
-    char msg[80];
-    int rc = 0;
+    // MQTT is a live exporter and will not cause disk I/O.
+    if (m_config.mqtt == 1)
+        exportSpotDataMqtt();
 
-    if (m_config.ConnectionType == CT_BLUETOOTH)
+    // SQL, CSV, ... are archive exporters and will cause disk I/O.
+    // These can severely exhaust disk space and shall be rate limited.
+    if (!m_config.loop ||
+            (m_config.archiveInterval > 0 &&
+             (secondsSinceEpoch % m_config.archiveInterval == 0)))
     {
-        int attempts = 1;
-        do
+        if (m_inverters[0]->DevClass == SolarInverter)
         {
-            if (attempts != 1) sleep(1);
-            {
-                if (VERBOSE_NORMAL) printf("Connecting to %s (%d/%d)\n", m_config.BT_Address, attempts, m_config.BT_ConnectRetries);
-                rc = bthConnect(m_config.BT_Address);
-            }
-            attempts++;
-        }
-        while ((attempts <= m_config.BT_ConnectRetries) && (rc != 0));
+            if ((m_config.CSV_Export == 1) && (m_config.nospot == 0))
+                ExportSpotDataToCSV(&m_config, m_inverters);
 
+            if (m_config.wsl == 1)
+                ExportSpotDataToWSL(&m_config, m_inverters);
 
-        if (rc != 0)
-        {
-            snprintf(msg, sizeof(msg), "bthConnect() returned %d\n", rc);
-            print_error(stdout, PROC_CRITICAL, msg);
-            return rc;
-        }
-
-        rc = initialiseSMAConnection(m_config.BT_Address, m_inverters, m_config.MIS_Enabled);
-
-        if (rc != E_OK)
-        {
-            print_error(stdout, PROC_CRITICAL, "Failed to initialize communication with inverter.\n");
-            bthClose();
-            return rc;
+            if (m_config.s123 == S123_DATA)
+                ExportSpotDataTo123s(&m_config, m_inverters);
+            if (m_config.s123 == S123_INFO)
+                ExportInformationDataTo123s(&m_config, m_inverters);
+            if (m_config.s123 == S123_STATE)
+                ExportStateDataTo123s(&m_config, m_inverters);
         }
 
-        rc = getBT_SignalStrength(m_inverters[0]);
-        if (VERBOSE_NORMAL) printf("BT Signal=%0.1f%%\n", m_inverters[0]->BT_Signal);
+        if (hasBatteryDevice && (m_config.CSV_Export == 1) && (m_config.nospot == 0))
+            ExportBatteryDataToCSV(&m_config, m_inverters);
 
-    }
-    else // CT_ETHERNET
-    {
-        if (VERBOSE_NORMAL) printf("Connecting to Local Network...\n");
-        rc = ethConnect(m_config.IP_Port);
-        if (rc != 0)
-        {
-            print_error(stdout, PROC_CRITICAL, "Failed to set up socket connection.");
-            return rc;
-        }
-
-        if (m_config.ip_addresslist.size() > 1)
-            // New method for multiple inverters with fixed IP
-            rc = ethInitConnectionMulti(m_inverters, m_config.ip_addresslist);
-        else
-            // Old method for one inverter (fixed IP or broadcast)
-            rc = ethInitConnection(m_inverters, m_config.IP_Address);
-
-        if (rc != E_OK)
-        {
-            print_error(stdout, PROC_CRITICAL, "Failed to initialize Speedwire connection.");
-            ethClose();
-            return rc;
-        }
-    }
-
-    if (logonSMAInverter(m_inverters, m_config.userGroup, m_config.SMA_Password) != E_OK)
-    {
-        snprintf(msg, sizeof(msg), "Logon failed. Check '%s' Password\n", m_config.userGroup == UG_USER? "USER":"INSTALLER");
-        print_error(stdout, PROC_CRITICAL, msg);
-        bthClose();
-        return 1;
-    }
-
-    /*************************************************
-     * At this point we are logged on to the inverter
-     *************************************************/
-
-    return rc;
-}
-
-void Inverter::logOff()
-{
-    freemem(m_inverters);
-}
-
-void Inverter::exportSpotData()
-{
-    if (m_inverters[0]->DevClass == SolarInverter)
-    {
-        if ((m_config.CSV_Export == 1) && (m_config.nospot == 0))
-            ExportSpotDataToCSV(&m_config, m_inverters);
-
-        if (m_config.wsl == 1)
-            ExportSpotDataToWSL(&m_config, m_inverters);
-
-        if (m_config.s123 == S123_DATA)
-            ExportSpotDataTo123s(&m_config, m_inverters);
-        if (m_config.s123 == S123_INFO)
-            ExportInformationDataTo123s(&m_config, m_inverters);
-        if (m_config.s123 == S123_STATE)
-            ExportStateDataTo123s(&m_config, m_inverters);
-    }
-
-    if (hasBatteryDevice && (m_config.CSV_Export == 1) && (m_config.nospot == 0))
-        ExportBatteryDataToCSV(&m_config, m_inverters);
-
-#if defined(USE_SQLITE) || defined(USE_MYSQL)
-    if (!m_config.nosql && m_db.isopen())
-    {
-        time_t spottime = time(NULL);
-        m_db.type_label(m_inverters);
-        m_db.device_status(m_inverters, spottime);
-        m_db.exportSpotData(m_inverters, spottime);
-        if (hasBatteryDevice)
-            m_db.exportBatteryData(m_inverters, spottime);
-    }
-#endif
-
-    /*******
-    * MQTT *
-    ********/
-    if (m_config.mqtt == 1) // MQTT enabled
-    {
-        MqttExport mqtt(m_config);
-        auto rc = mqtt.exportInverterData(toStdVector(m_inverters));
-        if (rc != 0)
-        {
-            std::cout << "Error " << rc << " while publishing to MQTT Broker" << std::endl;
-        }
+        if (!m_config.nosql)
+            exportSpotDataDb();
     }
 }
 
@@ -733,4 +752,29 @@ void Inverter::exportEventData(const std::string& dt_range_csv)
     if ((!m_config.nosql) && m_db.isopen())
         m_db.exportEventData(m_inverters, tagdefs);
 #endif
+}
+
+void Inverter::exportSpotDataDb()
+{
+#if defined(USE_SQLITE) || defined(USE_MYSQL)
+    if (!dbOpen())
+        return;
+
+    time_t spottime = time(NULL);
+    m_db.type_label(m_inverters);
+    m_db.device_status(m_inverters, spottime);
+    m_db.exportSpotData(m_inverters, spottime);
+    if (hasBatteryDevice)
+        m_db.exportBatteryData(m_inverters, spottime);
+#endif
+}
+
+void Inverter::exportSpotDataMqtt()
+{
+    MqttExport mqtt(m_config);
+    auto rc = mqtt.exportInverterData(toStdVector(m_inverters));
+    if (rc != 0)
+    {
+        std::cout << "Error " << rc << " while publishing to MQTT Broker" << std::endl;
+    }
 }

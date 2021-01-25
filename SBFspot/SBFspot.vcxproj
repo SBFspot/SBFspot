@@ -428,6 +428,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClCompile Include="strptime.cpp" />
     <ClCompile Include="sunrise_sunset.cpp" />
     <ClCompile Include="TagDefs.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -34,6 +34,8 @@ DISCLAIMER:
 
 #pragma once
 
+// Need to include osselect here, to have MAX_PATH defined.
+#include "osselect.h"
 #include <string>
 #include <vector>
 #include <boost/date_time/local_time/local_time.hpp>
@@ -70,6 +72,8 @@ struct Config
     char	SMA_Password[13];
     float	latitude;
     float	longitude;
+    uint16_t liveInterval = 60;
+    uint16_t archiveInterval = 300;
     time_t	archdata_from;
     time_t	archdata_to;
     char	delimiter;			//CSV field delimiter
@@ -86,7 +90,6 @@ struct Config
     int		synchTime;				// 1=Synch inverter time with computer time (default=0)
     float	sunrise;
     float	sunset;
-    int		isLight;
     int		calcMissingSpot;		// 0-1
     char	DateTimeFormat[32];
     char	DateFormat[32];
@@ -134,7 +137,8 @@ struct Config
     S123_COMMAND	s123;		// -123s		123Solar Web Solar logger support(http://www.123solar.org/)
     int		settime;			// -settime		Set plant time
     int		mqtt;				// -mqtt		Publish spot data to mqtt broker
-    int		ble = 0;			// -ble			Publish spot data via Bluetooth LE
+    bool	ble = false;		// -ble			Publish spot data via Bluetooth LE
+    bool	loop = false;		// -loop		Run SBF spot in a loop (daemon mode)
 };
 
 typedef struct

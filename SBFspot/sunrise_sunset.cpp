@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+    (c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -62,7 +62,7 @@ double FNday (int y, int m, int d, double h)
 	// type casting necessary on PC DOS and TClite to avoid overflow
 	luku += (long int)y * 367;
 	return (double)luku - 730531.5 + h/24.0;
-};
+}
 
 // the function below returns an angle in the range 0 to 2*pi
 double FNrange (double x)
@@ -71,7 +71,7 @@ double FNrange (double x)
     double a = 2.0 * pi * (b - (long)(b));
     if (a < 0) a = 2.0 * pi + a;
     return a;
-};
+}
 
 // Calculating the hourangle
 double f0(double lat, double declin)
@@ -97,7 +97,7 @@ double f1(double lat, double declin)
 	if (fi>0.99999) fi=1.0; // to avoid overflow
 	fi = asin(fi) + pi/2.0;
 	return fi;
-};
+}
 
 // Find the ecliptic longitude of the Sun
 double FNsun (double d)
@@ -108,9 +108,9 @@ double FNsun (double d)
 	g = FNrange(357.528 * rads + .9856003 * rads * d);
 	// Ecliptic longitude of the Sun
 	return FNrange(L + 1.915 * rads * sin(g) + .02 * rads * sin(2 * g));
-};
+}
 
-int sunrise_sunset(const float latit, const float longit, float *sunrise, float *sunset, const float offset)
+bool sunrise_sunset(const float latit, const float longit, float *sunrise, float *sunset, const float offset)
 {
 	// get the date and time from the user
 	// read system date and extract the year
@@ -177,8 +177,8 @@ int sunrise_sunset(const float latit, const float longit, float *sunrise, float 
 	// Convert HH:MM to float
 	float now = p.tm_hour + (float)p.tm_min / 60;
 	if ((now >= (*sunrise - offset)) && (now <= (*sunset + offset)))
-		return 1;	// Sun's up
+        return true;	// Sun's up
 	else
-		return 0;	// Sun's down
+        return false;	// Sun's down
 }
 

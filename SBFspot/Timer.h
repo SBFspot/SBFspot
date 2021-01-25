@@ -34,46 +34,20 @@ DISCLAIMER:
 
 #pragma once
 
-#include "SQLselect.h"
+#include <chrono>
 
 struct Config;
-struct InverterData;
 
-class Inverter
+class Timer
 {
 public:
-    Inverter(const Config& config);
-    ~Inverter();
+    // Pass non-const Config, since Timer can modify sunrise/sunset.
+    Timer(Config& config);
 
-    int process(uint32_t secondsSinceEpoch);
+    bool isBright() const;
+    std::chrono::system_clock::time_point nextTimePoint() const;
 
 private:
-    int logOn();
-    void logOff();
-
-    bool dbOpen();
-    void dbClose();
-
-    int importSpotData();
-    void importDayData();
-    void importMonthData();
-    void importEventData();
-
-    void exportSpotData(uint32_t secondsSinceEpoch);
-    void exportDayData();
-    void exportMonthData();
-    void exportEventData(const std::string& dt_range_csv);
-
-    void exportSpotDataDb();
-    void exportSpotDataMqtt();
-
-    const Config& m_config;
-
-    // TODO: transform this to a C++ container
-    InverterData **m_inverters;
-
-#if defined(USE_SQLITE) || defined(USE_MYSQL)
-    db_SQL_Export m_db;
-#endif
+    Config& m_config;
 };
 

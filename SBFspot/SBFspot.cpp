@@ -1435,6 +1435,9 @@ int parseCmdline(int argc, char **argv, Config *cfg)
         else if (stricmp(argv[i], "-ble") == 0)
             cfg->ble = 1;
 
+        else if (stricmp(argv[i], "-loop") == 0)
+            cfg->loop = true;
+
         //Show Help
         else if (stricmp(argv[i], "-?") == 0)
         {
@@ -1514,7 +1517,9 @@ void SayHello(int ShowHelp)
 		std::cout << " -loadlive           Use predefined settings for manual upload to pvoutput.org\n";
 		std::cout << " -startdate:YYYYMMDD Set start date for historic data retrieval\n";
 		std::cout << " -settime            Sync inverter time with host time\n";
-		std::cout << " -mqtt               Publish spot data to MQTT broker\n" << std::endl;
+        std::cout << " -mqtt               Publish spot data to MQTT broker\n";
+        //std::cout << " -ble                Publish spot data via Bluetooth LE\n" << std::endl;
+        std::cout << " -loop               Run SBF spot in a loop (daemon mode)\n" << std::endl;
 
 		std::cout << "Libraries used:\n";
 #if defined(USE_SQLITE)
@@ -1683,6 +1688,8 @@ int GetConfig(Config *cfg)
 				}
 				else if(stricmp(variable, "Latitude") == 0) cfg->latitude = (float)atof(value);
 				else if(stricmp(variable, "Longitude") == 0) cfg->longitude = (float)atof(value);
+                else if(stricmp(variable, "LiveInterval") == 0) cfg->liveInterval = (uint16_t)atoi(value);
+                else if(stricmp(variable, "ArchiveInterval") == 0) cfg->archiveInterval = (uint16_t)atoi(value);
 				else if (stricmp(variable, "Plantname") == 0)
 				{
 					memset(cfg->plantname, 0, sizeof(cfg->plantname));
