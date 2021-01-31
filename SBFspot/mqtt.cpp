@@ -34,6 +34,7 @@ DISCLAIMER:
 
 #include "mqtt.h"
 
+#include "Config.h"
 #include "SBFspot.h"
 
 #if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
@@ -75,6 +76,52 @@ MqttExport::~MqttExport()
 std::string MqttExport::name() const
 {
     return "mqtt";
+}
+
+int MqttExport::exportConfig(const std::vector<InverterData>& inverterData)
+{
+    if (m_config.mqtt_item_format != "MSGPACK")
+        return 0;
+
+#if(!defined MOSQUITTO_FOUND || !defined MSGPACK_FOUND)
+    return 0;
+#else
+    for (const auto& inv : inverterData)
+    {
+        std::string topic = m_config.mqtt_topic;
+        boost::replace_first(topic, "{plantname}", m_config.plantname);
+        boost::replace_first(topic, "{serial}", std::to_string(inv.Serial));
+        topic += "/config";
+
+        // Pack manually (because a float in map gets stored as double and timestamp is not supported yet).
+        msgpack::sbuffer sbuf;
+        msgpack::packer<msgpack::sbuffer> packer(sbuf);
+        // Map with number of elements
+        packer.pack_map(4);
+        // 1. Protocol version
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Version));
+        packer.pack_uint8(0);
+        // 2. Latitude
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Latitude));
+        packer.pack_float(m_config.latitude);
+        // 3. Longitude
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Longitude));
+        packer.pack_float(m_config.longitude);
+        // 4. Power Max
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PowerMax));
+        packer.pack_float(static_cast<float>(inv.Pmax1));
+
+        if (VERBOSE_HIGH) std::cout << "MQTT: Publishing topic: " << topic
+                                    << ", data size: " << sbuf.size() << std::endl;
+        if (publish(nullptr, topic.c_str(), sbuf.size(), sbuf.data(), 1, true) != 0)
+        {
+            std::cout << "MQTT: Failed to publish topic" << std::endl;
+            continue;
+        }
+    }
+
+    return 0;
+#endif
 }
 
 int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData)
@@ -229,12 +276,18 @@ int MqttExport::exportMsgPack(const std::vector<InverterData>& inverterData)
         packer.pack_uint8(static_cast<uint8_t>(InverterProperty::YieldToday));
         packer.pack_float(static_cast<float>(inv.EToday));
         // 5. Power AC
-        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PowerAc));
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Power));
         packer.pack_float(static_cast<float>(inv.TotalPac));
         // 6. Power DC
-        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PowerDc));
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::MppTracker));
         packer.pack_array(2);   // Store an array to provide data for each Mpp.
+        // 6.1 MPP1
+        packer.pack_map(1);
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Power));
         packer.pack_float(static_cast<float>(inv.Pdc1));
+        // 6.2 MPP2
+        packer.pack_map(1);
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Power));
         packer.pack_float(static_cast<float>(inv.Pdc2));
 
         if (VERBOSE_HIGH) std::cout << "MQTT: Publishing topic: " << topic

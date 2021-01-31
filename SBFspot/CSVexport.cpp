@@ -33,25 +33,11 @@ DISCLAIMER:
 ************************************************************************************************/
 
 #include "CSVexport.h"
-#include "EventData.h"
+
+#include "Config.h"
+#include "SBFspot.h"
 
 using namespace std;
-
-//DecimalPoint To Text
-const char *dp2txt(const char dp)
-{
-	if (dp == '.') return "dot"; //Fix Issue 84
-    if (dp == ',') return "comma";
-    return "?";
-}
-
-//Delimiter To Text
-const char *delim2txt(const char delim)
-{
-    if (delim == ';') return "semicolon";
-    if (delim == ',') return "comma";
-    return "?";
-}
 
 //Linebreak To Text
 const char *linebreak2txt(void)

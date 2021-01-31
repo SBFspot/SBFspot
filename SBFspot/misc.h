@@ -49,6 +49,8 @@ struct InverterData;
 #define MAX_PATH          260
 #endif
 
+const char *delim2txt(const char delim);
+const char *dp2txt(char dp);
 char *strftime_t (const char *format, const time_t rawtime);
 char *strftime_t (char *buffer, size_t maxsize, const char *format, const time_t rawtime);
 char *strfgmtime_t (const char *format, const time_t rawtime);

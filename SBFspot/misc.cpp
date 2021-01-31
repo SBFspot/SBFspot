@@ -47,6 +47,22 @@ DISCLAIMER:
 
 extern int debug;
 
+//DecimalPoint To Text
+const char *dp2txt(const char dp)
+{
+    if (dp == '.') return "dot"; //Fix Issue 84
+    if (dp == ',') return "comma";
+    return "?";
+}
+
+//Delimiter To Text
+const char *delim2txt(const char delim)
+{
+    if (delim == ';') return "semicolon";
+    if (delim == ',') return "comma";
+    return "?";
+}
+
 //print time as UTC time
 char *strfgmtime_t (const char *format, const time_t rawtime)
 {

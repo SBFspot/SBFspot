@@ -34,7 +34,7 @@ DISCLAIMER:
 
 #include "Timer.h"
 
-#include "Types.h"
+#include "Config.h"
 #include "misc.h"
 #include "sunrise_sunset.h"
 

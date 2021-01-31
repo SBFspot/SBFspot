@@ -45,6 +45,7 @@ public:
     Inverter(const Config& config);
     ~Inverter();
 
+    void exportConfig();
     int process(uint32_t secondsSinceEpoch);
 
 private:

@@ -35,6 +35,7 @@ DISCLAIMER:
 #include "Inverter.h"
 
 #include "ArchData.h"
+#include "Config.h"
 #include "CSVexport.h"
 #include "mqtt.h"
 
@@ -51,6 +52,19 @@ Inverter::Inverter(const Config& config)
 Inverter::~Inverter()
 {
     delete[] m_inverters;
+}
+
+void Inverter::exportConfig()
+{
+    if (m_config.mqtt == 1)
+    {
+        MqttExport mqtt(m_config);
+        auto rc = mqtt.exportConfig(toStdVector(m_inverters));
+        if (rc != 0)
+        {
+            std::cout << "Error " << rc << " while publishing to MQTT Broker" << std::endl;
+        }
+    }
 }
 
 int Inverter::process(uint32_t secondsSinceEpoch)
