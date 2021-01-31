@@ -44,18 +44,33 @@ class Export
 public:
     enum class InverterProperty : uint8_t
     {
-        Version = 0,
-        Timestamp = 1,
-        YieldTotal = 2,
-        YieldToday = 3,
-        PowerAc = 4,
-        PowerAcMaxToday = 5,
-        PowerDc = 6,
-        PowerDcMaxToday = 7,
+        // Static properties
+        Version = 0,    // Protocol version
+        StartOfProduction = 1,  // Timestamp when this inverter got installed
+        Latitude = 2,
+        Longitude = 3,
+        PowerMax = 4,   // Inverter power or peak power of strings at MPP
+
+        // Dynamic properties
+        Timestamp = 32,     // Timestamp for this data set
+        YieldTotal = 33,    // Total yield in Wh
+        YieldToday = 34,    // Today's yield in Wh
+        Power = 35,         // Current power
+        PowerMaxToday = 36,   // Today's maximum power
+
+        // Key for MPP tracker properties (stored in array of maps)
+        MppTracker = 64, // Data per MPP tracker
+
+        // MPP tracker specific properties
+        Azimuth = 65,
+        Elevation = 66,
     };
 
     virtual ~Export() = default;
 
     virtual std::string name() const = 0;
+
+    virtual int exportConfig(const std::vector<InverterData>& inverterData);
+    virtual int exportSpotData(const std::vector<InverterData>& inverterData);
     virtual int exportInverterData(const std::vector<InverterData>& inverterData) = 0;
 };

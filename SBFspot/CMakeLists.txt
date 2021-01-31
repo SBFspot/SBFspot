@@ -14,9 +14,11 @@ set(DB "SQLITE" CACHE STRING "DB backend to use: NOSQL, SQLITE, MYSQL, MARIADB")
 set(COMMON_SOURCES
     ArchData.cpp
     Bluetooth.cpp
+    Config.cpp
     CSVexport.cpp
     Ethernet.cpp
     EventData.cpp
+    Export.cpp
     Inverter.cpp
     SBFNet.cpp
     SBFspot.cpp

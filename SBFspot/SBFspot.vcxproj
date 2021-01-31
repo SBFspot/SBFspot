@@ -342,6 +342,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClInclude Include="ArchData.h" />
     <ClInclude Include="bluetooth.h" />
     <ClInclude Include="boost_ext.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="CSVexport.h" />
     <ClInclude Include="db_MySQL.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">true</ExcludedFromBuild>
@@ -369,6 +370,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     </ClInclude>
     <ClInclude Include="Ethernet.h" />
     <ClInclude Include="EventData.h" />
+    <ClInclude Include="Export.h" />
     <ClInclude Include="Inverter.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="mqtt.h" />
@@ -391,6 +393,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClCompile Include="ArchData.cpp" />
     <ClCompile Include="Bluetooth.cpp" />
     <ClCompile Include="boost_ext.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="CSVexport.cpp" />
     <ClCompile Include="db_MySQL.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_SQLite|Win32'">true</ExcludedFromBuild>
@@ -419,6 +422,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClCompile Include="endianness.h" />
     <ClCompile Include="Ethernet.cpp" />
     <ClCompile Include="EventData.cpp" />
+    <ClCompile Include="Export.cpp" />
     <ClCompile Include="Inverter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="misc.cpp" />

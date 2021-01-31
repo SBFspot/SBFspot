@@ -32,6 +32,7 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
+#include "Config.h"
 #include "Inverter.h"
 #include "Timer.h"
 
@@ -50,12 +51,12 @@ int main(int argc, char **argv)
 
     //Read the command line and store settings in config struct
     Config cfg;
-    int rc = parseCmdline(argc, argv, &cfg);
+    int rc = cfg.parseCmdline(argc, argv);
     if (rc == -1) return 1;	//Invalid commandline - Quit, error
     if (rc == 1) return 0;	//Nothing to do - Quit, no error
 
     //Read config file and store settings in config struct
-    rc = GetConfig(&cfg);	//Config struct contains fullpath to config file
+    rc = cfg.readConfig();	//Config struct contains fullpath to config file
     if (rc != 0) return rc;
 
     //Copy some config settings to public variables
@@ -89,6 +90,11 @@ int main(int argc, char **argv)
         return(2);
     }
 
+    // Export configuration
+    {
+        Inverter inverter(cfg);
+        inverter.exportConfig();
+    }
     do
     {
         auto timePoint = timer.nextTimePoint();

@@ -34,12 +34,11 @@ DISCLAIMER:
 
 #pragma once
 
-#include "osselect.h"
-#include "SBFspot.h"
-#include "EventData.h"
+#include <string>
 
-const char *delim2txt(const char delim);
-const char *dp2txt(char dp);
+struct Config;
+struct InverterData;
+
 const char *linebreak2txt(void);
 char *DateTimeFormatToDMY(const char *dtf);
 int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[]);
