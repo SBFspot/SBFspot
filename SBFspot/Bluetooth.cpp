@@ -34,8 +34,7 @@ DISCLAIMER:
 
 #include "misc.h"
 #include "bluetooth.h"
-
-unsigned char CommBuf[COMMBUFSIZE];    //read buffer
+#include "Defines.h"
 
 struct sockaddr_in addr_in, addr_out;
 int bytes_in_buffer = 0;

@@ -34,6 +34,7 @@ DISCLAIMER:
 
 #pragma once
 
+#include "Defines.h"
 #include "osselect.h"
 #include <stdlib.h>
 #include <errno.h>
@@ -43,12 +44,13 @@ DISCLAIMER:
 
 struct InverterData;
 
-#define COMMBUFSIZE 2048 // Size of Communications Buffer (Bluetooth/Ethernet)
-
 #ifndef MAX_PATH
 #define MAX_PATH          260
 #endif
 
+short get_short(uint8_t *buf);
+int32_t get_long(uint8_t *buf);
+int64_t get_longlong(uint8_t *buf);
 const char *delim2txt(const char delim);
 const char *dp2txt(char dp);
 char *strftime_t (const char *format, const time_t rawtime);
@@ -61,6 +63,7 @@ void HexDump(unsigned char *buf, int count, int radix);
 char *FormatFloat(char *str, float value, int width, int precision, char decimalpoint);
 char *FormatDouble(char *str, double value, int width, int precision, char decimalpoint);
 std::string realpath(const char *path);
+int isCrcValid(unsigned char lb, unsigned char hb);
 std::vector<InverterData> toStdVector(InverterData* const* const inverterData);
 
 #define DEBUG_LOW (debug >= 1)

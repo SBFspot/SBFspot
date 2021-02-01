@@ -89,12 +89,6 @@ unsigned char hexbyte2dec(char *hex);
 #define BT_NUMRETRY 10
 #define BT_TIMEOUT  10
 
-extern int packetposition;
-extern int MAX_CommBuf;
-
-extern int debug;
-extern int verbose;
-
 //Function prototypes
 int bthConnect(const char *btAddr);
 int bthClose();

@@ -32,52 +32,29 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#pragma once
+#include "Defines.h"
 
-#include "osselect.h"
+int debug = 0;
+int verbose = 0;
+int quiet = 0;
 
-#ifdef WIN32
+char DateTimeFormat[32];
+char DateFormat[32];
+bool hasBatteryDevice = false;
+CONNECTIONTYPE ConnType = CT_NONE;
 
-// Ignore warning C4127: conditional expression is constant
-#pragma warning(disable: 4127)
+int MAX_CommBuf = 0;
+int MAX_pcktBuf = 0;
 
-#include <WinSock2.h>
-#include <ws2tcpip.h>
+uint8_t CommBuf[COMMBUFSIZE];
+uint8_t pcktBuf[COMMBUFSIZE];
+uint8_t RootDeviceAddress[6]= {0, 0, 0, 0, 0, 0};	//Hold byte array with BT address of primary inverter
+uint8_t LocalBTAddress[6] = {0, 0, 0, 0, 0, 0};		//Hold byte array with BT address of local adapter
+uint16_t pcktID = 1;
+int packetposition = 0;
+int FCSChecksum = 0xffff;
 
-//Windows Sockets Error Codes
-//http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
+unsigned long AppSerial = 0;
+unsigned int cmdcode = 0;
 
-#endif	/* WIN32 */
-
-#ifdef linux
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <errno.h>
-#include <string.h>
-
-#endif	/* linux */
-
-#include <stdio.h>
-#include <ctype.h>
-#include <iostream>
-
-unsigned char char2dec(char ch);
-unsigned char hexbyte2dec(char *hex);
-
-extern SOCKET sock;
-extern struct sockaddr_in addr_in, addr_out;
-
-//Function prototypes
-int ethConnect(short port);
-int ethClose(void);
-int getLocalIP(unsigned char IPAddress[4]);
-int ethSend(unsigned char *buffer, const char *toIP);
-int ethRead(unsigned char *buf, unsigned int bufsize);
+TagDefs tagdefs = TagDefs();

@@ -32,31 +32,13 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#include "misc.h"
 #include "SBFNet.h"
+
+#include "misc.h"
+#include "Defines.h"
 #include "SBFspot.h"
 #include <stdio.h>
 #include <string.h>
-
-typedef unsigned char BYTE;
-
-unsigned char  RootDeviceAddress[6]= {0, 0, 0, 0, 0, 0};	//Hold byte array with BT address of primary inverter
-unsigned char  LocalBTAddress[6] = {0, 0, 0, 0, 0, 0};		//Hold byte array with BT address of local adapter
-unsigned char  addr_broadcast[6] = {0, 0, 0, 0, 0, 0};
-unsigned char  addr_unknown[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
-unsigned short AppSUSyID;
-unsigned long  AppSerial;
-const unsigned short anySUSyID = 0xFFFF;
-const unsigned long anySerial = 0xFFFFFFFF;
-
-unsigned int cmdcode = 0;
-
-int packetposition = 0;
-int FCSChecksum = 0xffff;
-
-unsigned short pcktID = 1;
-
-BYTE pcktBuf[maxpcktBufsize];
 
 const unsigned short fcstab[256] =
 {
@@ -78,7 +60,7 @@ const unsigned short fcstab[256] =
     0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330, 0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
 };
 
-void writeLong(BYTE *btbuffer, unsigned long v)
+void writeLong(uint8_t *btbuffer, unsigned long v)
 {
     writeByte(btbuffer,(unsigned char)((v >> 0) & 0xFF));
     writeByte(btbuffer,(unsigned char)((v >> 8) & 0xFF));
@@ -86,7 +68,7 @@ void writeLong(BYTE *btbuffer, unsigned long v)
     writeByte(btbuffer,(unsigned char)((v >> 24) & 0xFF));
 }
 
-void writeShort(BYTE *btbuffer, unsigned short v)
+void writeShort(uint8_t *btbuffer, unsigned short v)
 {
     writeByte(btbuffer,(unsigned char)((v >> 0) & 0xFF));
     writeByte(btbuffer,(unsigned char)((v >> 8) & 0xFF));
@@ -176,8 +158,8 @@ void writePacketHeader(unsigned char *buf, const unsigned int control, const uns
         for(i = 0; i < 6; i++)
             buf[packetposition++] = destaddress[i];
 
-        buf[packetposition++] = (BYTE)(control & 0xFF);
-        buf[packetposition++] = (BYTE)(control >> 8);
+        buf[packetposition++] = (uint8_t)(control & 0xFF);
+        buf[packetposition++] = (uint8_t)(control >> 8);
 
         cmdcode = 0xFFFF;  //Just set to dummy value
     }
@@ -229,67 +211,3 @@ int validateChecksum()
 		return false;
     }
 }
-
-int getBT_SignalStrength(InverterData *invData)
-{
-	writePacketHeader(pcktBuf, 0x03, invData->BTAddress);
-    writeByte(pcktBuf,0x05);
-    writeByte(pcktBuf,0x00);
-    writePacketLength(pcktBuf);
-    bthSend(pcktBuf);
-
-	getPacket(invData->BTAddress, 4);
-
-	invData->BT_Signal = (float)pcktBuf[22] * 100.0f / 255.0f;
-    return 0;
-}
-
-int64_t get_longlong(BYTE *buf)
-{
-    register int64_t lnglng = 0;
-
-	lnglng += *(buf+7);
-	lnglng <<= 8;
-	lnglng += *(buf+6);
-	lnglng <<= 8;
-	lnglng += *(buf+5);
-	lnglng <<= 8;
-	lnglng += *(buf+4);
-	lnglng <<= 8;
-	lnglng += *(buf+3);
-	lnglng <<= 8;
-	lnglng += *(buf+2);
-	lnglng <<= 8;
-	lnglng += *(buf+1);
-	lnglng <<= 8;
-	lnglng += *(buf);
-
-    return lnglng;
-}
-
-int32_t get_long(BYTE *buf)
-{
-    register int32_t lng = 0;
-
-	lng += *(buf+3);
-	lng <<= 8;
-	lng += *(buf+2);
-	lng <<= 8;
-	lng += *(buf+1);
-	lng <<= 8;
-	lng += *(buf);
-
-    return lng;
-}
-
-short get_short(BYTE *buf)
-{
-    register short shrt = 0;
-
-	shrt += *(buf+1);
-	shrt <<= 8;
-	shrt += *(buf);
-
-    return shrt;
-}
-

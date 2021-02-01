@@ -34,6 +34,7 @@ DISCLAIMER:
 
 #include "osselect.h"
 #include "misc.h"
+#include "Defines.h"
 #include "SBFspot.h"
 #include <time.h>
 #include <string.h>
@@ -45,7 +46,54 @@ DISCLAIMER:
 #include <limits.h>
 #endif
 
-extern int debug;
+int64_t get_longlong(uint8_t *buf)
+{
+    register int64_t lnglng = 0;
+
+    lnglng += *(buf+7);
+    lnglng <<= 8;
+    lnglng += *(buf+6);
+    lnglng <<= 8;
+    lnglng += *(buf+5);
+    lnglng <<= 8;
+    lnglng += *(buf+4);
+    lnglng <<= 8;
+    lnglng += *(buf+3);
+    lnglng <<= 8;
+    lnglng += *(buf+2);
+    lnglng <<= 8;
+    lnglng += *(buf+1);
+    lnglng <<= 8;
+    lnglng += *(buf);
+
+    return lnglng;
+}
+
+int32_t get_long(uint8_t *buf)
+{
+    register int32_t lng = 0;
+
+    lng += *(buf+3);
+    lng <<= 8;
+    lng += *(buf+2);
+    lng <<= 8;
+    lng += *(buf+1);
+    lng <<= 8;
+    lng += *(buf);
+
+    return lng;
+}
+
+short get_short(uint8_t *buf)
+{
+    register short shrt = 0;
+
+    shrt += *(buf+1);
+    shrt <<= 8;
+    shrt += *(buf);
+
+    return shrt;
+}
 
 //DecimalPoint To Text
 const char *dp2txt(const char dp)
@@ -318,6 +366,20 @@ std::string realpath(const char *path)
     else
         return std::string(path);
 #endif
+}
+
+int isCrcValid(unsigned char lb, unsigned char hb)
+{
+    if (ConnType == CT_BLUETOOTH)
+    {
+        if ((lb == 0x7E) || (hb == 0x7E) ||
+                (lb == 0x7D) || (hb == 0x7D))
+            return 0;
+        else
+            return 1;
+    }
+    else
+        return 1;   //Always true for ethernet
 }
 
 std::vector<InverterData> toStdVector(InverterData* const* const inverters)

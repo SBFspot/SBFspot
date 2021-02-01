@@ -34,6 +34,8 @@ DISCLAIMER:
 
 #include "ArchData.h"
 
+#include "Defines.h"
+
 using namespace std;
 using namespace boost;
 using namespace boost::date_time;

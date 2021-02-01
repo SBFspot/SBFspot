@@ -16,6 +16,7 @@ set(COMMON_SOURCES
     Bluetooth.cpp
     Config.cpp
     CSVexport.cpp
+    Defines.cpp
     Ethernet.cpp
     EventData.cpp
     Export.cpp
@@ -87,6 +88,7 @@ if (Mosquitto_FOUND)
     target_link_libraries(${PROJECT_NAME} PkgConfig::Mosquitto)
 endif()
 
+add_subdirectory(tests)
 
 target_link_libraries(${PROJECT_NAME}
     Boost::date_time

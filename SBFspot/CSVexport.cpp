@@ -35,6 +35,7 @@ DISCLAIMER:
 #include "CSVexport.h"
 
 #include "Config.h"
+#include "Defines.h"
 #include "SBFspot.h"
 
 using namespace std;

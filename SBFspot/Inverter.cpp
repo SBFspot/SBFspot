@@ -37,6 +37,7 @@ DISCLAIMER:
 #include "ArchData.h"
 #include "Config.h"
 #include "CSVexport.h"
+#include "Defines.h"
 #include "mqtt.h"
 
 using namespace boost;

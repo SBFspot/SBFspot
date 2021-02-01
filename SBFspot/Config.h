@@ -34,7 +34,11 @@ DISCLAIMER:
 
 #pragma once
 
+#include "osselect.h"
 #include "Types.h"
+
+#include <map>
+#include <boost/date_time/local_time/local_time.hpp>
 
 struct ArrayConfig
 {
@@ -73,7 +77,7 @@ struct Config
     char	decimalpoint = ','; // CSV decimal point
     char	outputPath[MAX_PATH];
     char	outputPath_Events[MAX_PATH];
-    char	plantname[32];
+    std::string	plantname;
     std::string sqlDatabase;
     std::string sqlHostname;
     std::string sqlUsername;

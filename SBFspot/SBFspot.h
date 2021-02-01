@@ -93,11 +93,9 @@ int getInverterData(InverterData *inverters[], enum getInverterDataType type);
 int getInverterIndexByAddress(InverterData* const inverters[], unsigned char bt_addr[6]);
 int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial);
 int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial);
-E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command);
-void HexDump(unsigned char *buf, int count, int radix);
+E_SBFSPOT getPacket(const unsigned char senderaddr[6], int wait4Command);
 E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], int MIS);
-int isCrcValid(unsigned char lb, unsigned char hb);
-int isValidSender(unsigned char senderaddr[6], unsigned char address[6]);
+int isValidSender(const unsigned char senderaddr[6], unsigned char address[6]);
 E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, const char *password);
 E_SBFSPOT logoffSMAInverter(InverterData* const inverter);
 E_SBFSPOT logoffMultigateDevices(InverterData* const inverters[]);
@@ -108,27 +106,4 @@ E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &d
 E_SBFSPOT setDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &data);
 E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID);
 
-extern unsigned char CommBuf[COMMBUFSIZE];
-
-extern BYTE pcktBuf[maxpcktBufsize];
-extern unsigned char RootDeviceAddress[6];
-extern unsigned char LocalBTAddress[6];
-extern unsigned char addr_broadcast[6];
-extern unsigned char addr_unknown[6];
-extern unsigned short pcktID;
-extern int packetposition;
-extern CONNECTIONTYPE ConnType;
-extern unsigned short AppSUSyID;
-extern unsigned long AppSerial;
-extern const unsigned short anySUSyID;
-extern const unsigned long anySerial;
-extern const uint32_t MAX_INVERTERS;
-
-extern const char *IP_Broadcast;
 extern const char *IP_Inverter;
-
-extern TagDefs tagdefs;
-
-extern char DateTimeFormat[32];
-extern char DateFormat[32];
-extern bool hasBatteryDevice;

@@ -490,11 +490,7 @@ int Config::readConfig()
                 else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
                 else if(stricmp(variable, "LiveInterval") == 0) this->liveInterval = (uint16_t)atoi(value);
                 else if(stricmp(variable, "ArchiveInterval") == 0) this->archiveInterval = (uint16_t)atoi(value);
-                else if (stricmp(variable, "Plantname") == 0)
-                {
-                    memset(this->plantname, 0, sizeof(this->plantname));
-                    strncpy(this->plantname, value, sizeof(this->plantname) - 1);
-                }
+                else if (stricmp(variable, "Plantname") == 0) this->plantname = value;
                 else if(stricmp(variable, "CalculateMissingSpotValues") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
@@ -813,9 +809,9 @@ int Config::readConfig()
     if (strlen(this->outputPath_Events) == 0)
         strcpy(this->outputPath_Events, this->outputPath);
 
-    if (strlen(this->plantname) == 0)
+    if (plantname.empty())
     {
-        strncpy(this->plantname, "MyPlant", sizeof(this->plantname));
+        plantname = "MyPlant";
     }
 
     if (this->timezone.empty())

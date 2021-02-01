@@ -39,9 +39,6 @@ DISCLAIMER:
 
 #include <string>
 
-extern int quiet;
-extern int verbose;
-
 //SMA Structs must be aligned on byte boundaries
 #pragma pack(push, 1)
 typedef struct
@@ -122,11 +119,6 @@ public:
 
 private:
 	unsigned int GroupTagID() const;
-	bool isverbose(int level)
-	{
-		return !quiet && (verbose >= level);
-	}
-
 };
 
 bool SortEntryID_Asc(const EventData& ed1, const EventData& ed2);
