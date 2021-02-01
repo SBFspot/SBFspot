@@ -34,50 +34,44 @@ DISCLAIMER:
 
 #pragma once
 
-#include "osselect.h"
+#include "TagDefs.h"
+#include "Types.h"
 
-#ifdef WIN32
+// Constants
+#define COMMBUFSIZE 2048 // Size of Communications Buffer (Bluetooth/Ethernet)
 
-// Ignore warning C4127: conditional expression is constant
-#pragma warning(disable: 4127)
+static const uint32_t MAX_INVERTERS = 20;
+static const uint8_t addr_unknown[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+static const uint8_t addr_broadcast[6] = { 0, 0, 0, 0, 0, 0 };
+static const uint16_t anySUSyID = 0xFFFF;
+static const uint32_t anySerial = 0xFFFFFFFF;
+static const uint16_t AppSUSyID = 125;
+static const char IP_Broadcast[] = "239.12.255.254";
 
-#include <WinSock2.h>
-#include <ws2tcpip.h>
+// Global vars
+extern int debug;
+extern int verbose;
+extern int quiet;
 
-//Windows Sockets Error Codes
-//http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
+extern char DateTimeFormat[32];
+extern char DateFormat[32];
+extern bool hasBatteryDevice;
+extern CONNECTIONTYPE ConnType;
 
-#endif	/* WIN32 */
+extern int MAX_CommBuf;
+extern int MAX_pcktBuf;
 
-#ifdef linux
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <errno.h>
-#include <string.h>
+extern uint8_t CommBuf[COMMBUFSIZE];
+extern uint8_t pcktBuf[COMMBUFSIZE];
+extern uint8_t RootDeviceAddress[6];
+extern uint8_t LocalBTAddress[6];
+extern uint16_t pcktID;
+extern int packetposition;
+extern int FCSChecksum;
 
-#endif	/* linux */
+extern unsigned long AppSerial;
+extern unsigned int cmdcode;
 
-#include <stdio.h>
-#include <ctype.h>
-#include <iostream>
+extern TagDefs tagdefs;
 
-unsigned char char2dec(char ch);
-unsigned char hexbyte2dec(char *hex);
 
-extern SOCKET sock;
-extern struct sockaddr_in addr_in, addr_out;
-
-//Function prototypes
-int ethConnect(short port);
-int ethClose(void);
-int getLocalIP(unsigned char IPAddress[4]);
-int ethSend(unsigned char *buffer, const char *toIP);
-int ethRead(unsigned char *buf, unsigned int bufsize);

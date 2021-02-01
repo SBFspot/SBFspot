@@ -34,6 +34,8 @@ DISCLAIMER:
 
 #include "sunrise_sunset.h"
 #include "misc.h"	//get_tzOffset()
+#include <cmath>
+#include <cstring>
 
 /*
  * This new algorithm should fix a few issues with sunrise/sunset in different timezones - Thanks to Ron Patton
@@ -46,6 +48,12 @@ DISCLAIMER:
 // Note, twilight calculation gives insufficient accuracy of results
 // Jarmo Lammi 1999 - 2001
 // Last update July 21st, 2001
+
+#ifndef pi
+#define pi 3.141592653589793
+#endif
+#define dtr(x) (pi / 180) * (x) //Convert degrees to radians
+#define rtd(x) (180 / pi) * (x) //Convert radians to degrees
 
 const double degs = 180.0/pi; //rtd()
 const double rads = pi/180.0; //dtr()
@@ -85,7 +93,7 @@ double f0(double lat, double declin)
 	if (fo>0.99999) fo=1.0; // to avoid overflow
 	fo = asin(fo) + pi/2.0;
 	return fo;
-};
+}
 
 // Calculating the hourangle for twilight times
 double f1(double lat, double declin)

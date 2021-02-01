@@ -34,11 +34,8 @@ DISCLAIMER:
 
 #pragma once
 
-// Need to include osselect here, to have MAX_PATH defined.
-#include "osselect.h"
 #include <string>
 #include <vector>
-#include <boost/date_time/local_time/local_time.hpp>
 
 class EventData;
 
@@ -250,8 +247,6 @@ typedef struct ArchiveDataRec
     unsigned long long totalWh;
 } ArchDataRec;
 #pragma pack(pop)
-
-typedef unsigned char BYTE;
 
 typedef enum
 {

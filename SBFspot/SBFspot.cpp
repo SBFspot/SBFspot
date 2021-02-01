@@ -70,25 +70,13 @@ DISCLAIMER:
 #include "SQLselect.h"
 #include <boost/algorithm/string.hpp>
 #include "mqtt.h"
+#include "Defines.h"
 
 using namespace std;
 using namespace boost;
 using namespace boost::date_time;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
-
-int MAX_CommBuf = 0;
-int MAX_pcktBuf = 0;
-
-//Public vars
-int debug = 0;
-int verbose = 0;
-int quiet = 0;
-char DateTimeFormat[32];
-char DateFormat[32];
-CONNECTIONTYPE ConnType = CT_NONE;
-TagDefs tagdefs = TagDefs();
-bool hasBatteryDevice = false;	// Plant has 1 or more battery device(s)
 
 //Free memory allocated by initialiseSMAConnection()
 void freemem(InverterData *inverters[])
@@ -101,7 +89,7 @@ void freemem(InverterData *inverters[])
         }
 }
 
-E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command)
+E_SBFSPOT getPacket(const unsigned char senderaddr[6], int wait4Command)
 {
     if (DEBUG_NORMAL) printf("getPacket(%d)\n", wait4Command);
     int index = 0;
@@ -160,7 +148,7 @@ E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command)
                             else
                                 index++;
                         }
-                        if (index >= maxpcktBufsize)
+                        if (index >= COMMBUFSIZE)
                         {
                             printf("Warning: pcktBuf buffer overflow! (%d)\n", index);
                             return E_BUFOVRFLW;
@@ -350,7 +338,6 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
     if (VERBOSE_NORMAL) puts("Initializing...");
 
     //Generate a Serial Number for application
-    AppSUSyID = 125;
     srand(time(NULL));
     AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
 	// Fix Issue 103: Eleminate confusion: apply name: session-id iso SN
@@ -443,7 +430,6 @@ E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::str
     if (VERBOSE_NORMAL) puts("Initializing...");
 
     //Generate a Serial Number for application
-    AppSUSyID = 125;
     srand(time(NULL));
     AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
 
@@ -496,7 +482,6 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
     if (VERBOSE_NORMAL) puts("Initializing...");
 
     //Generate a Serial Number for application
-    AppSUSyID = 125;
     srand(time(NULL));
     AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
 	// Fix Issue 103: Eleminate confusion: apply name: session-id iso SN
@@ -1162,18 +1147,18 @@ int DaysInMonth(int month, int year)
         return days[month];
 }
 
-int isCrcValid(unsigned char lb, unsigned char hb)
+int getBT_SignalStrength(InverterData *invData)
 {
-    if (ConnType == CT_BLUETOOTH)
-    {
-        if ((lb == 0x7E) || (hb == 0x7E) ||
-                (lb == 0x7D) || (hb == 0x7D))
-            return 0;
-        else
-            return 1;
-    }
-    else
-        return 1;   //Always true for ethernet
+    writePacketHeader(pcktBuf, 0x03, invData->BTAddress);
+    writeByte(pcktBuf,0x05);
+    writeByte(pcktBuf,0x00);
+    writePacketLength(pcktBuf);
+    bthSend(pcktBuf);
+
+    getPacket(invData->BTAddress, 4);
+
+    invData->BT_Signal = (float)pcktBuf[22] * 100.0f / 255.0f;
+    return 0;
 }
 
 //Power Values are missing on some inverters
@@ -1193,7 +1178,7 @@ void CalcMissingSpot(InverterData *invData)
  * isValidSender() compares 6-byte senderaddress with our inverter BT address
  * If senderaddress = addr_unknown (FF:FF:FF:FF:FF:FF) then any address is valid
  */
-int isValidSender(unsigned char senderaddr[6], unsigned char address[6])
+int isValidSender(const unsigned char senderaddr[6], unsigned char address[6])
 {
     for (int i = 0; i < 6; i++)
         if ((senderaddr[i] != address[i]) && (senderaddr[i] != 0xFF))

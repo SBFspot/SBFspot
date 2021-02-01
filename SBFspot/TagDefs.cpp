@@ -33,21 +33,36 @@ DISCLAIMER:
 ************************************************************************************************/
 
 #include "TagDefs.h"
-#include "misc.h"
-#include "SBFspot.h"
-#include <map>
-#include <string>
+
+#include "Defines.h"
+#include "osselect.h"
 #include <fstream>
-#include <vector>
+#include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace boost;
 using namespace boost::algorithm;
+
+bool TagDefs::isverbose(int level)
+{
+    return !quiet && (verbose >= level);
+}
+void TagDefs::print_error(std::string msg)
+{
+    std::cerr << "Error: " << msg << std::endl;
+}
+void TagDefs::print_error(std::string msg, unsigned int line, std::string fpath)
+{
+    std::cerr << "Error: " << msg << " on line " << line << " [" << fpath << "]\n";
+}
+void TagDefs::addTag(unsigned int tagID, std::string tag, unsigned int lri, std::string desc)
+{
+    m_tagdefmap.insert(std::make_pair(tagID, TD(tag, lri, desc)));
+}
 
 int TagDefs::readall(std::string path, std::string locale)
 {
-	to_upper(locale); //fix case sensitivity issues on linux systems
+    boost::algorithm::to_upper(locale); //fix case sensitivity issues on linux systems
 
 	//Build fullpath to taglist<locale>.txt
 	//Default to EN-US if localized file not found
@@ -58,7 +73,7 @@ int TagDefs::readall(std::string path, std::string locale)
 	if (!fs.is_open())
     {
 		print_error("Could not open file " + fn_taglist);
-		if (stricmp(locale.c_str(), "EN-US") != 0)
+        if (stricmp(locale.c_str(), "EN-US") != 0)
 		{
 			if (isverbose(0)) std::cout << "Using default locale en-US\n";
 			fn_taglist = path + "TagListEN-US.txt";
