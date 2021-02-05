@@ -40,6 +40,9 @@
     <ClCompile Include="Export.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Import.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Inverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,6 +115,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Inverter.h">

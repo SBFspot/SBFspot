@@ -158,7 +158,7 @@ char *rtrim(char *txt)
 }
 
 //V1.4.5 - Fixed issue 14
-#ifdef linux
+#if defined (linux) || defined (__APPLE__)
 int get_tzOffset(/*OUT*/int *isDST)
 {
     time_t curtime;
@@ -311,7 +311,7 @@ char *FormatDouble(char *str, double value, int width, int precision, char decim
 
 /*
 //TODO: Implement this for Linux/Windows
-#ifdef linux
+#if defined (linux) || defined (__APPLE__)
 int getOSVersion(char *VersionString)
 {
     return 0;

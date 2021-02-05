@@ -49,7 +49,7 @@ DISCLAIMER:
 
 #endif	/* WIN32 */
 
-#ifdef linux
+#if defined (linux) || defined (__APPLE__)
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
@@ -62,8 +62,7 @@ DISCLAIMER:
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <string.h>
-
-#endif	/* linux */
+#endif	// #if defined (linux) || defined (__APPLE__)
 
 #include <stdio.h>
 #include <ctype.h>
@@ -71,9 +70,6 @@ DISCLAIMER:
 
 unsigned char char2dec(char ch);
 unsigned char hexbyte2dec(char *hex);
-
-extern SOCKET sock;
-extern struct sockaddr_in addr_in, addr_out;
 
 //Function prototypes
 int ethConnect(short port);

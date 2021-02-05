@@ -2,10 +2,15 @@ project(SBFspot)
 
 cmake_minimum_required(VERSION 3.10)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(PkgConfig)
 find_package(Boost REQUIRED COMPONENTS date_time)
 
-pkg_check_modules(Bluetooth REQUIRED IMPORTED_TARGET bluez)
+pkg_check_modules(Bluetooth IMPORTED_TARGET bluez)
+pkg_check_modules(MessagePack IMPORTED_TARGET msgpack)
+pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquittopp)
 
 set(CMAKE_CXX_FLAGS "-Wno-deprecated-declarations")
 
@@ -13,13 +18,13 @@ set(DB "SQLITE" CACHE STRING "DB backend to use: NOSQL, SQLITE, MYSQL, MARIADB")
 
 set(COMMON_SOURCES
     ArchData.cpp
-    Bluetooth.cpp
     Config.cpp
     CSVexport.cpp
     Defines.cpp
     Ethernet.cpp
     EventData.cpp
     Export.cpp
+    Import.cpp
     Inverter.cpp
     SBFNet.cpp
     SBFspot.cpp
@@ -39,6 +44,12 @@ set(COMMON_RESOURCES
     ${COMMON_RESOURCES}
     date_time_zonespec.csv
 )
+
+if (Bluetooth_FOUND)
+list(APPEND COMMON_SOURCES
+    Bluetooth.cpp
+)
+endif()
 
 if(DB STREQUAL "MYSQL")
     list(APPEND COMMON_SOURCES
@@ -77,12 +88,14 @@ add_executable(${PROJECT_NAME}
 )
 
 # Optional libs
-pkg_check_modules(MessagePack IMPORTED_TARGET msgpack)
+if (Bluetooth_FOUND)
+    add_compile_definitions(BLUETOOTH_FOUND)
+    target_link_libraries(${PROJECT_NAME} PkgConfig::Bluetooth)
+endif()
 if (MessagePack_FOUND)
     add_compile_definitions(MSGPACK_FOUND MSGPACK_USE_BOOST)
     target_link_libraries(${PROJECT_NAME} PkgConfig::MessagePack)
 endif()
-pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquittopp)
 if (Mosquitto_FOUND)
     add_compile_definitions(MOSQUITTO_FOUND)
     target_link_libraries(${PROJECT_NAME} PkgConfig::Mosquitto)
@@ -92,7 +105,6 @@ add_subdirectory(tests)
 
 target_link_libraries(${PROJECT_NAME}
     Boost::date_time
-    PkgConfig::Bluetooth
     ${COMMON_LIBRARIES}
 )
 

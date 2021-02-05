@@ -51,6 +51,18 @@ DISCLAIMER:
 #define btohs(d)  (d)
 #define btohl(d)  (d)
 #endif
+#elif !defined(__BYTE_ORDER) && (defined(__APPLE__))
+#define __BIG_ENDIAN 4321
+#define __LITTLE_ENDIAN 1234
+#define __BYTE_ORDER __LITTLE_ENDIAN
+
+/* Byte order conversions */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define htobs(d)  (d)
+#define htobl(d)  (d)
+#define btohs(d)  (d)
+#define btohl(d)  (d)
+#endif
 #endif
 
 #if !defined(__BYTE_ORDER)

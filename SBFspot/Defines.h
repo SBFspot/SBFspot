@@ -34,6 +34,7 @@ DISCLAIMER:
 
 #pragma once
 
+#include "osselect.h"
 #include "TagDefs.h"
 #include "Types.h"
 
@@ -74,4 +75,5 @@ extern unsigned int cmdcode;
 
 extern TagDefs tagdefs;
 
-
+extern SOCKET sock;
+extern struct sockaddr_in addr_in, addr_out;

@@ -36,7 +36,6 @@ DISCLAIMER:
 #define _SMANET_H_
 
 #include "osselect.h"
-#include "bluetooth.h"
 
 #define BTH_L2SIGNATURE 0x656003FF
 #define ETH_L2SIGNATURE 0x65601000

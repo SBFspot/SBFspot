@@ -37,7 +37,10 @@ DISCLAIMER:
 #include "SBFspot.h"
 #include "version.h"
 
+// Fix undefined reference to 'boost::system::system_category()' introduced with PR #361
+#define BOOST_ERROR_CODE_HEADER_ONLY
 #include <boost/asio/ip/address.hpp>
+#include <sqlite3.h>
 
 #define MAX_CFG_AD 300	// Days
 #define MAX_CFG_AM 300	// Months
