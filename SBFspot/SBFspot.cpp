@@ -47,33 +47,11 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#include "version.h"
-#include "osselect.h"
-#include "endianness.h"
 #include "SBFspot.h"
-#include "misc.h"
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <math.h>
-#include <time.h>
-#include "Ethernet.h"
-#include "SBFNet.h"
-#include "sunrise_sunset.h"
-#include "CSVexport.h"
-#include "EventData.h"
-#include "ArchData.h"
-#include "SQLselect.h"
-#include <boost/algorithm/string.hpp>
-#include "mqtt.h"
-#include "Defines.h"
+
 #include "Import.h"
 
 using namespace std;
-using namespace boost;
-using namespace boost::date_time;
-using namespace boost::posix_time;
-using namespace boost::gregorian;
 
 //Free memory allocated by bthInitConnection()
 void freemem(InverterData *inverters[])

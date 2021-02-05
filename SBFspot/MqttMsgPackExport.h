@@ -35,22 +35,18 @@ DISCLAIMER:
 #pragma once
 
 #include "Export.h"
-#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
+
 #include <mosquittopp.h>
-#include "MqttMsgPackExport.h"
-#endif
 
 struct Config;
 struct InverterData;
 
-class MqttExport : public Export
-#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
-        , mosqpp::mosquittopp
-#endif
+// TODO: implement static plugin registration: https://dxuuu.xyz/cpp-static-registration.html
+class MqttMsgPackExport : public Export, mosqpp::mosquittopp
 {
 public:
-    MqttExport(const Config& config);
-    ~MqttExport();
+    MqttMsgPackExport(const Config& config);
+    ~MqttMsgPackExport();
 
     std::string name() const override;
 
@@ -59,8 +55,4 @@ public:
 
 private:
     const Config& m_config;
-
-#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
-    MqttMsgPackExport m_msgPackExport;
-#endif
 };
