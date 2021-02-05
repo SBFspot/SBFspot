@@ -488,9 +488,6 @@ int Config::readConfig()
                 }
                 else if(stricmp(variable, "Latitude") == 0) this->latitude = (float)atof(value);
                 else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
-                else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
-                else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
-                else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
                 else if(stricmp(variable, "LiveInterval") == 0) this->liveInterval = (uint16_t)atoi(value);
                 else if(stricmp(variable, "ArchiveInterval") == 0) this->archiveInterval = (uint16_t)atoi(value);
                 else if (stricmp(variable, "Plantname") == 0) this->plantname = value;

@@ -38,10 +38,12 @@ if (Mosquitto_FOUND AND MessagePack_FOUND)
         ../Export.cpp
         ../misc.cpp
         ../mqtt.cpp
+        ../MqttMsgPackExport.cpp
         ../sunrise_sunset.cpp
         ../Timer.cpp
     )
     target_link_libraries(mqtttest
+        Boost::date_time
         PkgConfig::Mosquitto
         PkgConfig::MessagePack
     )

@@ -2,7 +2,7 @@ project(SBFspot)
 
 cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(PkgConfig)
@@ -46,9 +46,15 @@ set(COMMON_RESOURCES
 )
 
 if (Bluetooth_FOUND)
-list(APPEND COMMON_SOURCES
-    Bluetooth.cpp
-)
+    list(APPEND COMMON_SOURCES
+        Bluetooth.cpp
+    )
+endif()
+
+if (Mosquitto_FOUND AND MessagePack_FOUND)
+    list(APPEND COMMON_SOURCES
+        MqttMsgPackExport.cpp
+    )
 endif()
 
 if(DB STREQUAL "MYSQL")
