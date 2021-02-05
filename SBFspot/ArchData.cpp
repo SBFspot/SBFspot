@@ -35,6 +35,7 @@ DISCLAIMER:
 #include "ArchData.h"
 
 #include "Defines.h"
+#include "Import.h"
 
 using namespace std;
 using namespace boost;
@@ -103,10 +104,7 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
 			}
 			while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
 
-			if (ConnType == CT_BLUETOOTH)
-				bthSend(pcktBuf);
-			else
-				ethSend(pcktBuf, inverters[inv]->IPAddress);
+            Import::send(pcktBuf, inverters[inv]->IPAddress);
 
 			do
 			{
@@ -121,16 +119,12 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
 
 				do
 				{
-					if (ConnType == CT_BLUETOOTH)
-						rc = getPacket(inverters[inv]->BTAddress, 1);
-					else
-						rc = ethGetPacket();
-
+                    rc = Import::getPacket(inverters[inv]->BTAddress, 1);
 					if (rc != E_OK) return rc;
 
 					packetcount = pcktBuf[25];
 
-					//TODO: Move checksum validation to getPacket
+                    //TODO: Move checksum validation to bthGetPacket
 					if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
 						return E_CHKSUM;
 					else
@@ -294,10 +288,7 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
 			}
 			while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
 
-			if (ConnType == CT_BLUETOOTH)
-				bthSend(pcktBuf);
-			else
-				ethSend(pcktBuf, inverters[inv]->IPAddress);
+            Import::send(pcktBuf, inverters[inv]->IPAddress);
 
 			do
 			{
@@ -309,14 +300,10 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
 				unsigned int idx = 0;
 				do
 				{
-					if (ConnType == CT_BLUETOOTH)
-						rc = getPacket(inverters[inv]->BTAddress, 1);
-					else
-						rc = ethGetPacket();
-
+                    rc = Import::getPacket(inverters[inv]->BTAddress, 1);
 					if (rc != E_OK) return rc;
 
-					//TODO: Move checksum validation to getPacket
+                    //TODO: Move checksum validation to bthGetPacket
 					if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
 						return E_CHKSUM;
 					else
@@ -430,24 +417,17 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
         }
         while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
 
-        if (ConnType == CT_BLUETOOTH)
-            bthSend(pcktBuf);
-        else
-            ethSend(pcktBuf, inverters[inv]->IPAddress);
+        Import::send(pcktBuf, inverters[inv]->IPAddress);
 
 		bool FIRST_EVENT_FOUND = false;
         do
         {
             do
             {
-                if (ConnType == CT_BLUETOOTH)
-                    rc = getPacket(inverters[inv]->BTAddress, 1);
-                else
-                    rc = ethGetPacket();
-
+                rc = Import::getPacket(inverters[inv]->BTAddress, 1);
                 if (rc != E_OK) return rc;
 
-                //TODO: Move checksum validation to getPacket
+                //TODO: Move checksum validation to bthGetPacket
                 if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
                     return E_CHKSUM;
                 else

@@ -38,6 +38,9 @@ DISCLAIMER:
 #include "Config.h"
 #include "CSVexport.h"
 #include "Defines.h"
+#include "Import.h"
+// TODO: remove bluetooth header from here. Abstract bluetooth functions using Import class
+#include "bluetooth.h"
 #include "mqtt.h"
 
 using namespace boost;
@@ -79,13 +82,14 @@ int Inverter::process(uint32_t secondsSinceEpoch)
 
     if (VERBOSE_NORMAL) puts("Logon OK");
 
+#ifdef BLUETOOTH_FOUND
     // If SBFspot is executed with -settime argument
     if (m_config.settime == 1)
     {
-        rc = SetPlantTime(0, 0, 0);	// Set time ignoring limits
+        rc = bthSetPlantTime(0, 0, 0);	// Set time ignoring limits
         logoffSMAInverter(m_inverters[0]);
         logOff();
-        bthClose();	// Close socket
+        Import::close();	// Close socket
 
         return rc;
     }
@@ -94,8 +98,9 @@ int Inverter::process(uint32_t secondsSinceEpoch)
     // Only BT connected devices and if enabled in config _or_ requested by 123Solar
     // Most probably Speedwire devices get their time from the local IP network
     if ((m_config.ConnectionType == CT_BLUETOOTH) && (m_config.synchTime > 0 || m_config.s123 == S123_SYNC ))
-        if ((rc = SetPlantTime(m_config.synchTime, m_config.synchTimeLow, m_config.synchTimeHigh)) != E_OK)
-            std::cerr << "SetPlantTime returned an error: " << rc << std::endl;
+        if ((rc = bthSetPlantTime(m_config.synchTime, m_config.synchTimeLow, m_config.synchTimeHigh)) != E_OK)
+            std::cerr << "bthSetPlantTime returned an error: " << rc << std::endl;
+#endif
 
     rc = importSpotData();
     if (rc != 0)
@@ -114,7 +119,7 @@ int Inverter::process(uint32_t secondsSinceEpoch)
     }
 
     logOff();
-    bthClose();
+    Import::close();
     dbClose();
 
     return rc;
@@ -127,6 +132,7 @@ int Inverter::logOn()
 
     if (m_config.ConnectionType == CT_BLUETOOTH)
     {
+#ifdef BLUETOOTH_FOUND
         int attempts = 1;
         do
         {
@@ -147,18 +153,21 @@ int Inverter::logOn()
             return rc;
         }
 
-        rc = initialiseSMAConnection(m_config.BT_Address, m_inverters, m_config.MIS_Enabled);
+        rc = bthInitConnection(m_config.BT_Address, m_inverters, m_config.MIS_Enabled);
 
         if (rc != E_OK)
         {
             print_error(stdout, PROC_CRITICAL, "Failed to initialize communication with inverter.\n");
-            bthClose();
+            Import::close();
             return rc;
         }
 
-        rc = getBT_SignalStrength(m_inverters[0]);
+        rc = bthGetSignalStrength(m_inverters[0]);
         if (VERBOSE_NORMAL) printf("BT Signal=%0.1f%%\n", m_inverters[0]->BT_Signal);
-
+#else
+        std::cerr << "Bluetooth not supported on this platform" << std::endl;
+        return E_COMM;
+#endif
     }
     else // CT_ETHERNET
     {
@@ -189,7 +198,7 @@ int Inverter::logOn()
     {
         snprintf(msg, sizeof(msg), "Logon failed. Check '%s' Password\n", m_config.userGroup == UG_USER? "USER":"INSTALLER");
         print_error(stdout, PROC_CRITICAL, msg);
-        bthClose();
+        Import::close();
         return 1;
     }
 

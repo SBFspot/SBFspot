@@ -168,7 +168,7 @@ int ethClose()
 
 #endif
 
-#ifdef linux
+#if defined (linux) || defined (__APPLE__)
 int ethClose()
 {
 	if (sock != 0)

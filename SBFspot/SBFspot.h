@@ -82,24 +82,19 @@ DISCLAIMER:
 #define toTemp(value32) (float)value32/100
 
 //Function prototypes
-E_SBFSPOT initialiseSMAConnection(InverterData *invData);
 E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address);
 E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::string> IPaddresslist);
 void CalcMissingSpot(InverterData *invData);
 int DaysInMonth(int month, int year);
-int getBT_SignalStrength(InverterData *invData);
 void freemem(InverterData *inverters[]);
 int getInverterData(InverterData *inverters[], enum getInverterDataType type);
 int getInverterIndexByAddress(InverterData* const inverters[], unsigned char bt_addr[6]);
 int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial);
 int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial);
-E_SBFSPOT getPacket(const unsigned char senderaddr[6], int wait4Command);
-E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], int MIS);
 int isValidSender(const unsigned char senderaddr[6], unsigned char address[6]);
 E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, const char *password);
 E_SBFSPOT logoffSMAInverter(InverterData* const inverter);
 E_SBFSPOT logoffMultigateDevices(InverterData* const inverters[]);
-E_SBFSPOT SetPlantTime(time_t ndays, time_t lowerlimit = 0, time_t upperlimit = 0);
 E_SBFSPOT ethGetPacket(void);
 void resetInverterData(InverterData *inv);
 E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &data);

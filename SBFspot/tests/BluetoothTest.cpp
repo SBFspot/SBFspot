@@ -69,7 +69,7 @@ int logOn(Config& config)
     }
 
     /*
-    rc = initialiseSMAConnection(config.BT_Address, m_inverters, config.MIS_Enabled);
+    rc = bthInitConnection(config.BT_Address, m_inverters, config.MIS_Enabled);
     if (rc != E_OK)
     {
         print_error(stdout, PROC_CRITICAL, "Failed to initialize communication with inverter.\n");
@@ -77,7 +77,7 @@ int logOn(Config& config)
         return rc;
     }
 
-    rc = getBT_SignalStrength(m_inverters[0]);
+    rc = bthGetSignalStrength(m_inverters[0]);
     if (VERBOSE_NORMAL) printf("BT Signal=%0.1f%%\n", m_inverters[0]->BT_Signal);
 
     if (logonSMAInverter(m_inverters, config.userGroup, config.SMA_Password) != E_OK)

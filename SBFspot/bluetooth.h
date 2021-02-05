@@ -70,8 +70,6 @@ typedef ULONGLONG BT_ADDR, *PBT_ADDR;
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <netdb.h>
-#include <netinet/in.h> //SpeedWire
-#include <arpa/inet.h>  //SpeedWire
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -83,6 +81,8 @@ typedef ULONGLONG BT_ADDR, *PBT_ADDR;
 #include <ctype.h>
 #include <iostream>
 
+#include "Types.h"
+
 unsigned char char2dec(char ch);
 unsigned char hexbyte2dec(char *hex);
 
@@ -90,6 +90,11 @@ unsigned char hexbyte2dec(char *hex);
 #define BT_TIMEOUT  10
 
 //Function prototypes
+E_SBFSPOT bthInitConnection(InverterData *invData);
+E_SBFSPOT bthInitConnection(const char *BTAddress, InverterData *inverters[], int MIS);
+E_SBFSPOT bthGetPacket(const unsigned char senderaddr[6], int wait4Command);
+E_SBFSPOT bthSetPlantTime(time_t ndays, time_t lowerlimit = 0, time_t upperlimit = 0);
+int bthGetSignalStrength(InverterData *invData);
 int bthConnect(const char *btAddr);
 int bthClose();
 int bthRead(unsigned char *buf, unsigned int bufsize);

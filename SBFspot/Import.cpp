@@ -32,32 +32,59 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#include "Defines.h"
+#include "Import.h"
 
-int debug = 0;
-int verbose = 0;
-int quiet = 0;
+#ifdef BLUETOOTH_FOUND
+#include "bluetooth.h"
+#endif
 
-char DateTimeFormat[32];
-char DateFormat[32];
-bool hasBatteryDevice = false;
-CONNECTIONTYPE ConnType = CT_NONE;
+#include "Config.h"
+#include "SBFspot.h"
 
-int MAX_CommBuf = 0;
-int MAX_pcktBuf = 0;
+Import::Import(const Config& config) :
+    m_config(config)
+{
+}
 
-uint8_t CommBuf[COMMBUFSIZE];
-uint8_t pcktBuf[COMMBUFSIZE];
-uint8_t RootDeviceAddress[6]= {0, 0, 0, 0, 0, 0};	//Hold byte array with BT address of primary inverter
-uint8_t LocalBTAddress[6] = {0, 0, 0, 0, 0, 0};		//Hold byte array with BT address of local adapter
-uint16_t pcktID = 1;
-int packetposition = 0;
-int FCSChecksum = 0xffff;
+int Import::close()
+{
+#ifdef BLUETOOTH_FOUND
+    return bthClose();
+#else
+    return 0;
+#endif
+}
 
-unsigned long AppSerial = 0;
-unsigned int cmdcode = 0;
+E_SBFSPOT Import::getPacket(const unsigned char senderaddr[6], int wait4Command)
+{
+    if (ConnType == CT_BLUETOOTH)
+    {
+#ifdef BLUETOOTH_FOUND
+        return bthGetPacket(senderaddr, wait4Command);
+#else
+        std::cout << "Bluetooth not supported on this platform" << std::endl;
+        return E_COMM;
+#endif
+    }
+    else
+    {
+        return ethGetPacket();
+    }
+}
 
-TagDefs tagdefs = TagDefs();
-
-SOCKET sock = 0;
-struct sockaddr_in addr_in, addr_out;
+int Import::send(unsigned char *buffer, const char *toIP)
+{
+    if(ConnType == CT_BLUETOOTH)
+    {
+#ifdef BLUETOOTH_FOUND
+        return bthSend(buffer);
+#else
+        std::cout << "Bluetooth not supported on this platform" << std::endl;
+        return 0;
+#endif
+    }
+    else
+    {
+        return ethSend(buffer, toIP);
+    }
+}

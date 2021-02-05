@@ -32,32 +32,24 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#include "Defines.h"
+#pragma once
 
-int debug = 0;
-int verbose = 0;
-int quiet = 0;
+#include "Types.h"
 
-char DateTimeFormat[32];
-char DateFormat[32];
-bool hasBatteryDevice = false;
-CONNECTIONTYPE ConnType = CT_NONE;
+struct Config;
 
-int MAX_CommBuf = 0;
-int MAX_pcktBuf = 0;
+class Import
+{
+public:
+    Import(const Config& config);
+    ~Import();
 
-uint8_t CommBuf[COMMBUFSIZE];
-uint8_t pcktBuf[COMMBUFSIZE];
-uint8_t RootDeviceAddress[6]= {0, 0, 0, 0, 0, 0};	//Hold byte array with BT address of primary inverter
-uint8_t LocalBTAddress[6] = {0, 0, 0, 0, 0, 0};		//Hold byte array with BT address of local adapter
-uint16_t pcktID = 1;
-int packetposition = 0;
-int FCSChecksum = 0xffff;
+    // TODO: make these non-static
+    static int close();
+    static E_SBFSPOT getPacket(const unsigned char senderaddr[6], int wait4Command);
+    static int send(unsigned char *buffer, const char *toIP);
 
-unsigned long AppSerial = 0;
-unsigned int cmdcode = 0;
+private:
+    const Config& m_config;
+};
 
-TagDefs tagdefs = TagDefs();
-
-SOCKET sock = 0;
-struct sockaddr_in addr_in, addr_out;
