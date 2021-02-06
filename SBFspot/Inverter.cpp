@@ -105,6 +105,7 @@ int Inverter::process(uint32_t secondsSinceEpoch)
     rc = importSpotData();
     if (rc != 0)
         return rc;
+    exportConfig();
     exportSpotData(secondsSinceEpoch);
 
     // Only export archive data, when not running in loop mode OR

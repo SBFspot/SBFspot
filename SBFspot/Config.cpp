@@ -428,16 +428,29 @@ int Config::readConfig()
     // TODO: Rewrite by using std::getline()
     char line[512];
     int rc = 0;
+    bool parseArray = false;
 
     while ((rc == 0) && (fgets(line, sizeof(line), fp) != NULL))
     {
         if (line[0] != '#' && line[0] != 0 && line[0] != 10)
         {
+            // Check for array section and switch parsing state
+            if (strnicmp(line, "[Array]", 7) == 0)
+            {
+                parseArray = true;
+                arrays.push_back({});
+                continue;
+            }
+
             char *variable = strtok(line,"=");
             char *value = strtok(NULL,"\n");
 
             if ((value != NULL) && (*rtrim(value) != 0))
             {
+                // If we are in parse array state
+                if (parseArray && parseArrayProperty(variable, value)) continue;
+                else parseArray = false;
+
                 if (stricmp(variable, "BTaddress") == 0)
                 {
                     memset(this->BT_Address, 0, sizeof(this->BT_Address));
@@ -977,4 +990,16 @@ void Config::sayHello(int ShowHelp)
 void Config::invalidArg(char *arg)
 {
     std::cout << "Invalid argument: " << arg << "\nUse -? for help" << std::endl;
+}
+
+bool Config::parseArrayProperty(const char *key, const char *value)
+{
+    if (stricmp(key, "ARRAY_Name") == 0) arrays.back().name = value;
+    else if(stricmp(key, "ARRAY_InverterSerial") == 0) arrays.back().inverterSerial = atoi(value);
+    else if(stricmp(key, "ARRAY_Azimuth") == 0) arrays.back().azimuth = (float)atof(value);
+    else if(stricmp(key, "ARRAY_Elevation") == 0) arrays.back().elevation = (float)atof(value);
+    else if(stricmp(key, "ARRAY_PeakPower") == 0) arrays.back().powerPeak = (float)atof(value);
+    else return false;
+
+    return true;
 }

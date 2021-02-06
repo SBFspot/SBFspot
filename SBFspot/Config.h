@@ -42,9 +42,11 @@ DISCLAIMER:
 
 struct ArrayConfig
 {
+    std::string name = "MPP";
+    uint32_t inverterSerial = 0;
     float azimuth = 180.0f;
     float elevation = 30.0f;
-    float peakPower = 10000.0f;
+    float powerPeak = 10000.0f;
 };
 
 struct Config
@@ -54,6 +56,7 @@ struct Config
     void showConfig();
     void sayHello(int ShowHelp);
     void invalidArg(char *arg);
+    bool parseArrayProperty(const char *key, const char *value);
 
     std::string	ConfigFile;			//Fullpath to configuration file
     std::string	AppPath;
@@ -67,7 +70,7 @@ struct Config
     char	SMA_Password[13];
     float	latitude = 0.0f;
     float	longitude = 0.0f;
-    std::map<uint32_t, std::vector<ArrayConfig>> arrays;    // Module array configuration per inverter serial
+    std::vector<ArrayConfig> arrays;    // Module array configurations
     uint16_t liveInterval = 60;
     uint16_t archiveInterval = 300;
     time_t	archdata_from = 0;

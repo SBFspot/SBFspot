@@ -49,7 +49,7 @@ public:
         StartOfProduction = 1,  // Timestamp when this inverter got installed
         Latitude = 2,
         Longitude = 3,
-        PowerMax = 4,   // Inverter power or peak power of strings at MPP
+        PowerMax = 4,   // Nominal inverter power
 
         // Dynamic properties
         Timestamp = 32,     // Timestamp for this data set
@@ -58,12 +58,15 @@ public:
         Power = 35,         // Current power
         PowerMaxToday = 36,   // Today's maximum power
 
-        // Key for MPP tracker properties (stored in array of maps)
-        MppTracker = 64, // Data per MPP tracker
+        // Key for PV array properties (stored in array of maps)
+        PvArray = 64, // Data per PV array
 
-        // MPP tracker specific properties
-        Azimuth = 65,
-        Elevation = 66,
+        // PV array specific properties
+        PvArrayName = 65,
+        PvArrayAzimuth = 66,
+        PvArrayElevation = 67,
+        PvArrayPowerMax = PowerMax, // Peak power
+        PvArrayPower = Power    // Current power
     };
 
     virtual ~Export() = default;

@@ -74,6 +74,11 @@ std::string MqttMsgPackExport::name() const
 
 int MqttMsgPackExport::exportConfig(const std::vector<InverterData>& inverterData)
 {
+    // Collect PV array config per serial
+    std::multimap<uint32_t,ArrayConfig> arrayConfig;
+    for (const auto& ac : m_config.arrays)
+        arrayConfig.insert({ac.inverterSerial, ac});
+
     for (const auto& inv : inverterData)
     {
         std::string topic = m_config.mqtt_topic;
@@ -85,7 +90,7 @@ int MqttMsgPackExport::exportConfig(const std::vector<InverterData>& inverterDat
         msgpack::sbuffer sbuf;
         msgpack::packer<msgpack::sbuffer> packer(sbuf);
         // Map with number of elements
-        packer.pack_map(4);
+        packer.pack_map(5);
         // 1. Protocol version
         packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Version));
         packer.pack_uint8(0);
@@ -98,6 +103,24 @@ int MqttMsgPackExport::exportConfig(const std::vector<InverterData>& inverterDat
         // 4. Power Max
         packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PowerMax));
         packer.pack_float(static_cast<float>(inv.Pmax1));
+        // 5. Array config
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PvArray));
+        packer.pack_array(arrayConfig.count(inv.Serial));   // Store an array to provide data for each PV array.
+
+        auto itb = arrayConfig.lower_bound(inv.Serial);
+        auto ite = arrayConfig.upper_bound(inv.Serial);
+        for (auto it = itb; it != ite; ++it)
+        {
+            packer.pack_map(4);
+            packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PvArrayName));
+            packer.pack((*it).second.name);
+            packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PvArrayAzimuth));
+            packer.pack_float(static_cast<float>((*it).second.azimuth));
+            packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PvArrayElevation));
+            packer.pack_float(static_cast<float>((*it).second.elevation));
+            packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PvArrayPowerMax));
+            packer.pack_float(static_cast<float>((*it).second.powerPeak));
+        }
 
         if (VERBOSE_HIGH) std::cout << "MQTT: Publishing topic: " << topic
                                     << ", data size: " << sbuf.size() << std::endl;
@@ -143,7 +166,7 @@ int MqttMsgPackExport::exportInverterData(const std::vector<InverterData>& inver
         packer.pack_uint8(static_cast<uint8_t>(InverterProperty::Power));
         packer.pack_float(static_cast<float>(inv.TotalPac));
         // 6. Power DC
-        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::MppTracker));
+        packer.pack_uint8(static_cast<uint8_t>(InverterProperty::PvArray));
         packer.pack_array(2);   // Store an array to provide data for each Mpp.
         // 6.1 MPP1
         packer.pack_map(1);
