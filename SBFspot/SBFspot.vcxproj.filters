@@ -10,6 +10,9 @@
     <ClCompile Include="CSVexport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Defines.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -35,6 +38,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Import.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Inverter.cpp">
@@ -81,6 +87,9 @@
     <ClInclude Include="CSVexport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="misc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -106,6 +115,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Inverter.h">

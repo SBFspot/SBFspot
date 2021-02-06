@@ -32,10 +32,10 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#include "misc.h"
 #include "Ethernet.h"
 
-const char *IP_Broadcast = "239.12.255.254";
+#include "Defines.h"
+#include "misc.h"
 
 int ethConnect(short port)
 {
@@ -168,7 +168,7 @@ int ethClose()
 
 #endif
 
-#ifdef linux
+#if defined (linux) || defined (__APPLE__)
 int ethClose()
 {
 	if (sock != 0)

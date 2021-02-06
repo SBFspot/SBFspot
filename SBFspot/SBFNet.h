@@ -36,10 +36,6 @@ DISCLAIMER:
 #define _SMANET_H_
 
 #include "osselect.h"
-#include "bluetooth.h"
-
-//#define maxpcktBufsize 520
-#define maxpcktBufsize COMMBUFSIZE
 
 #define BTH_L2SIGNATURE 0x656003FF
 #define ETH_L2SIGNATURE 0x65601000
@@ -58,8 +54,5 @@ void writePacketTrailer(unsigned char *btbuffer);
 void writePacketHeader(unsigned char *btbuffer, const unsigned int control, const unsigned char *destaddress);
 void writePacketLength(unsigned char *buffer);
 int validateChecksum(void);
-short get_short(unsigned char *buf);
-int32_t get_long(unsigned char *buf);
-int64_t get_longlong(unsigned char *buf);
 
 #endif

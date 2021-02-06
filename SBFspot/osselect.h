@@ -35,7 +35,7 @@ DISCLAIMER:
 #ifndef OSSELECT_H_INCLUDED
 #define OSSELECT_H_INCLUDED
 
-#ifdef linux
+#if defined (linux) || defined (__APPLE__)
 #include "oslinux.h"   //Linux
 #elif WIN32
 #include "oswindows.h" //Windows 32

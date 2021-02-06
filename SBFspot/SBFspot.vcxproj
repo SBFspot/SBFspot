@@ -368,9 +368,11 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Defines.h" />
     <ClInclude Include="Ethernet.h" />
     <ClInclude Include="EventData.h" />
     <ClInclude Include="Export.h" />
+    <ClInclude Include="Import.h" />
     <ClInclude Include="Inverter.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="mqtt.h" />
@@ -419,10 +421,12 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Defines.cpp" />
     <ClCompile Include="endianness.h" />
     <ClCompile Include="Ethernet.cpp" />
     <ClCompile Include="EventData.cpp" />
     <ClCompile Include="Export.cpp" />
+    <ClCompile Include="Import.cpp" />
     <ClCompile Include="Inverter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="misc.cpp" />

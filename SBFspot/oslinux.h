@@ -35,8 +35,8 @@ DISCLAIMER:
 #ifndef OSLINUX_H_INCLUDED
 #define OSLINUX_H_INCLUDED
 
-#ifndef linux
-#error Do Not include oslinux.h on non-linux systems
+#if !defined(linux) && !defined(__APPLE__)
+#error Do Not include oslinux.h on non-unix systems
 #endif
 
 #define OS "Linux"
@@ -50,9 +50,11 @@ extern unsigned int sleep (unsigned int __seconds); // See unistd.h
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 
-#include <stdlib.h>
-#include <sys/stat.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <arpa/inet.h>  //SpeedWire
+#include <netinet/in.h> //SpeedWire
+#include <sys/stat.h>
 
 #ifndef MAX_PATH
 # define MAX_PATH 256

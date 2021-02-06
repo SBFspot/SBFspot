@@ -34,14 +34,8 @@ DISCLAIMER:
 
 #pragma once
 
-#include "osselect.h"
-
 #include <map>
 #include <string>
-#include <iostream>
-
-extern int quiet;
-extern int verbose;
 
 class TagDefs
 {
@@ -71,22 +65,10 @@ private:
 	std::map<unsigned long, TD> m_tagdefmap;
 
 private:
-	bool isverbose(int level)
-	{
-		return !quiet && (verbose >= level);
-	}
-	void print_error(std::string msg)
-	{
-		std::cerr << "Error: " << msg << std::endl;
-	}
-	void print_error(std::string msg, unsigned int line, std::string fpath)
-	{
-		std::cerr << "Error: " << msg << " on line " << line << " [" << fpath << "]\n";
-	}
-	void addTag(unsigned int tagID, std::string tag, unsigned int lri, std::string desc)
-	{
-		m_tagdefmap.insert(std::make_pair(tagID, TD(tag, lri, desc)));
-	}
+    bool isverbose(int level);
+    void print_error(std::string msg);
+    void print_error(std::string msg, unsigned int line, std::string fpath);
+    void addTag(unsigned int tagID, std::string tag, unsigned int lri, std::string desc);
 
 public:
 	int readall(std::string path, std::string locale);

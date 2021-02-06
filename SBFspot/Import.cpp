@@ -32,48 +32,59 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#pragma once
+#include "Import.h"
 
-#include "osselect.h"
+#ifdef BLUETOOTH_FOUND
+#include "bluetooth.h"
+#endif
 
-#ifdef WIN32
+#include "Config.h"
+#include "SBFspot.h"
 
-// Ignore warning C4127: conditional expression is constant
-#pragma warning(disable: 4127)
+Import::Import(const Config& config) :
+    m_config(config)
+{
+}
 
-#include <WinSock2.h>
-#include <ws2tcpip.h>
+int Import::close()
+{
+#ifdef BLUETOOTH_FOUND
+    return bthClose();
+#else
+    return 0;
+#endif
+}
 
-//Windows Sockets Error Codes
-//http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
+E_SBFSPOT Import::getPacket(const unsigned char senderaddr[6], int wait4Command)
+{
+    if (ConnType == CT_BLUETOOTH)
+    {
+#ifdef BLUETOOTH_FOUND
+        return bthGetPacket(senderaddr, wait4Command);
+#else
+        std::cout << "Bluetooth not supported on this platform" << std::endl;
+        return E_COMM;
+#endif
+    }
+    else
+    {
+        return ethGetPacket();
+    }
+}
 
-#endif	/* WIN32 */
-
-#if defined (linux) || defined (__APPLE__)
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <errno.h>
-#include <string.h>
-#endif	// #if defined (linux) || defined (__APPLE__)
-
-#include <stdio.h>
-#include <ctype.h>
-#include <iostream>
-
-unsigned char char2dec(char ch);
-unsigned char hexbyte2dec(char *hex);
-
-//Function prototypes
-int ethConnect(short port);
-int ethClose(void);
-int getLocalIP(unsigned char IPAddress[4]);
-int ethSend(unsigned char *buffer, const char *toIP);
-int ethRead(unsigned char *buf, unsigned int bufsize);
+int Import::send(unsigned char *buffer, const char *toIP)
+{
+    if(ConnType == CT_BLUETOOTH)
+    {
+#ifdef BLUETOOTH_FOUND
+        return bthSend(buffer);
+#else
+        std::cout << "Bluetooth not supported on this platform" << std::endl;
+        return 0;
+#endif
+    }
+    else
+    {
+        return ethSend(buffer, toIP);
+    }
+}

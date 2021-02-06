@@ -38,8 +38,6 @@ DISCLAIMER:
 #include "misc.h"
 #include "sunrise_sunset.h"
 
-extern int verbose;
-
 Timer::Timer(Config& config)
     : m_config(config)
 {

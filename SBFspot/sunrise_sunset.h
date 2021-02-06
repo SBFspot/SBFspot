@@ -34,16 +34,4 @@ DISCLAIMER:
 
 #pragma once
 
-#include "osselect.h"
-
-#include <time.h>
-#include <math.h>
-#include <string.h>     //memcpy
-
-#ifndef pi
-#define pi 3.141592653589793
-#endif
-#define dtr(x) (pi / 180) * (x) //Convert degrees to radians
-#define rtd(x) (180 / pi) * (x) //Convert radians to degrees
-
 bool sunrise_sunset(const float latit, const float longit, float *sunrise, float *sunset, const float offset);

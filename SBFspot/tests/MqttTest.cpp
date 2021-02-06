@@ -32,48 +32,47 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#pragma once
+#include "../Config.h"
+#include "../Defines.h"
+#include "../Inverter.h"
+#include "../mqtt.h"
+#include "../Timer.h"
 
-#include "osselect.h"
+#include <thread>
 
-#ifdef WIN32
+int main(int argc, char **argv)
+{
+    debug = 5;
+    verbose = 5;
 
-// Ignore warning C4127: conditional expression is constant
-#pragma warning(disable: 4127)
+    Config config;
+    config.loop = true;
+    config.liveInterval = 1;
+    config.mqtt_host = "broker.hivemq.com";
+    config.plantname = "testplant";
+    config.mqtt_topic = "sbfspot_{plantname}/sma_{serial}";
+    config.mqtt_item_format = "MSGPACK";
+    Timer timer(config);
 
-#include <WinSock2.h>
-#include <ws2tcpip.h>
+    InverterData inverterData;
+    inverterData.Serial = 1234;
+    inverterData.Pmax1 = 10000;
 
-//Windows Sockets Error Codes
-//http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
+    do
+    {
+        auto timePoint = timer.nextTimePoint();
+        inverterData.ETotal = std::chrono::system_clock::to_time_t(timePoint)/10;
+        inverterData.EToday = std::chrono::system_clock::to_time_t(timePoint)%100000;
+        inverterData.Pdc1 = std::chrono::system_clock::to_time_t(timePoint)%11000;
+        inverterData.Pdc2 = std::chrono::system_clock::to_time_t(timePoint)%7000;
+        inverterData.TotalPac = inverterData.Pdc1 + inverterData.Pdc2;
+        std::this_thread::sleep_until(timePoint);
 
-#endif	/* WIN32 */
+        MqttExport mqtt(config);
+        mqtt.exportConfig({inverterData});
+        mqtt.exportInverterData({inverterData});
+    }
+    while(true);
 
-#if defined (linux) || defined (__APPLE__)
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <errno.h>
-#include <string.h>
-#endif	// #if defined (linux) || defined (__APPLE__)
-
-#include <stdio.h>
-#include <ctype.h>
-#include <iostream>
-
-unsigned char char2dec(char ch);
-unsigned char hexbyte2dec(char *hex);
-
-//Function prototypes
-int ethConnect(short port);
-int ethClose(void);
-int getLocalIP(unsigned char IPAddress[4]);
-int ethSend(unsigned char *buffer, const char *toIP);
-int ethRead(unsigned char *buf, unsigned int bufsize);
+    return 0;
+}

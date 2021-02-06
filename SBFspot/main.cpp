@@ -38,8 +38,6 @@ DISCLAIMER:
 
 #include <thread>
 
-const uint32_t MAX_INVERTERS = 20;
-
 using namespace boost;
 
 int main(int argc, char **argv)
@@ -90,11 +88,6 @@ int main(int argc, char **argv)
         return(2);
     }
 
-    // Export configuration
-    {
-        Inverter inverter(cfg);
-        inverter.exportConfig();
-    }
     do
     {
         auto timePoint = timer.nextTimePoint();

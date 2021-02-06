@@ -34,46 +34,22 @@ DISCLAIMER:
 
 #pragma once
 
-#include "osselect.h"
+#include "Types.h"
 
-#ifdef WIN32
+struct Config;
 
-// Ignore warning C4127: conditional expression is constant
-#pragma warning(disable: 4127)
+class Import
+{
+public:
+    Import(const Config& config);
+    ~Import();
 
-#include <WinSock2.h>
-#include <ws2tcpip.h>
+    // TODO: make these non-static
+    static int close();
+    static E_SBFSPOT getPacket(const unsigned char senderaddr[6], int wait4Command);
+    static int send(unsigned char *buffer, const char *toIP);
 
-//Windows Sockets Error Codes
-//http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
+private:
+    const Config& m_config;
+};
 
-#endif	/* WIN32 */
-
-#if defined (linux) || defined (__APPLE__)
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <errno.h>
-#include <string.h>
-#endif	// #if defined (linux) || defined (__APPLE__)
-
-#include <stdio.h>
-#include <ctype.h>
-#include <iostream>
-
-unsigned char char2dec(char ch);
-unsigned char hexbyte2dec(char *hex);
-
-//Function prototypes
-int ethConnect(short port);
-int ethClose(void);
-int getLocalIP(unsigned char IPAddress[4]);
-int ethSend(unsigned char *buffer, const char *toIP);
-int ethRead(unsigned char *buf, unsigned int bufsize);

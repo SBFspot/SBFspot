@@ -34,13 +34,658 @@ DISCLAIMER:
 
 #include "misc.h"
 #include "bluetooth.h"
+#include "Defines.h"
+#include "SBFspot.h"
 
-unsigned char CommBuf[COMMBUFSIZE];    //read buffer
-
-struct sockaddr_in addr_in, addr_out;
 int bytes_in_buffer = 0;
 int bufptr = 0;
-SOCKET sock = 0;
+
+E_SBFSPOT bthInitConnection(const char *BTAddress, InverterData *inverters[], int MIS)
+{
+    if (VERBOSE_NORMAL) puts("Initializing...");
+
+    //Generate a Serial Number for application
+    srand(time(NULL));
+    AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
+    // Fix Issue 103: Eleminate confusion: apply name: session-id iso SN
+    if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu (0x%08lX)\n", AppSUSyID, AppSerial, AppSerial);
+
+    //Convert BT_Address '00:00:00:00:00:00' to BTAddress[6]
+    //scanf reads %02X as int, but we need unsigned char
+    unsigned int tmp[6];
+    sscanf(BTAddress, "%02X:%02X:%02X:%02X:%02X:%02X", &tmp[5], &tmp[4], &tmp[3], &tmp[2], &tmp[1], &tmp[0]);
+
+    // Multiple Inverter Support disabled
+    // Connect to 1 and only 1 device (V2.0.6 compatibility mode)
+    if (MIS == 0)
+    {
+        // Allocate memory for inverter data struct
+        inverters[0] = new InverterData;
+        resetInverterData(inverters[0]);
+
+        // Copy previously converted BT address
+        for (int i=0; i<6; i++)
+            inverters[0]->BTAddress[i] = (unsigned char)tmp[i];
+
+        // Call 2.0.6 init function
+        return bthInitConnection(inverters[0]);
+    }
+
+    for (int i=0; i<6; i++)
+        RootDeviceAddress[i] = (unsigned char)tmp[i];
+
+    //Init Inverter
+    unsigned char version[6] = {1,0,0,0,0,0};
+    writePacketHeader(pcktBuf, 0x0201, version);
+    writeByte(pcktBuf, 'v');
+    writeByte(pcktBuf, 'e');
+    writeByte(pcktBuf, 'r');
+    writeByte(pcktBuf, 13);	//CR
+    writeByte(pcktBuf, 10);	//LF
+    writePacketLength(pcktBuf);
+    bthSend(pcktBuf);
+
+    // This can take up to 3 seconds!
+    if (bthGetPacket(RootDeviceAddress, 0x02) != E_OK)
+        return E_INIT;
+
+    //Search devices
+    unsigned char NetID = pcktBuf[22];
+    if (VERBOSE_NORMAL) printf("SMA netID=%02X\n", NetID);
+
+    writePacketHeader(pcktBuf, 0x02, RootDeviceAddress);
+    writeLong(pcktBuf, 0x00700400);
+    writeByte(pcktBuf, NetID);
+    writeLong(pcktBuf, 0);
+    writeLong(pcktBuf, 1);
+    writePacketLength(pcktBuf);
+    bthSend(pcktBuf);
+
+    //Connection to Root Device
+    if (bthGetPacket(RootDeviceAddress, 0x0A) != E_OK)
+        return E_INIT;
+
+    //If Root Device has changed, copy the new address
+    if (pcktBuf[24] == 2)
+    {
+        for (int i=0; i<6; i++)
+            RootDeviceAddress[i] = pcktBuf[18+i];
+        //Get local BT address
+        for (int i=0; i<6; i++)
+            LocalBTAddress[i] = pcktBuf[25+i];
+    }
+
+    if (DEBUG_NORMAL)
+        printf("Root device address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+               RootDeviceAddress[5], RootDeviceAddress[4], RootDeviceAddress[3],
+               RootDeviceAddress[2], RootDeviceAddress[1], RootDeviceAddress[0]);
+
+    //Get local BT address
+    for (int i=0; i<6; i++)
+        LocalBTAddress[i] = pcktBuf[25+i];
+
+    if (DEBUG_NORMAL)
+        printf("Local BT address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+               LocalBTAddress[5], LocalBTAddress[4], LocalBTAddress[3],
+               LocalBTAddress[2], LocalBTAddress[1], LocalBTAddress[0]);
+
+    if (bthGetPacket(RootDeviceAddress, 0x05) != E_OK)
+        return E_INIT;
+
+    //Get network topology
+    int pcktsize = get_short(pcktBuf+1);
+    uint32_t devcount = 0;
+    for (int ptr=18; ptr <= pcktsize-8; ptr+=8)
+    {
+        if (DEBUG_NORMAL)
+            printf("Device %d: %02X:%02X:%02X:%02X:%02X:%02X -> ", devcount,
+                   pcktBuf[ptr+5], pcktBuf[ptr+4], pcktBuf[ptr+3], pcktBuf[ptr+2], pcktBuf[ptr+1], pcktBuf[ptr+0]);
+
+        if (get_short(pcktBuf+ptr+6) == 0x0101) // Inverters only - Ignore other devices
+        {
+            if (DEBUG_NORMAL) printf("Inverter\n");
+            if (devcount < MAX_INVERTERS)
+            {
+                inverters[devcount] = new InverterData;
+                resetInverterData(inverters[devcount]);
+
+                for (int i=0; i<6; i++)
+                    inverters[devcount]->BTAddress[i] = pcktBuf[ptr+i];
+
+                inverters[devcount]->NetID = NetID;
+                devcount++;
+            }
+            else if (DEBUG_HIGHEST) printf("MAX_INVERTERS limit (%d) reached.\n", MAX_INVERTERS);
+
+        }
+        else if (DEBUG_NORMAL) printf(memcmp((unsigned char *)pcktBuf+ptr, LocalBTAddress, sizeof(LocalBTAddress)) == 0 ? "Local BT Address\n" : "Another device?\n");
+    }
+
+    /***********************************************************************
+        This part is only needed if you have more than one inverter
+        The purpose is to (re)build the network when we have found only 1
+    ************************************************************************/
+    if(/*(MIS == 1) && */(devcount == 1) && (NetID > 1))
+    {
+        // We need more handshake 03/04 commands to initialise network connection between inverters
+        writePacketHeader(pcktBuf, 0x03, RootDeviceAddress);
+        writeShort(pcktBuf, 0x000A);
+        writeByte(pcktBuf, 0xAC);
+
+        writePacketLength(pcktBuf);
+        bthSend(pcktBuf);
+
+        if (bthGetPacket(RootDeviceAddress, 0x04) != E_OK)
+            return E_INIT;
+
+        writePacketHeader(pcktBuf, 0x03, RootDeviceAddress);
+        writeShort(pcktBuf, 0x0002);
+
+        writePacketLength(pcktBuf);
+        bthSend(pcktBuf);
+
+        if (bthGetPacket(RootDeviceAddress, 0x04) != E_OK)
+            return E_INIT;
+
+        writePacketHeader(pcktBuf, 0x03, RootDeviceAddress);
+        writeShort(pcktBuf, 0x0001);
+        writeByte(pcktBuf, 0x01);
+
+        writePacketLength(pcktBuf);
+        bthSend(pcktBuf);
+
+        if (bthGetPacket(RootDeviceAddress, 0x04) != E_OK)
+            return E_INIT;
+
+        /******************************************************************
+            Read the network topology
+            Waiting for a max of 60 sec - 6 times 'timeout' of recv()
+            Should be enough for small networks (2-3 inverters)
+        *******************************************************************/
+
+        if (VERBOSE_NORMAL)
+            puts ("Waiting for network to be built...");
+
+        E_SBFSPOT rc = E_OK;
+        unsigned short PacketType = 0;
+
+        for (int i=0; i<6; i++)
+        {
+            // Get any packet - should be 0x0005 or 0x1001, but 0x0006 is allowed
+            rc = bthGetPacket(RootDeviceAddress, 0xFF);
+            if (rc == E_OK)
+            {
+                PacketType = get_short(pcktBuf + 16);
+                break;
+            }
+        }
+
+        if (rc != E_OK)
+        {
+            if ((VERBOSE_NORMAL) && (NetID > 1))
+                puts ("In case of single inverter system set MIS_Enabled=0 in config file.");
+            return E_INIT;	// Something went wrong... Failed to initialize
+        }
+
+        if (0x1001 == PacketType)
+        {
+            PacketType = 0;	//reset it
+            rc = bthGetPacket(RootDeviceAddress, 0x05);
+            if (rc == E_OK)
+                PacketType = get_short(pcktBuf + 16);
+        }
+
+        if (DEBUG_HIGHEST)
+            printf("PacketType (0x%04X)\n", PacketType);
+
+        if (0x0005 == PacketType)
+        {
+            /*
+            Get network topology
+            Overwrite all found inverters starting at index 1
+            */
+            pcktsize = get_short(pcktBuf+1);
+            devcount = 1;
+
+            for (int ptr=18; ptr<=pcktsize-8; ptr+=8)
+            {
+                if (DEBUG_NORMAL)
+                    printf("Device %d: %02X:%02X:%02X:%02X:%02X:%02X -> ", devcount,
+                           pcktBuf[ptr+5], pcktBuf[ptr+4], pcktBuf[ptr+3], pcktBuf[ptr+2], pcktBuf[ptr+1], pcktBuf[ptr+0]);
+
+                if (get_short(pcktBuf+ptr+6) == 0x0101) // Inverters only - Ignore other devices
+                {
+                    if (DEBUG_NORMAL) printf("Inverter\n");
+                    if (devcount < MAX_INVERTERS)
+                    {
+                        if (!inverters[devcount]) // If not yet allocated, do it now
+                        {
+                            inverters[devcount] = new InverterData;
+                            resetInverterData(inverters[devcount]);
+                        }
+
+                        for (int i=0; i<6; i++)
+                            inverters[devcount]->BTAddress[i] = pcktBuf[ptr+i];
+
+                        inverters[devcount]->NetID = NetID;
+                        devcount++;
+                    }
+                    else if (DEBUG_HIGHEST) printf("MAX_INVERTERS limit (%d) reached.\n", MAX_INVERTERS);
+
+                }
+                else if (DEBUG_NORMAL) printf(memcmp((unsigned char *)pcktBuf+ptr, LocalBTAddress, sizeof(LocalBTAddress)) == 0 ? "Local BT Address\n" : "Another device?\n");
+            }
+        }
+
+        /*
+        At this point our netwerk should be ready!
+        In some cases 0x0005 and 0x1001 are missing and we have already received 0x0006 (NETWORK IS READY")
+        If not, just wait for it and ignore any error
+        */
+        if (0x06 != PacketType)
+            bthGetPacket(RootDeviceAddress, 0x06);
+    }
+
+    //Send broadcast request for identification
+    do
+    {
+        pcktID++;
+        writePacketHeader(pcktBuf, 0x01, addr_unknown);
+        writePacket(pcktBuf, 0x09, 0xA0, 0, anySUSyID, anySerial);
+        writeLong(pcktBuf, 0x00000200);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 0);
+        writePacketTrailer(pcktBuf);
+        writePacketLength(pcktBuf);
+    }
+    while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+
+    bthSend(pcktBuf);
+
+    //All inverters *should* reply with their SUSyID & SerialNr (and some other unknown info)
+    for (uint32_t idx=0; inverters[idx]!=NULL && idx<MAX_INVERTERS; idx++)
+    {
+        if (bthGetPacket(addr_unknown, 0x01) != E_OK)
+            return E_INIT;
+
+        if (!validateChecksum())
+            return E_CHKSUM;
+
+        int invindex = getInverterIndexByAddress(inverters, CommBuf + 4);
+
+        if (invindex >= 0)
+        {
+            inverters[invindex]->SUSyID = get_short(pcktBuf + 55);
+            inverters[invindex]->Serial = get_long(pcktBuf + 57);
+            if (VERBOSE_NORMAL) printf("SUSyID: %d - SN: %lu\n", inverters[invindex]->SUSyID, inverters[invindex]->Serial);
+        }
+        else if (DEBUG_NORMAL)
+            printf("Unexpected response from %02X:%02X:%02X:%02X:%02X:%02X -> ", CommBuf[9], CommBuf[8], CommBuf[7], CommBuf[6], CommBuf[5], CommBuf[4]);
+
+    }
+
+    logoffSMAInverter(inverters[0]);
+
+    return E_OK;
+}
+
+// Init function used in SBFspot 2.0.6
+// Called when MIS_Enabled=0
+E_SBFSPOT bthInitConnection(InverterData* const invData)
+{
+    //Wait for announcement/broadcast message from PV inverter
+    if (bthGetPacket(invData->BTAddress, 2) != E_OK)
+        return E_INIT;
+
+    invData->NetID = pcktBuf[22];
+    if (VERBOSE_NORMAL) printf("SMA netID=%02X\n", invData->NetID);
+
+    writePacketHeader(pcktBuf, 0x02, invData->BTAddress);
+    writeLong(pcktBuf, 0x00700400);
+    writeByte(pcktBuf, invData->NetID);
+    writeLong(pcktBuf, 0);
+    writeLong(pcktBuf, 1);
+    writePacketLength(pcktBuf);
+    bthSend(pcktBuf);
+
+    if (bthGetPacket(invData->BTAddress, 5) != E_OK)
+        return E_INIT;
+
+    //Get local BT address - Added V3.1.5 (bthSetPlantTime)
+    for (int i=0; i<6; i++)
+        LocalBTAddress[i] = pcktBuf[26+i];
+
+    if (DEBUG_NORMAL)
+    {
+        printf("Local BT address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+               LocalBTAddress[5], LocalBTAddress[4], LocalBTAddress[3],
+               LocalBTAddress[2], LocalBTAddress[1], LocalBTAddress[0]);
+    }
+
+    do
+    {
+        pcktID++;
+        writePacketHeader(pcktBuf, 0x01, addr_unknown);
+        writePacket(pcktBuf, 0x09, 0xA0, 0, anySUSyID, anySerial);
+        writeLong(pcktBuf, 0x00000200);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 0);
+        writePacketTrailer(pcktBuf);
+        writePacketLength(pcktBuf);
+    } while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+
+    bthSend(pcktBuf);
+
+    if (bthGetPacket(invData->BTAddress, 1) != E_OK)
+        return E_INIT;
+
+    if (!validateChecksum())
+        return E_CHKSUM;
+
+    invData->Serial = get_long(pcktBuf + 57);
+    if (VERBOSE_NORMAL) printf("Serial Nr: %08lX (%lu)\n", invData->Serial, invData->Serial);
+
+    logoffSMAInverter(invData);
+
+    return E_OK;
+}
+
+E_SBFSPOT bthGetPacket(const unsigned char senderaddr[6], int wait4Command)
+{
+    if (DEBUG_NORMAL) printf("bthGetPacket(%d)\n", wait4Command);
+    int index = 0;
+    int hasL2pckt  = 0;
+    E_SBFSPOT rc = E_OK;
+    pkHeader *pkHdr = (pkHeader *)CommBuf;
+    do
+    {
+        int bib = bthRead(CommBuf, sizeof(pkHeader));
+        if (bib <= 0)
+        {
+            if (DEBUG_NORMAL) printf("No data!\n");
+            return E_NODATA;
+        }
+
+        //More data after header?
+        if (btohs(pkHdr->pkLength) > sizeof(pkHeader))
+        {
+            bib += bthRead(CommBuf + sizeof(pkHeader), btohs(pkHdr->pkLength) - sizeof(pkHeader));
+
+            if (DEBUG_HIGH) HexDump(CommBuf, bib, 10);
+
+            //Check if data is coming from the right inverter
+            if (isValidSender(senderaddr, pkHdr->SourceAddr) == 1)
+            {
+                rc = E_OK;
+                if (DEBUG_NORMAL) printf("cmd=%d\n", btohs(pkHdr->command));
+
+                if ((hasL2pckt == 0) && (CommBuf[18] == 0x7E) && (get_long(CommBuf+19) == 0x656003FF))
+                {
+                    hasL2pckt = 1;
+                }
+
+                if (hasL2pckt == 1)
+                {
+                    //Copy CommBuf to packetbuffer
+                    int bufptr = sizeof(pkHeader);
+                    bool escNext = false;
+
+                    if (DEBUG_NORMAL) printf("PacketLength=%d\n", btohs(pkHdr->pkLength));
+
+                    for (int i = sizeof(pkHeader); i < btohs(pkHdr->pkLength); i++)
+                    {
+                        pcktBuf[index] = CommBuf[bufptr++];
+                        //Keep 1st byte raw unescaped 0x7E
+                        if (escNext == true)
+                        {
+                            pcktBuf[index] ^= 0x20;
+                            escNext = false;
+                            index++;
+                        }
+                        else
+                        {
+                            if (pcktBuf[index] == 0x7D)
+                                escNext = true; //Throw away the 0x7d byte
+                            else
+                                index++;
+                        }
+                        if (index >= COMMBUFSIZE)
+                        {
+                            printf("Warning: pcktBuf buffer overflow! (%d)\n", index);
+                            return E_BUFOVRFLW;
+                        }
+                    }
+                    packetposition = index;
+                }
+                else
+                {
+                    memcpy(pcktBuf, CommBuf, bib);
+                    packetposition = bib;
+                }
+            } // isValidSender()
+            else
+            {
+                rc = E_RETRY;
+                if (DEBUG_NORMAL)
+                    printf("Wrong sender: %02X:%02X:%02X:%02X:%02X:%02X\n",
+                           pkHdr->SourceAddr[5],
+                           pkHdr->SourceAddr[4],
+                           pkHdr->SourceAddr[3],
+                           pkHdr->SourceAddr[2],
+                           pkHdr->SourceAddr[1],
+                           pkHdr->SourceAddr[0]);
+            }
+        }
+        else
+        {
+            if (DEBUG_HIGH) HexDump(CommBuf, bib, 10);
+            //Check if data is coming from the right inverter
+            if (isValidSender(senderaddr, pkHdr->SourceAddr) == 1)
+            {
+                rc = E_OK;
+                if (DEBUG_NORMAL) printf("cmd=%d\n", btohs(pkHdr->command));
+
+                memcpy(pcktBuf, CommBuf, bib);
+                packetposition = bib;
+            } // isValidSender()
+            else
+            {
+                rc = E_RETRY;
+                if (DEBUG_NORMAL)
+                    printf("Wrong sender: %02X:%02X:%02X:%02X:%02X:%02X\n",
+                           pkHdr->SourceAddr[5],
+                           pkHdr->SourceAddr[4],
+                           pkHdr->SourceAddr[3],
+                           pkHdr->SourceAddr[2],
+                           pkHdr->SourceAddr[1],
+                           pkHdr->SourceAddr[0]);
+            }
+        }
+    }
+    // changed to have "any" wait4Command (0xFF) - if you have different order of commands
+    while (((btohs(pkHdr->command) != wait4Command) || (rc == E_RETRY)) && (0xFF != wait4Command));
+
+    if ((rc == E_OK) && (DEBUG_HIGH))
+    {
+        printf("<<<====== Content of pcktBuf =======>>>\n");
+        HexDump(pcktBuf, packetposition, 10);
+        printf("<<<=================================>>>\n");
+    }
+
+    if (packetposition > MAX_pcktBuf)
+    {
+        MAX_pcktBuf = packetposition;
+        if (DEBUG_HIGH)
+        {
+            printf("MAX_pcktBuf is now %d bytes\n", MAX_pcktBuf);
+        }
+    }
+
+    return rc;
+}
+
+E_SBFSPOT bthSetPlantTime(time_t ndays, time_t lowerlimit, time_t upperlimit)
+{
+    // If not a Bluetooth connection, just quit
+    if (ConnType != CT_BLUETOOTH)
+        return E_OK;
+
+    if (DEBUG_NORMAL)
+        std::cout <<"bthSetPlantTime()" << std::endl;
+
+    do
+    {
+        pcktID++;
+        writePacketHeader(pcktBuf, 0x01, addr_unknown);
+        writePacket(pcktBuf, 0x10, 0xA0, 0, anySUSyID, anySerial);
+        writeLong(pcktBuf, 0xF000020A);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 1);
+        writeLong(pcktBuf, 1);
+        writePacketTrailer(pcktBuf);
+        writePacketLength(pcktBuf);
+    }
+    while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+
+    bthSend(pcktBuf);
+
+    time_t hosttime = time(NULL);
+
+    // Inverter returns UTC time, TZ offset and DST
+    // Packet ID is mismatched
+    E_SBFSPOT rc = bthGetPacket(addr_unknown, 1);
+
+    if ((rc == E_OK) && (packetposition == 72))
+    {
+        if (get_long(pcktBuf + 41) != 0x00236D00)
+        {
+            if (DEBUG_NORMAL) std::cout << "Unexpected packet received!" << std::endl;
+            return E_COMM;
+        }
+        time_t invCurrTime = get_long(pcktBuf + 45);
+        time_t invLastTimeSet = get_long(pcktBuf + 49);
+        int tz = get_long(pcktBuf + 57) & 0xFFFFFFFE;
+        int dst = get_long(pcktBuf + 57) & 0x00000001;
+        int magic = get_long(pcktBuf + 61); // What's this?
+
+        time_t timediff = invCurrTime - hosttime;
+
+        if (VERBOSE_NORMAL)
+        {
+            std::cout << "Local Host Time: " << strftime_t(DateTimeFormat, hosttime) << std::endl;
+            std::cout << "Plant Time     : " << strftime_t(DateTimeFormat, invCurrTime) << " (" << (timediff>0 ? "+":"") << timediff << " sec)" << std::endl;
+            std::cout << "TZ offset      : " << tz << " sec - DST: " << (dst == 1? "On":"Off") << std::endl;
+            std::cout << "Last Time Set  : " << strftime_t(DateTimeFormat, invLastTimeSet) << std::endl;
+        }
+
+        // Time difference between plant and host should be in the range of 1-3600 seconds
+        // This is to avoid the plant time is wrongly set when host time is not OK
+        // This check can be overruled by setting lower and upper limits = 0 (SBFspot -settime)
+        timediff = abs(timediff);
+
+        if ((lowerlimit == 0) && (upperlimit == 0)) // Ignore limits? (-settime command line argument)
+        {
+            // Plant time is OK - nothing to do
+            if (timediff == 0) return E_OK;
+        }
+        else
+        {
+            // Time difference is too big - nothing to do
+            if (timediff > upperlimit)
+            {
+                if (VERBOSE_NORMAL)
+                {
+                    std::cout << "The time difference between inverter/host is more than " << upperlimit << " seconds.\n";
+                    std::cout << "As a precaution the plant time won't be adjusted.\n";
+                    std::cout << "To overrule this behaviour, execute SBFspot -settime" << std::endl;
+                }
+
+                return E_OK;
+            }
+
+            // Time difference is too small - nothing to do
+            if (timediff < lowerlimit) return E_OK;
+
+            // Calculate #days of last time set
+            time_t daysago = ((hosttime - hosttime % 86400) - (invLastTimeSet - invLastTimeSet % 86400)) / 86400;
+
+            if (daysago < ndays)
+            {
+                if (VERBOSE_NORMAL)
+                {
+                    std::cout << "Time was already adjusted ";
+                    if (ndays == 1)
+                        std::cout << "today" << std::endl;
+                    else
+                        std::cout << "in last " << ndays << " days" << std::endl;
+                }
+
+                return E_OK;
+            }
+        }
+
+        // All checks passed - OK to set the time
+
+        if (VERBOSE_NORMAL)
+        {
+            std::cout << "Adjusting plant time..." << std:: endl;
+        }
+
+        do
+        {
+            pcktID++;
+            writePacketHeader(pcktBuf, 0x01, addr_unknown);
+            writePacket(pcktBuf, 0x10, 0xA0, 0, anySUSyID, anySerial);
+            writeLong(pcktBuf, 0xF000020A);
+            writeLong(pcktBuf, 0x00236D00);
+            writeLong(pcktBuf, 0x00236D00);
+            writeLong(pcktBuf, 0x00236D00);
+            // Get new host time
+            hosttime = time(NULL);
+            writeLong(pcktBuf, hosttime);
+            writeLong(pcktBuf, hosttime);
+            writeLong(pcktBuf, hosttime);
+            writeLong(pcktBuf, tz | dst);
+            writeLong(pcktBuf, ++magic);
+            writeLong(pcktBuf, 1);
+            writePacketTrailer(pcktBuf);
+            writePacketLength(pcktBuf);
+        }
+        while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+
+        bthSend(pcktBuf);
+        // No response expected
+
+        std::cout << "New plant time is now " << strftime_t(DateTimeFormat, hosttime) << std::endl;
+    }
+    else
+        if (VERBOSE_NORMAL)
+        {
+            std::cout << "Failed to get current plant time (" << rc << ")" << std::endl;
+        }
+
+    return rc;
+}
+
+int bthGetSignalStrength(InverterData *invData)
+{
+    writePacketHeader(pcktBuf, 0x03, invData->BTAddress);
+    writeByte(pcktBuf,0x05);
+    writeByte(pcktBuf,0x00);
+    writePacketLength(pcktBuf);
+    bthSend(pcktBuf);
+
+    bthGetPacket(invData->BTAddress, 4);
+
+    invData->BT_Signal = (float)pcktBuf[22] * 100.0f / 255.0f;
+    return 0;
+}
 
 #ifdef WIN32
 //http://www.winsocketdotnetworkprogramming.com/winsock2programming/winsock2advancedotherprotocol4p.html

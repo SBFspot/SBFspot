@@ -37,6 +37,7 @@ DISCLAIMER:
 #include "Export.h"
 #if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
 #include <mosquittopp.h>
+#include "MqttMsgPackExport.h"
 #endif
 
 struct Config;
@@ -57,8 +58,9 @@ public:
     int exportInverterData(const std::vector<InverterData>& inverterData) override;
 
 private:
-    int exportMsgPack(const std::vector<InverterData>& inverterData);
-    int exportConfigMsgPack(const std::vector<InverterData>& inverterData);
-
     const Config& m_config;
+
+#if(defined MOSQUITTO_FOUND && defined MSGPACK_FOUND)
+    MqttMsgPackExport m_msgPackExport;
+#endif
 };

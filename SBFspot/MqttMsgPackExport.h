@@ -34,46 +34,25 @@ DISCLAIMER:
 
 #pragma once
 
-#include "osselect.h"
+#include "Export.h"
 
-#ifdef WIN32
+#include <mosquittopp.h>
 
-// Ignore warning C4127: conditional expression is constant
-#pragma warning(disable: 4127)
+struct Config;
+struct InverterData;
 
-#include <WinSock2.h>
-#include <ws2tcpip.h>
+// TODO: implement static plugin registration: https://dxuuu.xyz/cpp-static-registration.html
+class MqttMsgPackExport : public Export, mosqpp::mosquittopp
+{
+public:
+    MqttMsgPackExport(const Config& config);
+    ~MqttMsgPackExport();
 
-//Windows Sockets Error Codes
-//http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
+    std::string name() const override;
 
-#endif	/* WIN32 */
+    int exportConfig(const std::vector<InverterData>& inverterData) override;
+    int exportInverterData(const std::vector<InverterData>& inverterData) override;
 
-#if defined (linux) || defined (__APPLE__)
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <errno.h>
-#include <string.h>
-#endif	// #if defined (linux) || defined (__APPLE__)
-
-#include <stdio.h>
-#include <ctype.h>
-#include <iostream>
-
-unsigned char char2dec(char ch);
-unsigned char hexbyte2dec(char *hex);
-
-//Function prototypes
-int ethConnect(short port);
-int ethClose(void);
-int getLocalIP(unsigned char IPAddress[4]);
-int ethSend(unsigned char *buffer, const char *toIP);
-int ethRead(unsigned char *buf, unsigned int bufsize);
+private:
+    const Config& m_config;
+};

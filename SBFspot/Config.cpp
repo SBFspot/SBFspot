@@ -37,7 +37,10 @@ DISCLAIMER:
 #include "SBFspot.h"
 #include "version.h"
 
+// Fix undefined reference to 'boost::system::system_category()' introduced with PR #361
+#define BOOST_ERROR_CODE_HEADER_ONLY
 #include <boost/asio/ip/address.hpp>
+#include <sqlite3.h>
 
 #define MAX_CFG_AD 300	// Days
 #define MAX_CFG_AM 300	// Months
@@ -425,16 +428,29 @@ int Config::readConfig()
     // TODO: Rewrite by using std::getline()
     char line[512];
     int rc = 0;
+    bool parseArray = false;
 
     while ((rc == 0) && (fgets(line, sizeof(line), fp) != NULL))
     {
         if (line[0] != '#' && line[0] != 0 && line[0] != 10)
         {
+            // Check for array section and switch parsing state
+            if (strnicmp(line, "[Array]", 7) == 0)
+            {
+                parseArray = true;
+                arrays.push_back({});
+                continue;
+            }
+
             char *variable = strtok(line,"=");
             char *value = strtok(NULL,"\n");
 
             if ((value != NULL) && (*rtrim(value) != 0))
             {
+                // If we are in parse array state
+                if (parseArray && parseArrayProperty(variable, value)) continue;
+                else parseArray = false;
+
                 if (stricmp(variable, "BTaddress") == 0)
                 {
                     memset(this->BT_Address, 0, sizeof(this->BT_Address));
@@ -485,16 +501,9 @@ int Config::readConfig()
                 }
                 else if(stricmp(variable, "Latitude") == 0) this->latitude = (float)atof(value);
                 else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
-                else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
-                else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
-                else if(stricmp(variable, "Longitude") == 0) this->longitude = (float)atof(value);
                 else if(stricmp(variable, "LiveInterval") == 0) this->liveInterval = (uint16_t)atoi(value);
                 else if(stricmp(variable, "ArchiveInterval") == 0) this->archiveInterval = (uint16_t)atoi(value);
-                else if (stricmp(variable, "Plantname") == 0)
-                {
-                    memset(this->plantname, 0, sizeof(this->plantname));
-                    strncpy(this->plantname, value, sizeof(this->plantname) - 1);
-                }
+                else if (stricmp(variable, "Plantname") == 0) this->plantname = value;
                 else if(stricmp(variable, "CalculateMissingSpotValues") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
@@ -813,9 +822,9 @@ int Config::readConfig()
     if (strlen(this->outputPath_Events) == 0)
         strcpy(this->outputPath_Events, this->outputPath);
 
-    if (strlen(this->plantname) == 0)
+    if (plantname.empty())
     {
-        strncpy(this->plantname, "MyPlant", sizeof(this->plantname));
+        plantname = "MyPlant";
     }
 
     if (this->timezone.empty())
@@ -981,4 +990,16 @@ void Config::sayHello(int ShowHelp)
 void Config::invalidArg(char *arg)
 {
     std::cout << "Invalid argument: " << arg << "\nUse -? for help" << std::endl;
+}
+
+bool Config::parseArrayProperty(const char *key, const char *value)
+{
+    if (stricmp(key, "ARRAY_Name") == 0) arrays.back().name = value;
+    else if(stricmp(key, "ARRAY_InverterSerial") == 0) arrays.back().inverterSerial = atoi(value);
+    else if(stricmp(key, "ARRAY_Azimuth") == 0) arrays.back().azimuth = (float)atof(value);
+    else if(stricmp(key, "ARRAY_Elevation") == 0) arrays.back().elevation = (float)atof(value);
+    else if(stricmp(key, "ARRAY_PeakPower") == 0) arrays.back().powerPeak = (float)atof(value);
+    else return false;
+
+    return true;
 }

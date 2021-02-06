@@ -181,7 +181,7 @@ int db_SQL_Base::device_status(InverterData *inverters[], time_t spottime)
 		sql.str("");
 
 		sql << "UPDATE Inverters SET" <<
-			" TimeStamp=" << strftime_t(spottime) <<
+            " TimeStamp=" << std::to_string(spottime) <<
 			",TotalPac=" << inverters[inv]->TotalPac <<
 			",EToday=" << inverters[inv]->EToday <<
 			",ETotal=" << inverters[inv]->ETotal <<
@@ -356,7 +356,7 @@ int db_SQL_Base::get_config(const std::string key, std::string &value)
 int db_SQL_Base::get_config(const std::string key, int &value)
 {
 	int rc = SQLITE_OK;
-	std::string strValue = intToString(value);
+    std::string strValue = std::to_string(value);
 	if((rc = get_config(key, strValue)) == SQL_OK)
 		value = boost::lexical_cast<int>(strValue);
 
