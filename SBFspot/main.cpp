@@ -88,11 +88,6 @@ int main(int argc, char **argv)
         return(2);
     }
 
-    // Export configuration
-    {
-        Inverter inverter(cfg);
-        inverter.exportConfig();
-    }
     do
     {
         auto timePoint = timer.nextTimePoint();
