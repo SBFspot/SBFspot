@@ -2712,15 +2712,15 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 								devList[inv]->flags |= type;
 								break;
 
-							case MeteringGridMsTotWhOut:
+                           case MeteringGridMsTotWOut:
                                 if (recordsize == 0) recordsize = 28;
-								devList[inv]->MeteringGridMsTotWOut = value;
-								break;
+                                devList[inv]->MeteringGridMsTotWOut = value;
+                                break;
 
-							case MeteringGridMsTotWhIn:
+                           case MeteringGridMsTotWIn:
                                 if (recordsize == 0) recordsize = 28;
-								devList[inv]->MeteringGridMsTotWIn = value;
-								break;
+                                devList[inv]->MeteringGridMsTotWIn = value;
+                                break;
 
                             default:
                                 if (recordsize == 0) recordsize = 12;
