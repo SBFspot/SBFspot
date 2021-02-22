@@ -390,7 +390,7 @@ int Inverter::process()
             std::cerr << "getMeteringGridMsTotW returned an error: " << rc << std::endl;
         else
         {
-            for (int inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
             {
                 if (VERBOSE_NORMAL)
                 {
