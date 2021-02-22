@@ -386,6 +386,24 @@ int Inverter::process()
 
     if (m_inverters[0]->DevClass == SolarInverter)
     {
+        if ((rc = getInverterData(m_inverters, MeteringGridMsTotW)) != 0)
+            std::cerr << "getMeteringGridMsTotW returned an error: " << rc << std::endl;
+        else
+        {
+            for (int inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            {
+                if (VERBOSE_NORMAL)
+                {
+                    printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
+                    printf("Metering: GridMsTotWIn: %d\n", m_inverters[inv]->MeteringGridMsTotWIn);
+                    printf("Metering: GridMsTotWOut: %d\n", m_inverters[inv]->MeteringGridMsTotWOut);
+                }
+            }
+        }
+    }
+
+    if (m_inverters[0]->DevClass == SolarInverter)
+    {
         for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             if (VERBOSE_NORMAL)
