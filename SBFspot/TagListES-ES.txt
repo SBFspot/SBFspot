@@ -4703,6 +4703,7 @@
 4729=ChrgTypTxt\0\Tipo de controlador de carga
 4730=BatChaWh\0\Energía de carga
 4731=BatDschWh\0\Energía de descarga
+4732=FritzBox\0\FRITZ!Box
 4733=EMS\0\Gestión de energía
 4734=ExtDev\0\Equipo externo
 4735=Build\0\Edificio
