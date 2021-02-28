@@ -296,8 +296,10 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, EnergyProduction)) != 0)
-        std::cerr << "getEnergyProduction returned an error: " << rc << std::endl;
+	if ((rc = getInverterData(m_inverters, EnergyProduction)) != 0)
+	{
+		std::cerr << "getEnergyProduction returned an error: " << rc << std::endl;
+	}
 
 	// Issue #290 Etoday and temperature are shown as ZERO from STP6.0 inverter
 	// Flag to indicate whether archdata has been loaded (for all inverters)
