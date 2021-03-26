@@ -448,6 +448,7 @@ int Inverter::process()
 #elif defined(USE_SQLITE)
         m_db.open(m_config.sqlDatabase);
 #endif
+/* Fix #448
         if (m_db.isopen())
         {
             time_t spottime = time(NULL);
@@ -457,6 +458,7 @@ int Inverter::process()
             if (hasBatteryDevice)
                 m_db.battery_data(m_inverters, spottime);
         }
+*/
     }
 #endif
 
