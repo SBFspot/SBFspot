@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -32,8 +32,7 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef _BLUETOOTH_H_
-#define _BLUETOOTH_H_
+#pragma once
 
 #include "osselect.h"
 
@@ -83,9 +82,6 @@ typedef ULONGLONG BT_ADDR, *PBT_ADDR;
 #include <ctype.h>
 #include <iostream>
 
-unsigned char char2dec(char ch);
-unsigned char hexbyte2dec(char *hex);
-
 #define BT_NUMRETRY 10
 #define BT_TIMEOUT  10
 
@@ -96,7 +92,7 @@ extern int debug;
 extern int verbose;
 
 //Function prototypes
-int bthConnect(const char *btAddr);
+int bthConnect(const char *btAddr, const char *loc_btAddr = NULL);
 int bthClose();
 int bthRead(unsigned char *buf, unsigned int bufsize);
 int bthSend(unsigned char *btbuffer);
@@ -108,5 +104,3 @@ void bthClear();
 int str2ba(const char *straddr, BTH_ADDR *btaddr);
 int bthSearchDevices();
 #endif	/* WIN32 */
-
-#endif /* _BLUETOOTH_H_ */

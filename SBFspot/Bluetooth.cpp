@@ -46,10 +46,11 @@ SOCKET sock = 0;
 //http://www.winsocketdotnetworkprogramming.com/winsock2programming/winsock2advancedotherprotocol4p.html
 //Windows Sockets Error Codes: http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
 
-int bthConnect(const char *btAddr)
+int bthConnect(const char *btAddr, const char *loc_btAddr)
 {
 	WSADATA wsd;
 	SOCKADDR_BTH sab;
+	SOCKADDR_BTH loc_sab;
 	int WSALastError = 0;
 
     if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
@@ -66,6 +67,29 @@ int bthConnect(const char *btAddr)
 		WSALastError = WSAGetLastError();
         WSACleanup();
         return WSALastError;
+	}
+
+	// When local BT adapter provided, bind socket to this specific address
+	if (strlen(loc_btAddr) > 0)
+	{
+		BT_ADDR loc_addr;
+		if (str2ba(loc_btAddr, &loc_addr) != 0)
+			return WSAEDESTADDRREQ;
+
+		memset(&loc_sab, 0, sizeof(loc_sab));
+		loc_sab.addressFamily = AF_BTH;
+		loc_sab.btAddr = loc_addr;
+		loc_sab.port = 0;
+
+		// Bind the socket to the local BT adapter
+		if (bind(sock, (SOCKADDR *)&loc_sab, sizeof(loc_sab)) == SOCKET_ERROR)
+		{
+			//Failed to bind
+			WSALastError = WSAGetLastError();
+			closesocket(sock);
+			WSACleanup();
+			return WSALastError;
+		}
 	}
 
     memset (&sab, 0, sizeof(sab));
@@ -294,19 +318,35 @@ void bthClear()
 
 #ifdef linux
 
-struct sockaddr_rc addr = {0};
-
-int bthConnect(const char *btAddr)
+int bthConnect(const char *btAddr, const char *loc_btAddr)
 {
-    int status = 0;
-    sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+	struct sockaddr_rc addr = {0};
+	struct sockaddr_rc loc_addr = {0};
+	
+	int status = 0;
 
-    addr.rc_family = AF_BLUETOOTH;
-    addr.rc_channel = 1;
-    str2ba(btAddr, &addr.rc_bdaddr);
+	sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
 
-    // Connect to Inverter
-    status = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
+	// When local BT adapter provided, bind socket to this specific address
+	if (strlen(loc_btAddr) > 0)
+	{
+		loc_addr.rc_family = AF_BLUETOOTH;
+		str2ba(loc_btAddr, &loc_addr.rc_bdaddr);
+		loc_addr.rc_channel = 1;
+		// Bind the socket to the local BT adapter
+		status = bind(sock, (struct sockaddr *)&loc_addr, sizeof(loc_addr));
+	}
+
+	if (status == 0)
+	{
+		addr.rc_family = AF_BLUETOOTH;
+		addr.rc_channel = 1;
+		str2ba(btAddr, &addr.rc_bdaddr);
+
+		// Connect to Inverter
+		status = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
+	}
+
     return(status);
 }
 

@@ -11,6 +11,7 @@ V3.8.0
 
 V3.8.1
 	Fix #448 Error:sqlite3_exec() returned: "UNIQUE constraint failed"
+	Fix #402 How to specify bluetooth device on Raspbian?
 */
 
 /***

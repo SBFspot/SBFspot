@@ -621,7 +621,7 @@ int Inverter::logOn()
             if (attempts != 1) sleep(1);
             {
                 if (VERBOSE_NORMAL) printf("Connecting to %s (%d/%d)\n", m_config.BT_Address, attempts, m_config.BT_ConnectRetries);
-                rc = bthConnect(m_config.BT_Address);
+                rc = bthConnect(m_config.BT_Address, m_config.Local_BT_Address);
             }
             attempts++;
         }
