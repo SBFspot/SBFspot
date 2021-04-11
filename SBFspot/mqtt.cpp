@@ -84,8 +84,16 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
 			memset(value, 0, sizeof(value));
 			std::transform((key).begin(), (key).end(), (key).begin(), ::tolower);
             if (key == "timestamp")				snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, timestamp));
-            else if (key == "sunrise")			snprintf(value, sizeof(value) - 1, "\"%s %02d:%02d:00\"", strftime_t(m_config.DateFormat, timestamp), (int)m_config.sunrise, (int)((m_config.sunrise - (int)m_config.sunrise) * 60));
-            else if (key == "sunset")			snprintf(value, sizeof(value) - 1, "\"%s %02d:%02d:00\"", strftime_t(m_config.DateFormat, timestamp), (int)m_config.sunset, (int)((m_config.sunset - (int)m_config.sunset) * 60));
+            else if (key == "sunrise") {			std::tm *sunrise = std::localtime(&timestamp);
+            							sunrise->tm_sec = 0;
+            							sunrise->tm_hour = (int)m_config.sunrise;
+            							sunrise->tm_min = (int)((m_config.sunrise - (int)m_config.sunrise) * 60);
+            							snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, std::mktime(sunrise)));}
+            else if (key == "sunset") {			std::tm *sunset = std::localtime(&timestamp);
+            							sunset->tm_sec = 0;
+            							sunset->tm_hour = (int)m_config.sunset;
+            							sunset->tm_min = (int)((m_config.sunset - (int)m_config.sunset) * 60);
+            							snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, std::mktime(sunset)));}
             else if (key == "invserial")		snprintf(value, sizeof(value) - 1, "%lu", inv.Serial);
             else if (key == "invname")			snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName);
             else if (key == "invclass")			snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass);
