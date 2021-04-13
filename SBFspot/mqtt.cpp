@@ -32,9 +32,10 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
+#include "osselect.h" // #define _USE_32BIT_TIME_T on windows
 #include "mqtt.h"
-
 #include "SBFspot.h"
+#include <boost/algorithm/string.hpp>
 
 MqttExport::MqttExport(const Config& config)
     : m_config(config)
