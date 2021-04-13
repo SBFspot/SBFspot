@@ -38,6 +38,8 @@ DISCLAIMER:
 #include <vector>
 #include <boost/date_time/local_time/local_time.hpp>
 
+class EventData;
+
 typedef enum
 {
     CT_NONE = 0,
@@ -105,6 +107,7 @@ struct Config
     boost::local_time::time_zone_ptr tz;
     int		synchTimeLow;			// settime low limit
     int		synchTimeHigh;			// settime high limit
+
     // MQTT Stuff -- Using mosquitto (https://mosquitto.org/)
     std::string mqtt_publish_exe;	// default /usr/bin/mosquitto_pub ("%ProgramFiles%\mosquitto\mosquitto_pub.exe" on Windows)
     std::string mqtt_host;			// default localhost

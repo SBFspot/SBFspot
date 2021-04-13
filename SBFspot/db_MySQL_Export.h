@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -45,11 +45,11 @@ extern int verbose;
 class db_SQL_Export : public db_SQL_Base
 {
 public:
-	int day_data(InverterData *inverters[]);
-	int month_data(InverterData *inverters[]);
-	int spot_data(InverterData *inv[], time_t spottime);
-	int event_data(InverterData *inv[], TagDefs& tags);
-	int battery_data(InverterData *inverters[], time_t spottime);
+	int exportDayData(InverterData *inverters[]);
+	int exportMonthData(InverterData *inverters[]);
+	int exportSpotData(InverterData *inv[], time_t spottime);
+	int exportEventData(InverterData *inv[], TagDefs& tags);
+	int exportBatteryData(InverterData *inverters[], time_t spottime);
 
 private:
 	int insert_battery_data(MYSQL_STMT *pStmt, int32_t tm, int32_t sn, int32_t key, int32_t val);

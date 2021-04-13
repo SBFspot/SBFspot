@@ -36,9 +36,7 @@ DISCLAIMER:
 
 #include "db_MySQL_Export.h"
 
-using namespace std;
-
-int db_SQL_Export::day_data(InverterData *inverters[])
+int db_SQL_Export::exportDayData(InverterData *inverters[])
 {
 	const char *sql = "INSERT INTO DayData(TimeStamp,Serial,TotalYield,Power,PVoutput) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE Serial=Serial";
 	int rc = SQL_OK;
@@ -144,7 +142,7 @@ int db_SQL_Export::day_data(InverterData *inverters[])
 	return rc;
 }
 
-int db_SQL_Export::month_data(InverterData *inverters[])
+int db_SQL_Export::exportMonthData(InverterData *inverters[])
 {
 	const char *sql = "INSERT INTO MonthData(TimeStamp,Serial,TotalYield,DayYield) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE Serial=Serial";
 	int rc = SQL_OK;
@@ -218,9 +216,9 @@ int db_SQL_Export::month_data(InverterData *inverters[])
 	return rc;
 }
 
-int db_SQL_Export::spot_data(InverterData *inv[], time_t spottime)
+int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
 {
-	stringstream sql;
+	std::stringstream sql;
 	int rc = SQL_OK;
 
 	for (uint32_t i=0; inv[i]!=NULL && i<MAX_INVERTERS; i++)
@@ -264,7 +262,7 @@ int db_SQL_Export::spot_data(InverterData *inv[], time_t spottime)
 	return rc;
 }
 
-int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
+int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
 {
 	const char *sql = "INSERT INTO EventData(EntryID,TimeStamp,Serial,SusyID,EventCode,EventType,Category,EventGroup,Tag,OldValue,NewValue,UserGroup) VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE Serial=Serial";
 	int rc = SQL_OK;
@@ -284,19 +282,19 @@ int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
 
 		for (uint32_t i=0; inv[i]!=NULL && i<MAX_INVERTERS; i++)
 		{
-			for (vector<EventData>::iterator it=inv[i]->eventData.begin(); it!=inv[i]->eventData.end(); ++it)
+			for (std::vector<EventData>::iterator it=inv[i]->eventData.begin(); it!=inv[i]->eventData.end(); ++it)
 			{
-				string grp = tags.getDesc(it->Group());
-				string tag = tags.getDesc(it->Tag());
+				std::string grp = tags.getDesc(it->Group());
+				std::string tag = tags.getDesc(it->Tag());
 
 				// If description contains "%s", replace it with localized parameter
 				size_t start_pos = tag.find("%s");
-				if (start_pos != string::npos)
+				if (start_pos != std::string::npos)
 					tag.replace(start_pos, 2, tags.getDescForLRI(it->Parameter()));
 
-				string usrgrp = tags.getDesc(it->UserGroupTagID());
-				stringstream oldval;
-				stringstream newval;
+				std::string usrgrp = tags.getDesc(it->UserGroupTagID());
+				std::stringstream oldval;
+				std::stringstream newval;
 
 				switch (it->DataType())
 				{
@@ -350,13 +348,13 @@ int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
 				values[4].is_unsigned	= true;
 
 				// Event Type
-				string EventType = it->EventType();
+				std::string EventType = it->EventType();
 				values[5].buffer_type	= MYSQL_TYPE_STRING;
 				values[5].buffer		= (char *)EventType.c_str();
 				values[5].buffer_length = EventType.size();
 
 				// Event Category
-				string EventCategory = it->EventCategory();
+				std::string EventCategory = it->EventCategory();
 				values[6].buffer_type	= MYSQL_TYPE_STRING;
 				values[6].buffer		= (char *)EventCategory.c_str();
 				values[6].buffer_length = EventCategory.size();
@@ -372,13 +370,13 @@ int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
 				values[8].buffer_length = tag.size();
 
 				// Old Value
-				string OldValue = oldval.str();
+				std::string OldValue = oldval.str();
 				values[9].buffer_type	= MYSQL_TYPE_STRING;
 				values[9].buffer		= (char *)OldValue.c_str();
 				values[9].buffer_length = OldValue.size();
 
 				// New Value
-				string NewValue = newval.str();
+				std::string NewValue = newval.str();
 				values[10].buffer_type	= MYSQL_TYPE_STRING;
 				values[10].buffer		= (char *)NewValue.c_str();
 				values[10].buffer_length = NewValue.size();
@@ -415,7 +413,7 @@ int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
 	return rc;
 }
 
-int db_SQL_Export::battery_data(InverterData *inverters[], time_t spottime)
+int db_SQL_Export::exportBatteryData(InverterData *inverters[], time_t spottime)
 {
 	const char *sql = "INSERT INTO SpotDataX(`TimeStamp`,`Serial`,`Key`,`Value`) VALUES(?,?,?,?)";
 	int rc = SQL_OK;

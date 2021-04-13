@@ -454,9 +454,9 @@ int Inverter::process()
             time_t spottime = time(NULL);
             m_db.type_label(m_inverters);
             m_db.device_status(m_inverters, spottime);
-            m_db.spot_data(m_inverters, spottime);
+            m_db.exportSpotData(m_inverters, spottime);
             if (hasBatteryDevice)
-                m_db.battery_data(m_inverters, spottime);
+                m_db.exportBatteryData(m_inverters, spottime);
         }
 */
     }
@@ -720,9 +720,9 @@ void Inverter::exportSpotData()
         time_t spottime = time(NULL);
         m_db.type_label(m_inverters);
         m_db.device_status(m_inverters, spottime);
-        m_db.spot_data(m_inverters, spottime);
+        m_db.exportSpotData(m_inverters, spottime);
         if (hasBatteryDevice)
-            m_db.battery_data(m_inverters, spottime);
+            m_db.exportBatteryData(m_inverters, spottime);
     }
 #endif
 
@@ -731,7 +731,8 @@ void Inverter::exportSpotData()
     ********/
     if (m_config.mqtt == 1) // MQTT enabled
     {
-        auto rc = mqtt_publish(&m_config, m_inverters);
+        MqttExport mqtt(m_config);
+        auto rc = mqtt.exportInverterData(toStdVector(m_inverters));
         if (rc != 0)
         {
             std::cout << "Error " << rc << " while publishing to MQTT Broker" << std::endl;
@@ -746,7 +747,7 @@ void Inverter::exportDayData()
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
     if ((!m_config.nosql) && m_db.isopen())
-        m_db.day_data(m_inverters);
+        m_db.exportDayData(m_inverters);
 #endif
 }
 
@@ -757,7 +758,7 @@ void Inverter::exportMonthData()
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
     if ((!m_config.nosql) && m_db.isopen())
-        m_db.month_data(m_inverters);
+        m_db.exportMonthData(m_inverters);
 #endif
 }
 
@@ -768,6 +769,6 @@ void Inverter::exportEventData(const std::string& dt_range_csv)
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
     if ((!m_config.nosql) && m_db.isopen())
-        m_db.event_data(m_inverters, tagdefs);
+        m_db.exportEventData(m_inverters, tagdefs);
 #endif
 }
