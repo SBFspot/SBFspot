@@ -38,7 +38,7 @@ DISCLAIMER:
 
 using namespace std;
 
-int db_SQL_Export::day_data(InverterData *inverters[])
+int db_SQL_Export::exportDayData(InverterData *inverters[])
 {
 	const char *sql = "INSERT INTO DayData(TimeStamp,Serial,TotalYield,Power,PVoutput) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE Serial=Serial";
 	int rc = SQL_OK;
@@ -144,7 +144,7 @@ int db_SQL_Export::day_data(InverterData *inverters[])
 	return rc;
 }
 
-int db_SQL_Export::month_data(InverterData *inverters[])
+int db_SQL_Export::exportMonthData(InverterData *inverters[])
 {
 	const char *sql = "INSERT INTO MonthData(TimeStamp,Serial,TotalYield,DayYield) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE Serial=Serial";
 	int rc = SQL_OK;
@@ -218,7 +218,7 @@ int db_SQL_Export::month_data(InverterData *inverters[])
 	return rc;
 }
 
-int db_SQL_Export::spot_data(InverterData *inv[], time_t spottime)
+int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
 {
 	stringstream sql;
 	int rc = SQL_OK;
@@ -264,7 +264,7 @@ int db_SQL_Export::spot_data(InverterData *inv[], time_t spottime)
 	return rc;
 }
 
-int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
+int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
 {
 	const char *sql = "INSERT INTO EventData(EntryID,TimeStamp,Serial,SusyID,EventCode,EventType,Category,EventGroup,Tag,OldValue,NewValue,UserGroup) VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE Serial=Serial";
 	int rc = SQL_OK;
@@ -415,7 +415,7 @@ int db_SQL_Export::event_data(InverterData *inv[], TagDefs& tags)
 	return rc;
 }
 
-int db_SQL_Export::battery_data(InverterData *inverters[], time_t spottime)
+int db_SQL_Export::exportBatteryData(InverterData *inverters[], time_t spottime)
 {
 	const char *sql = "INSERT INTO SpotDataX(`TimeStamp`,`Serial`,`Key`,`Value`) VALUES(?,?,?,?)";
 	int rc = SQL_OK;
