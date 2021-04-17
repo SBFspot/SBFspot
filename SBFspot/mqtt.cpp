@@ -97,6 +97,7 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             else if (key == "invgridrelay")		snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.GridRelayStatus, "?").c_str());
             else if (key == "pdc1")				FormatFloat(value, (float)inv.Pdc1, 0, prec, dp);
             else if (key == "pdc2")				FormatFloat(value, (float)inv.Pdc2, 0, prec, dp);
+            else if (key == "pdctot")           FormatFloat(value, (float)inv.calPdcTot, 0, prec, dp);
             else if (key == "idc1")				FormatFloat(value, (float)inv.Idc1 / 1000, 0, prec, dp);
             else if (key == "idc2")				FormatFloat(value, (float)inv.Idc2 / 1000, 0, prec, dp);
             else if (key == "udc1")				FormatFloat(value, (float)inv.Udc1 / 100, 0, prec, dp);
@@ -116,6 +117,7 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             else if (key == "gridfreq")			FormatFloat(value, (float)inv.GridFreq / 100, 0, prec, dp);
             else if (key == "opertm")			FormatDouble(value, (double)inv.OperationTime / 3600, 0, prec, dp);
             else if (key == "feedtm")			FormatDouble(value, (double)inv.FeedInTime / 3600, 0, prec, dp);
+            else if (key == "btsignal")         FormatFloat(value, inv.BT_Signal, 0, prec, dp);
             else if (key == "battmpval")		FormatFloat(value, ((float)inv.BatTmpVal) / 10, 0, prec, dp);
             else if (key == "batvol")			FormatFloat(value, ((float)inv.BatVol) / 100, 0, prec, dp);
             else if (key == "batamp")			FormatFloat(value, ((float)inv.BatAmp) / 1000, 0, prec, dp);
