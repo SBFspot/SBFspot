@@ -64,6 +64,7 @@ private:
 
     // TODO: transform this to a C++ container
     InverterData **m_inverters;
+	std::vector<InverterData> toStdVector(InverterData* const* const inverterData);
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
     db_SQL_Export m_db;

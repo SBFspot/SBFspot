@@ -41,8 +41,6 @@ DISCLAIMER:
 #include <string>
 #include <vector>
 
-struct InverterData;
-
 #define COMMBUFSIZE 2048 // Size of Communications Buffer (Bluetooth/Ethernet)
 
 #ifndef MAX_PATH
@@ -59,7 +57,6 @@ void HexDump(unsigned char *buf, int count, int radix);
 char *FormatFloat(char *str, float value, int width, int precision, char decimalpoint);
 char *FormatDouble(char *str, double value, int width, int precision, char decimalpoint);
 std::string realpath(const char *path);
-std::vector<InverterData> toStdVector(InverterData* const* const inverterData);
 
 #define DEBUG_LOW (debug >= 1)
 #define DEBUG_NORMAL (debug >= 2)

@@ -772,3 +772,15 @@ void Inverter::exportEventData(const std::string& dt_range_csv)
         m_db.exportEventData(m_inverters, tagdefs);
 #endif
 }
+
+std::vector<InverterData> Inverter::toStdVector(InverterData* const* const inverters)
+{
+	std::vector<InverterData> inverterData;
+	inverterData.reserve(MAX_INVERTERS);
+
+	for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+		inverterData.push_back(*inverters[inv]);
+
+	return inverterData;
+}
+
