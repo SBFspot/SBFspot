@@ -22,7 +22,7 @@ SRC_SQLITE := $(SRC_NOSQL) db_SQLite.cpp db_SQLite_Export.cpp
 SRC_MYSQL  := $(SRC_NOSQL) db_MySQL.cpp db_MySQL_Export.cpp
 SRC_MARIADB:= $(SRC_MYSQL)
 
-CFLAGS     := -c -Wall -O2 -Wno-unused-local-typedefs
+CFLAGS     := -c -Wall -O2 -Wno-unused-local-typedefs -Wno-psabi
 INCDIR     :=
 LIBDIR     :=
 LIBS       := pthread bluetooth boost_date_time
