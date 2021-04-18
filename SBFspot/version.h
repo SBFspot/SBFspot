@@ -13,6 +13,7 @@ V3.8.1
     Fix #448 Error:sqlite3_exec() returned: "UNIQUE constraint failed"
     Fix #402 How to specify bluetooth device on Raspbian?
     Fix #378 MQTT / Missing Parameter BT-Signal - PdcTot
+    Merge #450 MQTT: let sunrise/sunset timestamps obey configured format
 */
 
 /***
