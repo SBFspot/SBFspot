@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2020, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -41,7 +41,7 @@ int ethConnect(short port)
 {
     int ret = 0;
 
-#ifdef WIN32
+#if defined(_WIN32)
 	WSADATA wsa;
      
     if (DEBUG_NORMAL) printf("Initialising Winsock...\n");
@@ -154,7 +154,7 @@ int ethSend(unsigned char *buffer, const char *toIP)
     return bytes_sent;
 }
 
-#ifdef WIN32
+#if defined(_WIN32)
 int ethClose()
 {
 	if (sock != 0)
@@ -168,7 +168,7 @@ int ethClose()
 
 #endif
 
-#ifdef linux
+#if defined(__linux__)
 int ethClose()
 {
 	if (sock != 0)

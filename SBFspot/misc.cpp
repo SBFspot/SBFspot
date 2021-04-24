@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2018, SBF
+    (c)2012-2021, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -38,10 +38,10 @@ DISCLAIMER:
 #include <time.h>
 #include <string.h>
 #include <stdio.h>
-#if defined(WIN32)
+#if defined(_WIN32)
 #include <windows.h> // Should not be included in oswindows.h but it is needed for realpath()
 #endif
-#if defined(linux)
+#if defined(__linux__)
 #include <limits.h>
 #endif
 
@@ -94,7 +94,7 @@ char *rtrim(char *txt)
 }
 
 //V1.4.5 - Fixed issue 14
-#ifdef linux
+#if defined(__linux__)
 int get_tzOffset(/*OUT*/int *isDST)
 {
     time_t curtime;
@@ -107,8 +107,9 @@ int get_tzOffset(/*OUT*/int *isDST)
 
     return loctime->tm_gmtoff;
 }
-#elif WIN32
+#endif
 
+#if defined(_WIN32)
 //Get timezone in seconds
 //Windows doesn't have tm_gmtoff member in tm struct
 //We try to calculate it
@@ -146,7 +147,7 @@ int CreatePath(const char *dir)
 {
     char fullPath[MAX_PATH];
     int rc = 0;
-#ifdef WIN32
+#if defined(_WIN32)
     _fullpath(fullPath, dir, sizeof(fullPath));
     //Terminate path with backslash
     char c = fullPath[strlen(fullPath)-1];
@@ -170,7 +171,7 @@ int CreatePath(const char *dir)
             fullPath[idx] = 0;
             //Create directory
             //Ignore error here, only the last one will be returned
-#ifdef WIN32
+#if defined(_WIN32)
             rc = _mkdir(fullPath);
 #else //Linux
             rc = mkdir(fullPath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -247,13 +248,13 @@ char *FormatDouble(char *str, double value, int width, int precision, char decim
 
 /*
 //TODO: Implement this for Linux/Windows
-#ifdef linux
+#if defined(__linux__)
 int getOSVersion(char *VersionString)
 {
     return 0;
 }
 
-#elif WIN32
+#elif defined(_WIN32)
 int getOSVersion(char *VersionString)
 {
     OSVERSIONINFO vi;
@@ -272,7 +273,7 @@ a canonicalized absolute pathname.
 */
 std::string realpath(const char *path)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     char pathbuf[MAX_PATH];
     pathbuf[0] = 0;
     std::string RealPath(path);
@@ -294,7 +295,8 @@ std::string realpath(const char *path)
 
     return RealPath;
 #endif
-#if defined (linux)
+
+#if defined(__linux__)
     char pathbuf[PATH_MAX];
     pathbuf[0] = 0;
     if (realpath(path, pathbuf))

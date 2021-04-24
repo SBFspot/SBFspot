@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -32,12 +32,11 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef _ETHERNET_H_
-#define _ETHERNET_H_
+#pragma once
 
 #include "osselect.h"
 
-#ifdef WIN32
+#if defined(_WIN32)
 
 // Ignore warning C4127: conditional expression is constant
 #pragma warning(disable: 4127)
@@ -48,9 +47,9 @@ DISCLAIMER:
 //Windows Sockets Error Codes
 //http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
 
-#endif	/* WIN32 */
+#endif	/* _WIN32 */
 
-#ifdef linux
+#if defined(__linux__)
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
@@ -64,7 +63,7 @@ DISCLAIMER:
 #include <errno.h>
 #include <string.h>
 
-#endif	/* linux */
+#endif	/* __linux__ */
 
 #include <stdio.h>
 #include <ctype.h>
@@ -91,5 +90,3 @@ int ethClose(void);
 int getLocalIP(unsigned char IPAddress[4]);
 int ethSend(unsigned char *buffer, const char *toIP);
 int ethRead(unsigned char *buf, unsigned int bufsize);
-
-#endif /* _ETHERNET_H_ */

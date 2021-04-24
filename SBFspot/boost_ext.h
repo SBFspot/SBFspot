@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -37,9 +37,11 @@ DISCLAIMER:
 
 #include <time.h>
 
-#if defined(linux)
+#if defined(__linux__)
 // Fix Issue 154 - reference to 'uint64_t' is ambiguous
-#define __GLIBC_HAVE_LONG_LONG
+#if !defined(__GLIBC_HAVE_LONG_LONG)
+#define __GLIBC_HAVE_LONG_LONG 1
+#endif
 #endif
 
 #include <boost/version.hpp>

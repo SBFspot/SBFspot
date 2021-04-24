@@ -56,11 +56,11 @@ const char *delim2txt(const char delim)
 //Linebreak To Text
 const char *linebreak2txt(void)
 {
-#if defined (WIN32)
+#if defined(_WIN32)
 	return "CR/LF";
 #endif
 
-#if defined (linux)
+#if defined (__linux__)
 	return "LF";
 #endif
 }
@@ -463,7 +463,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
 	else
 	{
 		//Write header when new file has been created
-		#ifdef WIN32
+		#if defined(_WIN32)
 		if (filelength(fileno(csv)) == 0)
 		#else
 		struct stat fStat;
@@ -558,7 +558,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
 	else
 	{
 		//Write header when new file has been created
-		#ifdef WIN32
+		#if defined(_WIN32)
 		if (filelength(fileno(csv)) == 0)
 		#else
 		struct stat fStat;
@@ -676,7 +676,7 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
 	else
 	{
 		//Write header when new file has been created
-		#ifdef WIN32
+		#if defined(_WIN32)
 		if (filelength(fileno(csv)) == 0)
 		#else
 		struct stat fStat;

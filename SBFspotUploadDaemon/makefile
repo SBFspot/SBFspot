@@ -26,7 +26,7 @@ SRC_SQLITE := $(SRC_MAIN) $(SRC_SBFSPOT)/db_SQLite.cpp
 SRC_MYSQL  := $(SRC_MAIN) $(SRC_SBFSPOT)/db_MySQL.cpp
 SRC_MARIADB:= $(SRC_MYSQL)
 
-CFLAGS     := -c -Wall -Wno-unused-local-typedefs
+CFLAGS     := -c -Wall -Wno-unused-local-typedefs -std=c++11
 CFLAGS_OPT := -O2
 INCDIR     := ../SBFspot
 LIBDIR     :=

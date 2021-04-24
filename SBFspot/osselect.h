@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -32,15 +32,12 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef OSSELECT_H_INCLUDED
-#define OSSELECT_H_INCLUDED
+#pragma once
 
-#ifdef linux
+#if defined(__linux__)
 #include "oslinux.h"   //Linux
-#elif WIN32
+#elif defined(_WIN32)
 #include "oswindows.h" //Windows 32
 #else
 #error Unsupported operating system!
 #endif
-
-#endif // OSSELECT_H_INCLUDED

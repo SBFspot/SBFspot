@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -35,7 +35,7 @@ DISCLAIMER:
 #pragma once
 
 /* Linux has its proper definitions*/
-#if defined(linux)
+#if defined(__linux__)
 	//Fix Issue 106 (Raspberry Pi only)
 	#include <bluetooth/bluetooth.h>
 #elif !defined(__BYTE_ORDER) && (defined(_M_IX86) || defined(_M_X64))

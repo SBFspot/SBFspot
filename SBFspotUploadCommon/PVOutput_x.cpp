@@ -43,7 +43,7 @@ DISCLAIMER:
 // failed (Linux)
 // Compile without -O switch
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #pragma optimize("", off)
 #endif
 
@@ -53,7 +53,7 @@ void PVOutput::writeCallback(char *ptr, size_t size, size_t nmemb, void *f)
    static_cast<PVOutput *>(f)->writeCallback_impl(ptr, size, nmemb);
 }
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #pragma optimize("", on)
 #endif
 

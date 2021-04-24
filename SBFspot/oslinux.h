@@ -32,10 +32,9 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef OSLINUX_H_INCLUDED
-#define OSLINUX_H_INCLUDED
+#pragma once
 
-#ifndef linux
+#if !defined(__linux__)
 #error Do Not include oslinux.h on non-linux systems
 #endif
 
@@ -66,5 +65,3 @@ extern unsigned int sleep (unsigned int __seconds); // See unistd.h
 typedef int SOCKET;
 
 #define FOLDER_SEP "/"
-
-#endif // OSLINUX_H_INCLUDED

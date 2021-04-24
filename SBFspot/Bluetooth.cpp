@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2021, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -42,7 +42,7 @@ int bytes_in_buffer = 0;
 int bufptr = 0;
 SOCKET sock = 0;
 
-#ifdef WIN32
+#if defined(_WIN32)
 //http://www.winsocketdotnetworkprogramming.com/winsock2programming/winsock2advancedotherprotocol4p.html
 //Windows Sockets Error Codes: http://msdn.microsoft.com/en-us/library/ms740668(v=vs.85).aspx
 
@@ -314,9 +314,9 @@ void bthClear()
 	setBlockingMode();
 }
 
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
-#ifdef linux
+#if defined(__linux__)
 
 int bthConnect(const char *btAddr, const char *loc_btAddr)
 {
@@ -423,7 +423,7 @@ void bthClear()
 	setBlockingMode();
 }
 
-#endif /* linux */
+#endif /* __linux__ */
 
 int bthRead(unsigned char *buf, unsigned int bufsize)
 {

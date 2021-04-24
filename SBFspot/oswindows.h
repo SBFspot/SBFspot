@@ -32,10 +32,9 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef OSWINDOWS_H_INCLUDED
-#define OSWINDOWS_H_INCLUDED
+#pragma once
 
-#ifndef WIN32
+#if !defined(_WIN32)
 #error Do Not include oswindows.h on non-windows systems
 #endif
 
@@ -69,5 +68,3 @@ char *strptime (const char *buf, const char *format, struct tm *timeptr);
 typedef unsigned char BYTE;
 
 #define FOLDER_SEP "\\"
-
-#endif // OSWINDOWS_H_INCLUDED

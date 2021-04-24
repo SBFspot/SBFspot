@@ -47,9 +47,6 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-// Fix undefined reference to 'boost::system::system_category()' introduced with PR #361
-#define BOOST_ERROR_CODE_HEADER_ONLY
-
 #include "version.h"
 #include "osselect.h"
 #include "endianness.h"
@@ -1421,7 +1418,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
         //Scan for bluetooth devices
         else if (stricmp(argv[i], "-scan") == 0)
         {
-#ifdef WIN32
+#if defined(_WIN32)
             bthSearchDevices();
 #else
             puts("On LINUX systems, use hcitool scan");
@@ -1590,7 +1587,7 @@ int GetConfig(Config *cfg)
 	// MQTT default values
 	cfg->mqtt_host = "localhost";
 	cfg->mqtt_port = ""; // mosquitto: 1883/8883 for TLS
-#if defined(WIN32)
+#if defined(_WIN32)
 	cfg->mqtt_publish_exe = "%ProgramFiles%\\mosquitto\\mosquitto_pub.exe";
 #else
 	cfg->mqtt_publish_exe = "/usr/bin/mosquitto_pub";

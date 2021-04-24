@@ -62,7 +62,7 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
 
     for (const auto& inv : inverterData)
     {
-#if defined(WIN32)
+#if defined(_WIN32)
         std::string mqtt_command_line = "\"\"" + m_config.mqtt_publish_exe + "\" " + m_config.mqtt_publish_args + "\"";
 #else
         std::string mqtt_command_line = m_config.mqtt_publish_exe + " " + m_config.mqtt_publish_args;
@@ -143,7 +143,7 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             boost::replace_first(key_value, "{value}", value);
 
             boost::replace_all(key_value, "\"\"", "\"");
-#if defined(WIN32)
+#if defined(_WIN32)
             boost::replace_all(key_value, "\"", "\"\"");
 #endif
 

@@ -41,7 +41,7 @@ using namespace boost;
 
 int main(int argc, char **argv)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
 	// On Windows, switch console to UTF-8
 	SetConsoleOutputCP(CP_UTF8);
 #endif
