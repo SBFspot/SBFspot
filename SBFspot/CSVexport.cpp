@@ -709,12 +709,12 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac1), 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac2), 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac3), 0, cfg->precision, cfg->decimalpoint));
-			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac1)/100, 0, cfg->precision, cfg->decimalpoint));
+            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac1) / 1000, 0, cfg->precision, cfg->decimalpoint));
+            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac2) / 1000, 0, cfg->precision, cfg->decimalpoint));
+            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac3) / 1000, 0, cfg->precision, cfg->decimalpoint));
+            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac1)/100, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac2)/100, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac3)/100, 0, cfg->precision, cfg->decimalpoint));
-			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac1)/1000, 0, cfg->precision, cfg->decimalpoint));
-			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac2)/1000, 0, cfg->precision, cfg->decimalpoint));
-			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac3)/1000, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->TotalPac), 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->EToday)/1000, 0, cfg->precision, cfg->decimalpoint));
 			fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->ETotal)/1000, 0, cfg->precision, cfg->decimalpoint));

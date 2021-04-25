@@ -1,4 +1,4 @@
-#define VERSION "3.8.1"
+#define VERSION "3.8.2"
 
 /*
 V3.8.0
@@ -14,6 +14,9 @@ V3.8.1
     Fix #402 How to specify bluetooth device on Raspbian?
     Fix #378 MQTT / Missing Parameter BT-Signal - PdcTot
     Merge #450 MQTT: let sunrise/sunset timestamps obey configured format
+
+V3.8.2
+    Fix #455 Voltages and Currents in .csv file swapped for battery inverter
 */
 
 /***
