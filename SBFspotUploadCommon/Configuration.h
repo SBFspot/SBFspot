@@ -35,7 +35,7 @@ DISCLAIMER:
 #pragma once
 
 // Upload daemon/service Version
-#define VERSION "3.0.0"
+#define VERSION "3.0.1"
 
 #include "../SBFspot/osselect.h"
 #include <string>

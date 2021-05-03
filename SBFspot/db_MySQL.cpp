@@ -259,8 +259,8 @@ int db_SQL_Base::batch_set_pvoflag(const std::string &data, unsigned int Serial)
 	bool firstitem = true;
 	for (vector<std::string>::iterator it=items.begin(); it!=items.end(); ++it)
 	{
-		if (it->substr(15, 1) == "1")
-		{
+        if ((it->size() == 16) && (it->back() == '1'))
+        {
 			if (!firstitem)
 				sql << ",";
 			else
