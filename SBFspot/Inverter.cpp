@@ -322,7 +322,7 @@ int Inverter::process()
                     std::cerr << "ArchiveDayData returned an error: " << rc << std::endl;
             }
 
-            if (archdata_available)
+            if (archdata_available && m_inverters[inv]->dayData[0].totalWh != 0) // Fix #459
             {
                 // EToday = Current ETotal - StartOfDay ETotal
                 m_inverters[inv]->EToday = m_inverters[inv]->ETotal - m_inverters[inv]->dayData[0].totalWh;

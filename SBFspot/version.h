@@ -18,6 +18,7 @@ V3.8.1
 V3.8.2
     Fix #455 Voltages and Currents in .csv file swapped for battery inverter
     Fix #428 SBFspotUploadDaemon crash
+    Fix #459 Incorrect Calculated EToday
 */
 
 /***
