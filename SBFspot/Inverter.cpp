@@ -296,44 +296,44 @@ int Inverter::process()
         }
     }
 
-	if ((rc = getInverterData(m_inverters, EnergyProduction)) != 0)
-	{
-		std::cerr << "getEnergyProduction returned an error: " << rc << std::endl;
-	}
+    if ((rc = getInverterData(m_inverters, EnergyProduction)) != 0)
+    {
+        std::cerr << "getEnergyProduction returned an error: " << rc << std::endl;
+    }
 
-	// Issue #290 Etoday and temperature are shown as ZERO from STP6.0 inverter
-	// Flag to indicate whether archdata has been loaded (for all inverters)
-	bool archdata_available = false;
+    // Issue #290 Etoday and temperature are shown as ZERO from STP6.0 inverter
+    // Flag to indicate whether archdata has been loaded (for all inverters)
+    bool archdata_available = false;
 
-	for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
-	{
-		/* reset day yield counter to test the issue */
-		// m_inverters[inv]->EToday = 0;
+    for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+    {
+        /* reset day yield counter to test the issue */
+        // m_inverters[inv]->EToday = 0;
 
-		if (m_inverters[inv]->EToday == 0)
-		{
-			if (!archdata_available)
-			{
-				time_t arch_time = time(NULL);
+        if (m_inverters[inv]->EToday == 0)
+        {
+            if (!archdata_available)
+            {
+                time_t arch_time = time(NULL);
 
-				if ((rc = ArchiveDayData(m_inverters, arch_time)) == E_OK)
-					archdata_available = true;
-				else if (rc != E_ARCHNODATA)
-					std::cerr << "ArchiveDayData returned an error: " << rc << std::endl;
-			}
+                if ((rc = ArchiveDayData(m_inverters, arch_time)) == E_OK)
+                    archdata_available = true;
+                else if (rc != E_ARCHNODATA)
+                    std::cerr << "ArchiveDayData returned an error: " << rc << std::endl;
+            }
 
-			if (archdata_available)
-			{
-				// EToday = Current ETotal - StartOfDay ETotal
-				m_inverters[inv]->EToday = m_inverters[inv]->ETotal - m_inverters[inv]->dayData[0].totalWh;
-				if (VERBOSE_NORMAL)
-				{
-					printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-					printf("Calculated EToday: %.3fkWh\n", tokWh(m_inverters[inv]->EToday));
-				}
-			}
-		}
-	}
+            if (archdata_available)
+            {
+                // EToday = Current ETotal - StartOfDay ETotal
+                m_inverters[inv]->EToday = m_inverters[inv]->ETotal - m_inverters[inv]->dayData[0].totalWh;
+                if (VERBOSE_NORMAL)
+                {
+                    printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
+                    printf("Calculated EToday: %.3fkWh\n", tokWh(m_inverters[inv]->EToday));
+                }
+            }
+        }
+    }
 
     if ((rc = getInverterData(m_inverters, OperationTime)) != 0)
         std::cerr << "getOperationTime returned an error: " << rc << std::endl;
@@ -775,12 +775,12 @@ void Inverter::exportEventData(const std::string& dt_range_csv)
 
 std::vector<InverterData> Inverter::toStdVector(InverterData* const* const inverters)
 {
-	std::vector<InverterData> inverterData;
-	inverterData.reserve(MAX_INVERTERS);
+    std::vector<InverterData> inverterData;
+    inverterData.reserve(MAX_INVERTERS);
 
-	for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
-		inverterData.push_back(*inverters[inv]);
+    for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+        inverterData.push_back(*inverters[inv]);
 
-	return inverterData;
+    return inverterData;
 }
 
