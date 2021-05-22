@@ -10,17 +10,17 @@ CREATE Table Config (
 	PRIMARY KEY (`Key`)
 );
 
-INSERT INTO Config VALUES('SchemaVersion','1');
+INSERT INTO Config VALUES('SchemaVersion','2');
 
 CREATE Table Inverters (
-	Serial int(4) NOT NULL,
+	Serial int unsigned NOT NULL,
 	Name varchar(32),
 	Type varchar(32),
 	SW_Version varchar(32),
-	TimeStamp int(4),
-	TotalPac int(4),
-	EToday int(8),
-	ETotal int(8),
+	TimeStamp int,
+	TotalPac int,
+	EToday bigint,
+	ETotal bigint,
 	OperatingTime double,
 	FeedInTime double,
 	Status varchar(10),
@@ -41,15 +41,15 @@ CREATE View vwInverters AS
 	FROM Inverters;
 
 CREATE Table SpotData (
-	TimeStamp int(4) NOT NULL,
-	Serial int(4) NOT NULL,
-	Pdc1 int(4), Pdc2 int(4),
+	TimeStamp int NOT NULL,
+	Serial int unsigned NOT NULL,
+	Pdc1 int, Pdc2 int,
 	Idc1 float, Idc2 float,
 	Udc1 float, Udc2 float,
-	Pac1 int(4), Pac2 int(4), Pac3 int(4),
+	Pac1 int, Pac2 int, Pac3 int,
 	Iac1 float, Iac2 float, Iac3 float,
 	Uac1 float, Uac2 float, Uac3 float,
-	EToday int(8), ETotal int(8),
+	EToday bigint, ETotal bigint,
 	Frequency float,
 	OperatingTime double,
 	FeedInTime double,
@@ -100,10 +100,10 @@ CREATE View vwSpotData AS
 INNER JOIN Inverters Inv ON Dat.Serial=Inv.Serial;
 
 CREATE Table DayData (
-	TimeStamp int(4) NOT NULL,
-	Serial int(4) NOT NULL,
-	TotalYield int(8),
-	Power int(8),
+	TimeStamp int NOT NULL,
+	Serial int unsigned NOT NULL,
+	TotalYield bigint,
+	Power bigint,
 	PVoutput int(1),
 	PRIMARY KEY (TimeStamp, Serial)
 );
@@ -118,10 +118,10 @@ INNER JOIN Inverters Inv ON Dat.Serial=Inv.Serial
 ORDER BY Dat.Timestamp Desc;
 
 CREATE Table MonthData (
-	TimeStamp int(4) NOT NULL,
-	Serial int(4) NOT NULL,
-	TotalYield int(8),
-	DayYield int(8),
+	TimeStamp int NOT NULL,
+	Serial int unsigned NOT NULL,
+	TotalYield bigint,
+	DayYield bigint,
 	PRIMARY KEY (TimeStamp, Serial)
 );
 
@@ -133,17 +133,17 @@ INNER JOIN Inverters Inv ON Dat.Serial=Inv.Serial
 ORDER BY Dat.Timestamp Desc;
 
 CREATE Table EventData (
-	EntryID int(4),
-	TimeStamp int(4) NOT NULL,
-	Serial int(4) NOT NULL,
-	SusyID int(2),
-	EventCode int(4),
+	EntryID int unsigned,
+	TimeStamp int NOT NULL,
+	Serial int unsigned NOT NULL,
+	SusyID smallint unsigned,
+	EventCode int unsigned,
 	EventType varchar(32),
 	Category varchar(32),
 	EventGroup varchar(32),
 	Tag varchar(200),
-	OldValue varchar(32),
-	NewValue varchar(32),
+	OldValue varchar(64),
+	NewValue varchar(64),
 	UserGroup varchar(10),
 	PRIMARY KEY (Serial, EntryID)
 );
@@ -160,9 +160,9 @@ INNER JOIN Inverters Inv ON Dat.Serial=Inv.Serial
 ORDER BY EntryID Desc;
 
 CREATE Table Consumption (
-	TimeStamp int(4) NOT NULL,
-	EnergyUsed int(4),
-	PowerUsed int(4),
+	TimeStamp int NOT NULL,
+	EnergyUsed int,
+	PowerUsed int,
 	PRIMARY KEY (TimeStamp)
 );
 
@@ -233,10 +233,10 @@ CREATE VIEW vwPvoData AS
 
 -- Fix 09-JAN-2017 See Issue 54: SQL Support for battery inverters
 CREATE TABLE SpotDataX (
-    `TimeStamp` INTEGER (4) NOT NULL,
-    `Serial`    INTEGER (4) NOT NULL,
-    `Key`       INTEGER (4) NOT NULL,
-    `Value`     INTEGER (4),
+    `TimeStamp` int NOT NULL,
+    `Serial`    int unsigned NOT NULL,
+    `Key`       int NOT NULL,
+    `Value`     int,
     PRIMARY KEY (
         `TimeStamp` ASC,
         `Serial` ASC,
