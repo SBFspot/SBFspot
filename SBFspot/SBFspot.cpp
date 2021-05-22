@@ -235,25 +235,13 @@ E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command)
 
 int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial)
 {
-	if (DEBUG_HIGHEST)
-	{
-		printf("getInverterIndexBySerial()\n");
-		printf("Looking up %d:%lu\n", SUSyID, (unsigned long)Serial);
-	}
-
     for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
-		if (DEBUG_HIGHEST)
-			printf("Inverter[%d] %d:%lu\n", inv, inverters[inv]->SUSyID, inverters[inv]->Serial);
-
-		if ((inverters[inv]->SUSyID == SUSyID) && inverters[inv]->Serial == Serial)
+        if ((inverters[inv]->SUSyID == SUSyID) && inverters[inv]->Serial == Serial)
             return inv;
     }
 
-	if (DEBUG_HIGHEST)
-		printf("Serial Not Found!\n");
-	
-	return -1;
+    return -1;
 }
 
 int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial)
