@@ -82,7 +82,9 @@ public:
     int set_config(const std::string key, const std::string value);
     int get_config(const std::string key, std::string &value);
     int get_config(const std::string key, int &value);
-    std::string intToString(const int i) { return static_cast<std::ostringstream*>( &(std::ostringstream() << i) )->str(); }
+
+    //TODO: replace with std::to_string
+    std::string intToString(const int i) { return static_cast<std::ostringstream &&>((std::ostringstream() << i)).str(); }
 
 protected:
     std::string s_quoted(std::string str) { return "'" + str + "'"; }
@@ -91,7 +93,7 @@ protected:
     std::string status_text(int status);
     void print_error(std::string msg) { std::cerr << timestamp() << "Error: " << msg << " : " << (m_dbHandle != NULL ? mysql_error(m_dbHandle) : "null") << std::endl; }
     void print_error(std::string msg, std::string sql) { std::cerr << timestamp() << "Error: " << msg << " : " << (m_dbHandle != NULL ? mysql_error(m_dbHandle) : "null") << "\nExecuted Statement: " << sql << std::endl; }
-    std::string strftime_t(time_t utctime) { return static_cast<std::ostringstream*>( &(std::ostringstream() << utctime) )->str(); }
+    std::string strftime_t(const time_t utctime) { return static_cast<std::ostringstream &&>((std::ostringstream() << utctime)).str(); }
     std::string timestamp(void);
 };
 

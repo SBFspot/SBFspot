@@ -1,4 +1,4 @@
-#define VERSION "3.8.2"
+#define VERSION "3.8.3"
 
 /*
 V3.8.0
@@ -21,6 +21,9 @@ V3.8.2
     Fix #459 Incorrect Calculated EToday
     Fix #330 From Sqlite3 to MySQL
     Fix #457 Serial number too big for defined field
+
+V3.8.3
+    Fix #476 V3.8.2 fails to compile on Fedora 34
 */
 
 /***
