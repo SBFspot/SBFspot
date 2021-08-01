@@ -103,9 +103,9 @@ int main(int argc, char **argv)
     }
 
     Inverter inverter(cfg);
-    inverter.process();
+    rc = inverter.process();
 
     if (VERBOSE_NORMAL) print_error(stdout, PROC_INFO, "Done.\n");
 
-    return 0;
+    return rc;
 }
