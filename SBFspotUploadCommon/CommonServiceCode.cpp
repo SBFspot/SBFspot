@@ -63,7 +63,7 @@ void CommonServiceCode(void)
 			for (std::map<SMASerial, PVOSystemID>::const_iterator it=cfg.getPvoSIDs().begin(); !bStopping && it!=cfg.getPvoSIDs().end(); ++it)
 			{
 				PVOutput PVO(it->second, cfg.getPvoApiKey(), 30);
-				int now = time(NULL);
+				time_t now = time(nullptr);
 				db.get_config(SQL_NEXTSTATUSCHECK, nextStatusCheck);
 				if ((nextStatusCheck - now) < 0)
 				{
@@ -91,6 +91,7 @@ void CommonServiceCode(void)
 				std::string data;
 
 				int datapoints = 0;
+                Log("Retrieving new datapoints from DB...", ERRLEVEL::LOG_DEBUG_);
 				if((rc_db = db.batch_get_archdaydata(data, it->first/*Serial*/, batch_datelimit, batch_statuslimit, datapoints)) == db.SQL_OK)
 				{
 					if (!data.empty())
@@ -137,7 +138,7 @@ void CommonServiceCode(void)
 			db.close();
 
 			// Wait for next run; 30 seconds after every 1 minute (08:00:30 - 08:01:30 - 08:02:30 - ...)
-			for (int countdown = 90 - (time(NULL) % 60); !bStopping && countdown > 0; countdown--)
+			for (int countdown = 90 - (time(nullptr) % 60); !bStopping && countdown > 0; countdown--)
 				sleep(1);
 		}
 		else
@@ -150,13 +151,34 @@ void CommonServiceCode(void)
     }
 }
 
+std::string timestamp(void)
+{
+    char buffer[32];
+#if defined(_WIN32)
+    SYSTEMTIME time;
+    ::GetLocalTime(&time);
+
+    sprintf_s(buffer, sizeof(buffer), "[%02d:%02d:%02d.%03d] ", time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
+#else
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    struct tm *tm;
+    tm = localtime(&tv.tv_sec);
+
+    snprintf(buffer, sizeof(buffer), "[%02d:%02d:%02d.%03d] ", tm->tm_hour, tm->tm_min, tm->tm_sec, (int)tv.tv_usec / 1000);
+#endif
+
+    std::string sTimestamp(buffer);
+    return sTimestamp;
+}
+
 int Log(std::string txt, ERRLEVEL level)
 {
 	int rc = 0;
 	if (level >= cfg.getLogLevel())
 	{
 		char buff[32];
-		time_t now = time(NULL);
+		time_t now = time(nullptr);
 		strftime(buff, sizeof(buff), "SBFspotUpload%Y%m%d.log", localtime(&now));
 		std::string fullpath(cfg.getLogDir() + buff);
 
@@ -165,8 +187,7 @@ int Log(std::string txt, ERRLEVEL level)
 
 		if (fs_log.is_open())
 		{
-			strftime(buff, sizeof(buff), "[%H:%M:%S] ", localtime(&now));
-			fs_log << buff << errlevelText[level] << ": " << txt << std::endl;
+			fs_log << timestamp() << errlevelText[level] << ": " << txt << '\n';
 			fs_log.close();
 			rc = 0;
 		}
