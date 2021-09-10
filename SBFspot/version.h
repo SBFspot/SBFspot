@@ -25,6 +25,7 @@ V3.8.2
 V3.8.3
     Fix #476 V3.8.2 fails to compile on Fedora 34
     Merged #467 Let executable return errors in Inverter::process()
+    Fix #482 Some data missing on 2nd Inverter
 */
 
 /***

@@ -361,7 +361,12 @@ int Inverter::process()
 
     //Calculate missing DC Spot Values
     if (m_config.calcMissingSpot == 1)
-        CalcMissingSpot(m_inverters[0]);
+    {
+        for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+        {
+            CalcMissingSpot(m_inverters[inv]);
+        }
+    }
 
     for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
@@ -387,7 +392,12 @@ int Inverter::process()
 
     //Calculate missing AC Spot Values
     if (m_config.calcMissingSpot == 1)
-        CalcMissingSpot(m_inverters[0]);
+    {
+        for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+        {
+            CalcMissingSpot(m_inverters[inv]);
+        }
+    }
 
     for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
