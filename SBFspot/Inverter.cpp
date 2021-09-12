@@ -359,28 +359,6 @@ int Inverter::process()
     if ((rc = getInverterData(m_inverters, SpotDCVoltage)) != 0)
         std::cerr << "getSpotDCVoltage returned an error: " << rc << std::endl;
 
-    //Calculate missing DC Spot Values
-    if (m_config.calcMissingSpot == 1)
-    {
-        for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
-        {
-            CalcMissingSpot(m_inverters[inv]);
-        }
-    }
-
-    for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-    {
-        m_inverters[inv]->calPdcTot = m_inverters[inv]->Pdc1 + m_inverters[inv]->Pdc2;
-        if (VERBOSE_NORMAL)
-        {
-            printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-            puts("DC Spot Data:");
-            printf("\tString 1 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc1), toVolt(m_inverters[inv]->Udc1), toAmp(m_inverters[inv]->Idc1));
-            printf("\tString 2 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc2), toVolt(m_inverters[inv]->Udc2), toAmp(m_inverters[inv]->Idc2));
-            printf("\tCalculated Total Pdc: %7.3fkW\n", tokW(m_inverters[inv]->calPdcTot));
-        }
-    }
-
     if ((rc = getInverterData(m_inverters, SpotACPower)) != 0)
         std::cerr << "getSpotACPower returned an error: " << rc << std::endl;
 
@@ -390,23 +368,26 @@ int Inverter::process()
     if ((rc = getInverterData(m_inverters, SpotACTotalPower)) != 0)
         std::cerr << "getSpotACTotalPower returned an error: " << rc << std::endl;
 
-    //Calculate missing AC Spot Values
-    if (m_config.calcMissingSpot == 1)
+    for (uint32_t inv = 0; m_inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
     {
-        for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
-        {
+        //Calculate missing AC/DC Spot Values
+        if (m_config.calcMissingSpot == 1)
             CalcMissingSpot(m_inverters[inv]);
-        }
-    }
 
-    for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-    {
+        m_inverters[inv]->calPdcTot = m_inverters[inv]->Pdc1 + m_inverters[inv]->Pdc2;
+
         m_inverters[inv]->calPacTot = m_inverters[inv]->Pac1 + m_inverters[inv]->Pac2 + m_inverters[inv]->Pac3;
         //Calculated Inverter Efficiency
         m_inverters[inv]->calEfficiency = m_inverters[inv]->calPdcTot == 0 ? 0.0f : 100.0f * (float)m_inverters[inv]->calPacTot / (float)m_inverters[inv]->calPdcTot;
+
         if (VERBOSE_NORMAL)
         {
             printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
+            puts("DC Spot Data:");
+            printf("\tString 1 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc1), toVolt(m_inverters[inv]->Udc1), toAmp(m_inverters[inv]->Idc1));
+            printf("\tString 2 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc2), toVolt(m_inverters[inv]->Udc2), toAmp(m_inverters[inv]->Idc2));
+            printf("\tCalculated Total Pdc: %7.3fkW\n", tokW(m_inverters[inv]->calPdcTot));
+
             puts("AC Spot Data:");
             printf("\tPhase 1 Pac : %7.3fkW - Uac: %6.2fV - Iac: %6.3fA\n", tokW(m_inverters[inv]->Pac1), toVolt(m_inverters[inv]->Uac1), toAmp(m_inverters[inv]->Iac1));
             printf("\tPhase 2 Pac : %7.3fkW - Uac: %6.2fV - Iac: %6.3fA\n", tokW(m_inverters[inv]->Pac2), toVolt(m_inverters[inv]->Uac2), toAmp(m_inverters[inv]->Iac2));
@@ -420,7 +401,7 @@ int Inverter::process()
         std::cerr << "getSpotGridFrequency returned an error: " << rc << std::endl;
     else
     {
-        for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv = 0; m_inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
         {
             if (VERBOSE_NORMAL)
             {
