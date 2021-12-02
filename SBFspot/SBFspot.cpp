@@ -381,7 +381,7 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
 		// Len bigger than 0.0.0.0 or len of no string ==> use IP_Adress from config
         if (strlen(IP_Address) > 7) // Fix CP181
         {
-            sprintf(inverters[devcount]->IPAddress, "%s", IP_Address);
+            memccpy(inverters[devcount]->IPAddress, IP_Address, 0, sizeof(inverters[devcount]->IPAddress));
             if (quiet == 0) printf("Inverter IP address: %s from SBFspot.cfg\n", inverters[devcount]->IPAddress);
         }
 		else	// use IP from broadcast-detection of inverter
