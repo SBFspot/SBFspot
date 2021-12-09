@@ -141,7 +141,10 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                                 datetime_next = (time_t)get_long(pcktBuf + x);
                                 if (0 != (datetime_next - datetime)) // Fix Issue 108: sbfspot v307 crashes for daily export (-adnn)
                                 {
-                                    totalWh_prev = totalWh;
+                                    if (totalWh != NaN_U64) // Fix 384/137/381/313/... Bad request 400: Power value too high for system size
+                                    {
+                                        totalWh_prev = totalWh;
+                                    }
                                     datetime_prev = datetime;
                                     datetime = datetime_next;
                                     dblrecord = false;
@@ -152,7 +155,10 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                                 totalWh = (unsigned long long)get_longlong(pcktBuf + x + 4);
                                 if (totalWh != NaN_U64) // Fix Issue 109: Bad request 400: Power value too high for system size
                                 {
-                                    if (totalWh > 0) hasData = E_OK;
+                                    if (totalWh > 0)
+                                    {
+                                        hasData = E_OK;
+                                    }
                                     if (totalWh_prev != 0)
                                     {
                                         struct tm timeinfo;

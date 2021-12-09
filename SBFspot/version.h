@@ -1,4 +1,4 @@
-#define VERSION "3.8.3"
+#define VERSION "3.8.4"
 
 /*
 V3.8.0
@@ -26,6 +26,9 @@ V3.8.3
     Fix #476 V3.8.2 fails to compile on Fedora 34
     Merged #467 Let executable return errors in Inverter::process()
     Fix #482 Some data missing on 2nd Inverter
+
+V3.8.4
+    Fix 384/137/381/313/... Bad request 400: Power value too high for system size
 */
 
 /***
