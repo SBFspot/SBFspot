@@ -44,7 +44,7 @@ extern int verbose;
 
 //SMA Structs must be aligned on byte boundaries
 #pragma pack(push, 1)
-typedef struct
+struct SMA_EVENTDATA
 {
     int32_t DateTime;
     uint16_t EntryID;
@@ -60,7 +60,7 @@ typedef struct
     uint32_t Parameter;
     uint32_t NewVal;
     uint32_t OldVal;
-} SMA_EVENTDATA;
+};
 #pragma pack(pop)
 
 class EventData
