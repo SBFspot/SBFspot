@@ -35,6 +35,8 @@ DISCLAIMER:
 #include "EventData.h"
 #include "TagDefs.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <sstream>
+#include <iomanip>
 
 extern TagDefs tagdefs;
 
@@ -83,7 +85,7 @@ std::string EventData::EventCategory() const
     }
 }
 
-std::string EventData::EventDescription()
+std::string EventData::EventDescription() const
 {
     std::string eventDescr = tagdefs.getDesc(Tag());
 
@@ -102,3 +104,28 @@ std::string EventData::EventDescription()
 
     return eventDescr;
 }
+
+std::string EventData::ToString() const
+{
+    std::stringstream ss;
+    ss << ToLocalTime(DateTime(), "%Y%m%d@%H%M%S") << " " << EventDescription();
+
+    return ss.str();
+}
+
+std::string EventData::ToString(const char *datetimeformat) const
+{
+    std::stringstream ss;
+    ss << ToLocalTime(DateTime(), datetimeformat) << " " << EventDescription();
+
+    return ss.str();
+}
+
+std::string EventData::ToLocalTime(const time_t rawtime, const char *format) const
+{
+    struct tm* timeinfo = localtime(&rawtime);
+    std::ostringstream os;
+    os << std::put_time(timeinfo, format);
+    return os.str();
+}
+

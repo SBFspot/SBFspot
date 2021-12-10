@@ -37,6 +37,7 @@ DISCLAIMER:
 #include "ArchData.h"
 #include "CSVexport.h"
 #include "mqtt.h"
+#include <vector>
 
 using namespace boost;
 
@@ -575,6 +576,24 @@ int Inverter::process()
 
     if ((rc == E_OK) || (rc == E_EOF))
     {
+        if (VERBOSE_HIGH)
+        {
+            for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+            {
+                std::cout << "Device " << m_inverters[inv]->SUSyID << ":" << m_inverters[inv]->Serial << '\n';
+                
+                // Sort events on descending Entry_ID
+                std::sort(m_inverters[inv]->eventData.begin(), m_inverters[inv]->eventData.end(), SortEntryID_Desc);
+
+                for (std::vector<EventData>::iterator it = m_inverters[inv]->eventData.begin(); it != m_inverters[inv]->eventData.end(); ++it)
+                {
+                    std::cout << it->ToString(m_config.DateTimeFormat) << '\n';
+                }
+            }
+
+            std::cout.flush();
+        }
+
         dt_range_csv = str(format("%d%02d-%s") % dt_utc.year() % static_cast<short>(dt_utc.month()) % dt_range_csv);
         exportEventData(dt_range_csv);
     }
