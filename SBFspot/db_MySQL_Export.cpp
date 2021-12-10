@@ -285,13 +285,7 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
 			for (std::vector<EventData>::iterator it=inv[i]->eventData.begin(); it!=inv[i]->eventData.end(); ++it)
 			{
 				std::string grp = tags.getDesc(it->Group());
-				std::string tag = tags.getDesc(it->Tag());
-
-				// If description contains "%s", replace it with localized parameter
-				size_t start_pos = tag.find("%s");
-				if (start_pos != std::string::npos)
-					tag.replace(start_pos, 2, tags.getDescForLRI(it->Parameter()));
-
+                std::string desc = it->EventDescription();
 				std::string usrgrp = tags.getDesc(it->UserGroupTagID());
 				std::stringstream oldval;
 				std::stringstream newval;
@@ -366,8 +360,8 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
 
 				// Event Tag
 				values[8].buffer_type	= MYSQL_TYPE_STRING;
-				values[8].buffer		= (char *)tag.c_str();
-				values[8].buffer_length = tag.size();
+				values[8].buffer		= (char *)desc.c_str();
+				values[8].buffer_length = desc.size();
 
 				// Old Value
 				std::string OldValue = oldval.str();

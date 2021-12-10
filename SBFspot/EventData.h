@@ -118,6 +118,8 @@ public:
     unsigned int DataType() const { return m_Parameter >> 24; }
     friend bool SortEntryID_Asc(const EventData& ed1, const EventData& ed2) { return ed1.m_EntryID < ed2.m_EntryID; }
     friend bool SortEntryID_Desc(const EventData& ed1, const EventData& ed2) { return ed1.m_EntryID > ed2.m_EntryID; }
+    std::string EventDescription();
+    std::string quote(const std::string& str) const { return '"' + str + '"'; }
 
 private:
     unsigned int GroupTagID() const;

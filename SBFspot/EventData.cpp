@@ -33,6 +33,10 @@ DISCLAIMER:
 ************************************************************************************************/
 
 #include "EventData.h"
+#include "TagDefs.h"
+#include <boost/algorithm/string/replace.hpp>
+
+extern TagDefs tagdefs;
 
 unsigned int EventData::GroupTagID() const
 {
@@ -79,3 +83,22 @@ std::string EventData::EventCategory() const
     }
 }
 
+std::string EventData::EventDescription()
+{
+    std::string eventDescr = tagdefs.getDesc(Tag());
+
+    if (eventDescr.find("|") != std::string::npos)
+    {
+        boost::replace_all(eventDescr, "|ln04|", quote(tagdefs.getDescForLRI(Parameter()).c_str()));
+        boost::replace_all(eventDescr, "|tn0|", tagdefs.getDesc(DT_Change()).c_str());
+        boost::replace_all(eventDescr, "|tn4|", tagdefs.getDesc(Parameter()).c_str());
+        boost::replace_all(eventDescr, "|tn8|", quote(tagdefs.getDesc(NewVal()).c_str()));
+        boost::replace_all(eventDescr, "|tnc|", quote(tagdefs.getDesc(OldVal()).c_str()));
+        // |s0|
+        // |d0|
+        // |u0|
+        // |x0||x1||x2|...|x9|
+    }
+
+    return eventDescr;
+}

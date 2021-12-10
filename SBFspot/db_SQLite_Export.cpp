@@ -247,13 +247,7 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
             for (std::vector<EventData>::iterator it=inv[i]->eventData.begin(); it!=inv[i]->eventData.end(); ++it)
             {
                 std::string grp = tags.getDesc(it->Group());
-                std::string tag = tags.getDesc(it->Tag());
-
-                // If description contains "%s", replace it with localized parameter
-                size_t start_pos = tag.find("%s");
-                if (start_pos != std::string::npos)
-                    tag.replace(start_pos, 2, tags.getDescForLRI(it->Parameter()));
-
+                std::string desc = it->EventDescription();
                 std::string usrgrp = tags.getDesc(it->UserGroupTagID());
                 std::stringstream oldval;
                 std::stringstream newval;
@@ -288,7 +282,7 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
                 sqlite3_bind_text(pStmt, 6, it->EventType().c_str(), it->EventType().size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt, 7, it->EventCategory().c_str(), it->EventCategory().size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt, 8, grp.c_str(), grp.size(), SQLITE_TRANSIENT);
-                sqlite3_bind_text(pStmt, 9, tag.c_str(), tag.size(), SQLITE_TRANSIENT);
+                sqlite3_bind_text(pStmt, 9, desc.c_str(), desc.size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt,10, oldval.str().c_str(), oldval.str().size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt,11, newval.str().c_str(), newval.str().size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt,12, usrgrp.c_str(), usrgrp.size(), SQLITE_TRANSIENT);

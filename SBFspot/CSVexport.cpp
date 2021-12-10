@@ -599,18 +599,8 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
                 fprintf(csv, "%s%c", it->EventType().c_str(), cfg->delimiter);
                 fprintf(csv, "%s%c", it->EventCategory().c_str(), cfg->delimiter);
                 fprintf(csv, "%s%c", tagdefs.getDesc(it->Group()).c_str(), cfg->delimiter);
-                string EventDescription = tagdefs.getDesc(it->Tag());
+                fprintf(csv, "%s%c", it->EventDescription().c_str(), cfg->delimiter);
 
-                // If description contains "%s", replace it with localized parameter
-                if (EventDescription.find("%s"))
-                    fprintf(csv, EventDescription.c_str(), tagdefs.getDescForLRI(it->Parameter()).c_str());
-                else
-                    fprintf(csv, "%s", EventDescription.c_str());
-
-                fprintf(csv, "%c", cfg->delimiter);
-
-                // As an extra: export old and new values
-                // This is "forgotten" in Sunny Explorer
                 switch (it->DataType())
                 {
                 case 0x08: // Status
@@ -637,7 +627,6 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
                     fprintf(csv, "%c%c", cfg->delimiter, cfg->delimiter);
                 }
 
-                // As an extra: User or Installer Event
                 fprintf(csv, "%s\n", tagdefs.getDesc(it->UserGroupTagID()).c_str());
             }
         }
