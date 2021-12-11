@@ -39,8 +39,6 @@ DISCLAIMER:
 #include "mqtt.h"
 #include <vector>
 
-using namespace boost;
-
 Inverter::Inverter(const Config& config)
     : m_config(config)
 {
@@ -535,10 +533,10 @@ int Inverter::process()
     /*****************
     * Get Event Data *
     ******************/
-    posix_time::ptime tm_utc(posix_time::from_time_t((0 == m_config.startdate) ? time(NULL) : m_config.startdate));
+    boost::posix_time::ptime tm_utc(boost::posix_time::from_time_t((0 == m_config.startdate) ? time(NULL) : m_config.startdate));
     //ptime tm_utc(posix_time::second_clock::universal_time());
-    gregorian::date dt_utc(tm_utc.date().year(), tm_utc.date().month(), 1);
-    std::string dt_range_csv = str(format("%d%02d") % dt_utc.year() % static_cast<short>(dt_utc.month()));
+    boost::gregorian::date dt_utc(tm_utc.date().year(), tm_utc.date().month(), 1);
+    std::string dt_range_csv = str(boost::format("%d%02d") % dt_utc.year() % static_cast<short>(dt_utc.month()));
 
     for (int m = 0; m < m_config.archEventMonths; m++)
     {
@@ -559,9 +557,9 @@ int Inverter::process()
 
         //Move to previous month
         if (dt_utc.month() == 1)
-            dt_utc = gregorian::date(dt_utc.year() - 1, 12, 1);
+            dt_utc = boost::gregorian::date(dt_utc.year() - 1, 12, 1);
         else
-            dt_utc = gregorian::date(dt_utc.year(), dt_utc.month() - 1, 1);
+            dt_utc = boost::gregorian::date(dt_utc.year(), dt_utc.month() - 1, 1);
 
     }
 
@@ -569,9 +567,9 @@ int Inverter::process()
     {
         //Adjust start of range with 1 month
         if (dt_utc.month() == 12)
-            dt_utc = gregorian::date(dt_utc.year() + 1, 1, 1);
+            dt_utc = boost::gregorian::date(dt_utc.year() + 1, 1, 1);
         else
-            dt_utc = gregorian::date(dt_utc.year(), dt_utc.month() + 1, 1);
+            dt_utc = boost::gregorian::date(dt_utc.year(), dt_utc.month() + 1, 1);
     }
 
     if ((rc == E_OK) || (rc == E_EOF))
@@ -594,7 +592,7 @@ int Inverter::process()
             std::cout.flush();
         }
 
-        dt_range_csv = str(format("%d%02d-%s") % dt_utc.year() % static_cast<short>(dt_utc.month()) % dt_range_csv);
+        dt_range_csv = str(boost::format("%d%02d-%s") % dt_utc.year() % static_cast<short>(dt_utc.month()) % dt_range_csv);
         exportEventData(dt_range_csv);
     }
 

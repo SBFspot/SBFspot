@@ -37,8 +37,6 @@ DISCLAIMER:
 
 const uint32_t MAX_INVERTERS = 20;
 
-using namespace boost;
-
 int main(int argc, char **argv)
 {
 #if defined(_WIN32)

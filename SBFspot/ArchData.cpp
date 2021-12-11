@@ -34,7 +34,6 @@ DISCLAIMER:
 
 #include "ArchData.h"
 
-using namespace boost;
 using namespace boost::date_time;
 using namespace boost::posix_time;
 using namespace boost::gregorian;

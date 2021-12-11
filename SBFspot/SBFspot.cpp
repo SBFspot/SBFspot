@@ -69,7 +69,6 @@ DISCLAIMER:
 #include <boost/asio/ip/address.hpp>
 #include "mqtt.h"
 
-using namespace boost;
 using namespace boost::date_time;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
