@@ -38,9 +38,7 @@ DISCLAIMER:
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-
-string db_SQL_Base::status_text(int status)
+std::string db_SQL_Base::status_text(int status)
 {
 	switch (status)
 	{
@@ -60,7 +58,7 @@ string db_SQL_Base::status_text(int status)
 	}
 }
 
-int db_SQL_Base::open(const string& database)
+int db_SQL_Base::open(const std::string& database)
 {
 	int result = SQLITE_OK;
 
@@ -107,7 +105,7 @@ int db_SQL_Base::close(void)
 	return result;
 }
 
-int db_SQL_Base::exec_query(string qry)
+int db_SQL_Base::exec_query(std::string qry)
 {
 	int result = SQLITE_OK;
 	int retrycount = 0;
@@ -223,7 +221,7 @@ int db_SQL_Base::batch_get_archdaydata(std::string &data, unsigned int Serial, i
 		{
 			result.str("");
 
-			string dt = (char *)sqlite3_column_text(pStmt, 0);
+            std::string dt = (char *)sqlite3_column_text(pStmt, 0);
 			// Energy Generation
 			int64_t V1 = sqlite3_column_int64(pStmt, 1);
 			// Power Generation
@@ -287,7 +285,7 @@ int db_SQL_Base::batch_set_pvoflag(const std::string &data, unsigned int Serial)
 	std::stringstream sql;
 	int rc = SQLITE_OK;
 
-	vector<std::string> items;
+    std::vector<std::string> items;
 	boost::split(items, data, boost::is_any_of(";"));
 
 	sql << "UPDATE OR ROLLBACK DayData "
@@ -297,7 +295,7 @@ int db_SQL_Base::batch_set_pvoflag(const std::string &data, unsigned int Serial)
 		"IN (";
 
 	bool firstitem = true;
-	for (vector<std::string>::iterator it=items.begin(); it!=items.end(); ++it)
+	for (std::vector<std::string>::iterator it=items.begin(); it!=items.end(); ++it)
 	{
         if ((it->size() == 16) && (it->back() == '1'))
         {

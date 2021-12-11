@@ -69,7 +69,6 @@ DISCLAIMER:
 #include <boost/asio/ip/address.hpp>
 #include "mqtt.h"
 
-using namespace std;
 using namespace boost;
 using namespace boost::date_time;
 using namespace boost::posix_time;
@@ -361,8 +360,8 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
         // if bytesRead == 0, no data was received
         if (bytesRead <= 0)
         {
-            cerr << "ERROR: No inverter responded to identification broadcast.\n";
-            cerr << "Try to set IP_Address in SBFspot.cfg!\n";
+            std::cerr << "ERROR: No inverter responded to identification broadcast.\n";
+            std::cerr << "Try to set IP_Address in SBFspot.cfg!\n";
             return E_INIT;
         }
 
@@ -411,9 +410,9 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
     }
     else
     {
-        cerr << "ERROR: Connection to inverter failed!\n";
-        cerr << "Is " << inverters[0]->IPAddress << " the correct IP?\n";
-        cerr << "Please check IP_Address in SBFspot.cfg!\n";
+        std::cerr << "ERROR: Connection to inverter failed!\n";
+        std::cerr << "Is " << inverters[0]->IPAddress << " the correct IP?\n";
+        std::cerr << "Please check IP_Address in SBFspot.cfg!\n";
         return E_INIT;
     }
 
@@ -1182,7 +1181,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     cfg->AppPath = realpath(argv[0]);
 
     size_t pos = cfg->AppPath.find_last_of("/\\");
-    if (pos != string::npos)
+    if (pos != std::string::npos)
         cfg->AppPath.erase(++pos);
     else
         cfg->AppPath.clear();
@@ -1394,7 +1393,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
                 //Fix Issue G90 (code.google.com)
                 //If -cfg arg has no '\' it's only a filename and should be in the same folder as SBFspot executable
                 cfg->ConfigFile = argv[i] + 4;
-                if (cfg->ConfigFile.find_first_of("/\\") == string::npos)
+                if (cfg->ConfigFile.find_first_of("/\\") == std::string::npos)
                     cfg->ConfigFile = cfg->AppPath + (argv[i] + 4);
             }
         }
@@ -1477,7 +1476,7 @@ void SayHello(int ShowHelp)
 #endif
     if (ShowHelp != 0)
     {
-        std::cout << "SBFspot [-options]" << endl;
+        std::cout << "SBFspot [-options]" << std::endl;
         std::cout << " -scan               Scan for bluetooth enabled SMA inverters.\n";
         std::cout << " -d#                 Set debug level: 0-5 (0=none, default=2)\n";
         std::cout << " -v#                 Set verbose output level: 0-5 (0=none, default=2)\n";
@@ -1874,7 +1873,7 @@ int GetConfig(Config *cfg)
                 {
                     cfg->timezone = value;
                     boost::local_time::tz_database tzDB;
-                    string tzdbPath = cfg->AppPath + "date_time_zonespec.csv";
+                    std::string tzdbPath = cfg->AppPath + "date_time_zonespec.csv";
                     // load the time zone database which comes with boost
                     // file must be UNIX file format (line delimiter=LF)
                     // if not: bad lexical cast: source type value could not be interpreted as target
@@ -1892,7 +1891,7 @@ int GetConfig(Config *cfg)
                     cfg->tz = tzDB.time_zone_from_region(value);
                     if (!cfg->tz)
                     {
-                        cout << "Invalid timezone specified: " << value << endl;
+                        std::cout << "Invalid timezone specified: " << value << std::endl;
                         return -2;
                     }
                 }
@@ -2001,7 +2000,7 @@ int GetConfig(Config *cfg)
 
     if (cfg->timezone.empty())
     {
-        cout << "Missing timezone.\n";
+        std::cout << "Missing timezone.\n";
         rc = -2;
     }
 
@@ -2576,7 +2575,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     if (attribute == 0xFFFFFE) break; //End of attributes
                                     if (status == 1)
                                     {
-                                        string devtype = tagdefs.getDesc(attribute);
+                                        std::string devtype = tagdefs.getDesc(attribute);
                                         if (!devtype.empty())
                                         {
                                             memset(devList[inv]->DeviceType, 0, sizeof(devList[inv]->DeviceType));
@@ -2604,7 +2603,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     if (attValue == 1)
                                     {
                                         devList[inv]->DevClass = (DEVICECLASS)attribute;
-                                        string devclass = tagdefs.getDesc(attribute);
+                                        std::string devclass = tagdefs.getDesc(attribute);
                                         if (!devclass.empty())
                                         {
                                             memset(devList[inv]->DeviceClass, 0, sizeof(devList[inv]->DeviceClass));

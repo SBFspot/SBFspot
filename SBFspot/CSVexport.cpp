@@ -35,8 +35,6 @@ DISCLAIMER:
 #include "CSVexport.h"
 #include "EventData.h"
 
-using namespace std;
-
 //DecimalPoint To Text
 const char *dp2txt(const char dp)
 {
@@ -576,7 +574,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
             // Sort events on ascending Entry_ID
             std::sort(inverters[inv]->eventData.begin(), inverters[inv]->eventData.end(), SortEntryID_Asc);
 
-            for (vector<EventData>::iterator it = inverters[inv]->eventData.begin(); it != inverters[inv]->eventData.end(); ++it)
+            for (std::vector<EventData>::iterator it = inverters[inv]->eventData.begin(); it != inverters[inv]->eventData.end(); ++it)
             {
 
                 fprintf(csv, "%s%c", inverters[inv]->DeviceType, cfg->delimiter);

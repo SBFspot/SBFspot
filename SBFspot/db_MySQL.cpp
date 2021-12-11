@@ -38,9 +38,7 @@ DISCLAIMER:
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-
-string db_SQL_Base::status_text(int status)
+std::string db_SQL_Base::status_text(int status)
 {
 	switch (status)
 	{
@@ -60,7 +58,7 @@ string db_SQL_Base::status_text(int status)
 	}
 }
 
-int db_SQL_Base::open(const string server, const string user, const string pass, const string database, const unsigned int port)
+int db_SQL_Base::open(const std::string server, const std::string user, const std::string pass, const std::string database, const unsigned int port)
 {
 	int result = SQL_OK;
 
@@ -100,7 +98,7 @@ int db_SQL_Base::close(void)
 	return result;
 }
 
-int db_SQL_Base::exec_query(string qry)
+int db_SQL_Base::exec_query(std::string qry)
 {
 	//returns 0 if success (SQL_OK)
 	return mysql_real_query(m_dbHandle, qry.c_str(), qry.size());
@@ -245,7 +243,7 @@ int db_SQL_Base::batch_set_pvoflag(const std::string &data, unsigned int Serial)
 	std::stringstream sql;
 	int rc = SQL_OK;
 
-	vector<std::string> items;
+    std::vector<std::string> items;
 	boost::split(items, data, boost::is_any_of(";"));
 
 	exec_query("START TRANSACTION");
@@ -257,7 +255,7 @@ int db_SQL_Base::batch_set_pvoflag(const std::string &data, unsigned int Serial)
 		"IN (";
 
 	bool firstitem = true;
-	for (vector<std::string>::iterator it=items.begin(); it!=items.end(); ++it)
+	for (std::vector<std::string>::iterator it=items.begin(); it!=items.end(); ++it)
 	{
         if ((it->size() == 16) && (it->back() == '1'))
         {
