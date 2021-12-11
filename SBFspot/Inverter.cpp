@@ -580,7 +580,7 @@ int Inverter::process()
         {
             for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
             {
-                std::cout << "Device " << m_inverters[inv]->SUSyID << ":" << m_inverters[inv]->Serial << '\n';
+                std::cout << "Events for device " << m_inverters[inv]->SUSyID << ":" << m_inverters[inv]->Serial << '\n';
                 
                 // Sort events on descending Entry_ID
                 std::sort(m_inverters[inv]->eventData.begin(), m_inverters[inv]->eventData.end(), SortEntryID_Desc);
