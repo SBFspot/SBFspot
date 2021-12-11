@@ -70,12 +70,12 @@ std::string realpath(const char *path);
 #define VERBOSE_VERYHIGH (verbose >= 4)
 #define VERBOSE_HIGHEST (verbose >= 5)
 
-typedef enum
+enum ERRORLEVEL
 {
 	PROC_INFO		= 0,
 	PROC_WARNING	= 1,
 	PROC_ERROR		= 2,
 	PROC_CRITICAL	= 3
-} ERRORLEVEL;
+};
 
 void print_error(FILE *error_file, ERRORLEVEL error_level, const char *error_msg);

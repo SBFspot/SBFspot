@@ -40,21 +40,21 @@ DISCLAIMER:
 
 class EventData;
 
-typedef enum
+enum CONNECTIONTYPE
 {
     CT_NONE = 0,
     CT_BLUETOOTH = 1,
     CT_ETHERNET  = 2
-} CONNECTIONTYPE;
+};
 
-typedef enum
+enum S123_COMMAND
 {
     S123_NOP = 0,	// Nop
     S123_DATA = 1,	// Send spot data frame
     S123_INFO = 2,	// Send program/inverter information
     S123_SYNC = 3,	// Synchronize inverter
     S123_STATE = 4	// Send inverter state data
-} S123_COMMAND;
+};
 
 struct Config
 {
@@ -138,26 +138,26 @@ struct Config
     int		ble = 0;			// -ble			Publish spot data via Bluetooth LE
 };
 
-typedef struct
+struct MonthData
 {
     time_t datetime;
     long long totalWh;	// changed to signed - issue 58
     long long dayWh;	// changed to signed - issue 58
-} MonthData;
+};
 
-typedef struct
+struct DayData
 {
     time_t datetime;
     long long totalWh;	// changed to signed - issue 58
     long long watt;		// changed to signed - issue 58
-} DayData;
+};
 
-typedef struct
+struct CodeToMeta
 {
     unsigned short code;
     const char *meta;
     const char *fullText;
-} CodeToMeta;
+};
 
 enum getInverterDataType
 {
@@ -183,7 +183,7 @@ enum getInverterDataType
     sbftest             = 1 << 31
 };
 
-typedef enum
+enum DEVICECLASS
 {
     AllDevices = 8000,          // DevClss0
     SolarInverter = 8001,       // DevClss1
@@ -193,16 +193,16 @@ typedef enum
     SensorSystem = 8064,        // DevClss64
     ElectricityMeter = 8065,    // DevClss65
     CommunicationProduct = 8128 // DevClss128
-} DEVICECLASS;
+};
 
-typedef enum
+enum SMA_DATATYPE
 {
     DT_ULONG = 0,
     DT_STATUS = 8,
     DT_STRING = 16,
     DT_FLOAT = 32,
     DT_SLONG = 64
-} SMA_DATATYPE;
+};
 
 struct InverterData
 {
@@ -284,36 +284,36 @@ typedef struct PacketHeader
     unsigned short command;
 } pkHeader;
 
-typedef struct
+struct ethPacketHeaderL1
 {
     uint32_t      MagicNumber;      // Packet signature 53 4d 41 00 (SMA\0)
     uint32_t      unknown1;         // 00 04 02 a0
     uint32_t      unknown2;         // 00 00 00 01
     unsigned char hiPacketLen;      // Packet length stored as big endian
     unsigned char loPacketLen ;     // Packet length Low Byte
-} ethPacketHeaderL1;
+};
 
-typedef struct
+struct ethPacketHeaderL2
 {
     uint32_t      MagicNumber;      // Level 2 packet signature 00 10 60 65
     unsigned char longWords;        // int(PacketLen/4)
     unsigned char ctrl;
-} ethPacketHeaderL2;
+};
 
-typedef struct
+struct ethPacketHeaderL1L2
 {
     ethPacketHeaderL1 pcktHdrL1;
     ethPacketHeaderL2 pcktHdrL2;
-} ethPacketHeaderL1L2;
+};
 
-typedef struct
+struct ethEndpoint
 {
     unsigned short SUSyID;
     uint32_t       Serial;
     unsigned short Ctrl;
-} ethEndpoint;
+};
 
-typedef struct
+struct ethPacket
 {
     unsigned char dummy0;
     ethPacketHeaderL2 pcktHdrL2;
@@ -322,18 +322,18 @@ typedef struct
     unsigned short ErrorCode;
     unsigned short FragmentID;  //Count Down
     unsigned short PacketID;    //Count Up
-} ethPacket;
+};
 
-typedef struct ArchiveDataRec
+struct ArchiveDataRec
 {
     time_t datetime;
     unsigned long long totalWh;
-} ArchDataRec;
+};
 #pragma pack(pop)
 
 typedef unsigned char BYTE;
 
-typedef enum
+enum LriDef
 {
     OperationHealth                 = 0x00214800,   // *08* Condition (aka INV_STATUS)
     CoolsysTmpNom                   = 0x00237700,   // *40* Operating condition temperatures
@@ -397,9 +397,9 @@ typedef enum
     GridMsPhVphsA2B6100             = 0x00464B00,
     GridMsPhVphsB2C6100             = 0x00464C00,
     GridMsPhVphsC2A6100             = 0x00464D00
-} LriDef;
+};
 
-typedef enum
+enum E_SBFSPOT
 {
     E_OK			=  0,
     E_NODATA		= -1,	// Bluetooth buffer empty
@@ -414,4 +414,4 @@ typedef enum
     E_PRIVILEGE		= -10,	// Privilege not held (need installer login)
     E_LOGONFAILED	= -11,	// Logon failed, other than Invalid Password (E_INVPASSW)
     E_COMM			= -12	// General communication error
-} E_SBFSPOT;
+};
