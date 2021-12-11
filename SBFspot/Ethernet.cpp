@@ -144,7 +144,7 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
 
 int ethSend(unsigned char *buffer, const char *toIP)
 {
-	if (DEBUG_NORMAL) HexDump(buffer, packetposition, 10);
+	if (DEBUG_HIGHEST) HexDump(buffer, packetposition, 10);
 
 	addr_out.sin_addr.s_addr = inet_addr(toIP);
     size_t bytes_sent = sendto(sock, (const char*)buffer, packetposition, 0, (struct sockaddr *)&addr_out, sizeof(addr_out));

@@ -210,13 +210,6 @@ void HexDump(unsigned char *buf, int count, int radix)
     {
         if (j % radix == 0)
         {
-            /*
-            if (i > 0)
-            {
-                for (int ii = radix; ii>0; ii--)
-                    putchar(((buf[i-ii] >= ' ') && (buf[i-ii] <= '~')) ? buf[i-ii] : '_');
-            }
-            */
             if (radix == 16)
                 printf("\n%08X: ", j);
             else

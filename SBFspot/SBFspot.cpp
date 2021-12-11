@@ -120,7 +120,7 @@ E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command)
         {
             bib += bthRead(CommBuf + sizeof(pkHeader), btohs(pkHdr->pkLength) - sizeof(pkHeader));
 
-            if (DEBUG_HIGH) HexDump(CommBuf, bib, 10);
+            if (DEBUG_HIGHEST) HexDump(CommBuf, bib, 10);
 
             //Check if data is coming from the right inverter
             if (isValidSender(senderaddr, pkHdr->SourceAddr) == 1)
@@ -187,7 +187,7 @@ E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command)
         }
         else
         {
-            if (DEBUG_HIGH) HexDump(CommBuf, bib, 10);
+            if (DEBUG_HIGHEST) HexDump(CommBuf, bib, 10);
             //Check if data is coming from the right inverter
             if (isValidSender(senderaddr, pkHdr->SourceAddr) == 1)
             {
@@ -214,7 +214,7 @@ E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command)
     // changed to have "any" wait4Command (0xFF) - if you have different order of commands
     while (((btohs(pkHdr->command) != wait4Command) || (rc == E_RETRY)) && (0xFF != wait4Command));
 
-    if ((rc == E_OK) && (DEBUG_HIGH))
+    if ((rc == E_OK) && (DEBUG_HIGHEST))
     {
         printf("<<<====== Content of pcktBuf =======>>>\n");
         HexDump(pcktBuf, packetposition, 10);
@@ -296,7 +296,7 @@ E_SBFSPOT ethGetPacket(void)
             //More data after header?
             if (pkLen > 0)
             {
-                if (DEBUG_HIGH) HexDump(CommBuf, bib, 10);
+                if (DEBUG_HIGHEST) HexDump(CommBuf, bib, 10);
                 if (btohl(pkHdr->pcktHdrL2.MagicNumber) == ETH_L2SIGNATURE)
                 {
                     // Copy CommBuf to packetbuffer
@@ -308,7 +308,7 @@ E_SBFSPOT ethGetPacket(void)
                     // This is different from BTH
                     packetposition = bib - sizeof(ethPacketHeaderL1);
 
-                    if (DEBUG_HIGH)
+                    if (DEBUG_HIGHEST)
                     {
                         printf("<<<====== Content of pcktBuf =======>>>\n");
                         HexDump(pcktBuf, packetposition, 10);
@@ -367,7 +367,7 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
             return E_INIT;
         }
 
-        if (DEBUG_NORMAL) HexDump(CommBuf, bytesRead, 10);
+        if (DEBUG_HIGHEST) HexDump(CommBuf, bytesRead, 10);
     }
 
     int devcount = 0;

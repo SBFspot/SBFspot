@@ -138,7 +138,7 @@ int bthClose()
 
 int bthSend(unsigned char *btbuffer)
 {
-	if (DEBUG_NORMAL) HexDump(btbuffer, packetposition, 10);
+	if (DEBUG_HIGHEST) HexDump(btbuffer, packetposition, 10);
     int bytes_sent = send(sock, (const char *)btbuffer, packetposition, 0);
 	if (bytes_sent >= 0)
 	{
@@ -362,7 +362,7 @@ int bthClose()
 
 int bthSend(unsigned char *btbuffer)
 {
-	if (DEBUG_NORMAL) HexDump(btbuffer, packetposition, 10);
+	if (DEBUG_HIGHEST) HexDump(btbuffer, packetposition, 10);
 
     int bytes_sent = send(sock, btbuffer, packetposition, 0);
 
