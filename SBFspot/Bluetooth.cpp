@@ -444,7 +444,7 @@ int bthRead(unsigned char *buf, unsigned int bufsize)
         bytes_read = recv(sock, (char *)buf, bufsize, 0);
     else
     {
-		if (DEBUG_HIGHEST) puts("Timeout reading socket");
+        if (DEBUG_NORMAL) puts("Timeout reading socket");
         return -1; // E_NODATA
     }
 

@@ -275,7 +275,6 @@ int getInverterIndexByAddress(InverterData* const inverters[], unsigned char bt_
 
 E_SBFSPOT ethGetPacket(void)
 {
-    if (DEBUG_NORMAL) printf("ethGetPacket()\n");
     E_SBFSPOT rc = E_OK;
 
     ethPacketHeaderL1L2 *pkHdr = (ethPacketHeaderL1L2 *)CommBuf;
@@ -2139,7 +2138,6 @@ int isValidSender(unsigned char senderaddr[6], unsigned char address[6])
 
 int getInverterData(InverterData *devList[], enum getInverterDataType type)
 {
-    if (DEBUG_NORMAL) printf("getInverterData(%d)\n", type);
     const char *strWatt = "%-12s: %ld (W) %s";
     const char *strVolt = "%-12s: %.2f (V) %s";
     const char *strAmp = "%-12s: %.3f (A) %s";

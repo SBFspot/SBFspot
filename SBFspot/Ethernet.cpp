@@ -115,7 +115,7 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
 			bytes_read = recvfrom(sock, (char*)buf, bufsize, 0, (struct sockaddr *)&addr_in, &addr_in_len);
 		else
 		{
-			if (DEBUG_HIGHEST) puts("Timeout reading socket");
+			if (DEBUG_NORMAL) puts("Timeout reading socket");
 			return -1;
 		}
 
@@ -129,7 +129,7 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
 			}
 		   	if (DEBUG_NORMAL)
 		   	{
-				printf("Received %d bytes from IP [%s]\n", bytes_read, inet_ntoa(addr_in.sin_addr));
+				printf("%d bytes received from [%s]\n", bytes_read, inet_ntoa(addr_in.sin_addr));
 		   		if (bytes_read == 600 || bytes_read == 608 || bytes_read == 0)
 		   			printf(" ==> packet ignored\n");
 			}
@@ -149,7 +149,7 @@ int ethSend(unsigned char *buffer, const char *toIP)
 	addr_out.sin_addr.s_addr = inet_addr(toIP);
     size_t bytes_sent = sendto(sock, (const char*)buffer, packetposition, 0, (struct sockaddr *)&addr_out, sizeof(addr_out));
 
-	if (DEBUG_NORMAL) std::cout << bytes_sent << " Bytes sent to IP [" << inet_ntoa(addr_out.sin_addr) << "]" << std::endl;
+	if (DEBUG_NORMAL) std::cout << bytes_sent << " Bytes sent to [" << inet_ntoa(addr_out.sin_addr) << "]" << std::endl;
 
     return bytes_sent;
 }

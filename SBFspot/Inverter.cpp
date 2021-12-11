@@ -84,8 +84,8 @@ int Inverter::process()
         if ((rc = SetPlantTime(m_config.synchTime, m_config.synchTimeLow, m_config.synchTimeHigh)) != E_OK)
             std::cerr << "SetPlantTime returned an error: " << rc << std::endl;
 
-    if ((rc = getInverterData(m_inverters, sbftest)) != 0)
-        std::cerr << "getInverterData(sbftest) returned an error: " << rc << std::endl;
+    //if ((rc = getInverterData(m_inverters, sbftest)) != 0)
+    //    std::cerr << "getInverterData(sbftest) returned an error: " << rc << std::endl;
 
     if ((rc = getInverterData(m_inverters, SoftwareVersion)) != 0)
         std::cerr << "getSoftwareVersion returned an error: " << rc << std::endl;

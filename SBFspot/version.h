@@ -29,6 +29,8 @@ V3.8.3
 
 V3.8.4
     Fix 384/137/381/313/... Bad request 400: Power value too high for system size
+    Improved event decoding
+    Cleanup verbose/debug messages
 */
 
 /***

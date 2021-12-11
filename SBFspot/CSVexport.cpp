@@ -115,11 +115,9 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
     char msg[80 + MAX_PATH];
     if (cfg->CSV_Export == 1)
     {
-        if (VERBOSE_NORMAL) puts("ExportMonthDataToCSV()");
-
         if (inverters[0]->monthData[0].datetime <= 0)   //invalid date?
         {
-            if (!quiet) puts("There is no data to export!"); //First day of the month?
+            if (!quiet) puts("ExportMonthDataToCSV: There is no data to export!"); //First day of the month?
         }
         else
         {
@@ -203,7 +201,6 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
 int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
 {
     char msg[80 + MAX_PATH];
-    if (VERBOSE_NORMAL) puts("ExportDayDataToCSV()");
 
     FILE *csv;
 
@@ -431,14 +428,7 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverter
 
 int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
 {
-    /*
-    As from version 2.0.6 there is a new header for the spotdata.csv
-    It *should* be more compatible with SMA headers
-    */
-
     char msg[80 + MAX_PATH];
-    if (VERBOSE_NORMAL) puts("ExportSpotDataToCSV()");
-
     FILE *csv;
 
     // Take time from computer instead of inverter
