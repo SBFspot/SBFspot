@@ -68,3 +68,7 @@ char *strptime (const char *buf, const char *format, struct tm *timeptr);
 typedef unsigned char BYTE;
 
 #define FOLDER_SEP "\\"
+
+#if !defined(NOMINMAX)
+#define NOMINMAX
+#endif

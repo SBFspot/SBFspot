@@ -34,6 +34,7 @@ DISCLAIMER:
 
 #include "CSVexport.h"
 #include "EventData.h"
+#include <algorithm> // std::max
 
 //DecimalPoint To Text
 const char *dp2txt(const char dp)
@@ -806,7 +807,7 @@ int ExportSpotDataTo123s(const Config *cfg, InverterData* const inverters[])
     //Calculated AC Side Values (Sum of Power & Current / Maximum of Voltage)
     float calPacTot = (float)(invdata->Pac1 + invdata->Pac2 + invdata->Pac3);
     float calIacTot = (float)(invdata->Iac1 + invdata->Iac2 + invdata->Iac3);
-    float calUacMax = (float)max(max(invdata->Uac1, invdata->Uac2), invdata->Uac3);
+    float calUacMax = (float)std::max(std::max(invdata->Uac1, invdata->Uac2), invdata->Uac3);
 
     //Calculated Inverter Efficiency
     float calEfficiency = calPdcTot == 0 ? 0 : calPacTot / calPdcTot * 100;

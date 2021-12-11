@@ -42,11 +42,9 @@ DISCLAIMER:
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace boost::algorithm;
-
 int TagDefs::readall(std::string path, std::string locale)
 {
-    to_upper(locale); //fix case sensitivity issues on linux systems
+    boost::algorithm::to_upper(locale); //fix case sensitivity issues on linux systems
 
     // Build fullpath to taglist<locale>.txt
     // Default to EN-US if localized file not found
@@ -128,10 +126,10 @@ int TagDefs::readall(std::string path, std::string locale)
                 if (entryOK)
                 {
                     std::string tag = tag_info[0];
-                    trim(tag);
+                    boost::algorithm::trim(tag);
 
                     std::string descr = tag_info[2];
-                    trim(descr);
+                    boost::algorithm::trim(descr);
 
                     addTag(tagID, tag, lri, descr);
                 }
