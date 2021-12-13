@@ -238,7 +238,7 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
             sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsAmp  | it->first) << ',' << it->second.Idc() << ");";
         }
         
-        if ((rc = exec_query(sql.str())) != SQLITE_OK)
+        if ((rc = exec_query_multi(sql.str())) != SQLITE_OK)
         {
             print_error("[spot_data]exec_query() returned", sql.str());
             break;

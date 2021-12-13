@@ -130,6 +130,13 @@ int db_SQL_Base::exec_query(std::string qry)
 	return result;
 }
 
+// Execute multiple statements in one query (separated by ';')
+// Only used to align with MySQL
+int db_SQL_Base::exec_query_multi(std::string qry)
+{
+    return exec_query(qry);
+}
+
 int db_SQL_Base::type_label(InverterData *inverters[])
 {
 	std::stringstream sql;
