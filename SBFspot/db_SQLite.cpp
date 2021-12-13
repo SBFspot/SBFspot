@@ -105,7 +105,7 @@ int db_SQL_Base::close(void)
     return result;
 }
 
-int db_SQL_Base::exec_query(std::string qry)
+int db_SQL_Base::exec_query(const std::string &qry)
 {
     int result = SQLITE_OK;
     int retrycount = 0;
@@ -132,7 +132,7 @@ int db_SQL_Base::exec_query(std::string qry)
 
 // Execute multiple statements in one query (separated by ';')
 // Only used to align with MySQL
-int db_SQL_Base::exec_query_multi(std::string qry)
+int db_SQL_Base::exec_query_multi(const std::string &qry)
 {
     return exec_query(qry);
 }
