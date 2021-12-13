@@ -43,10 +43,10 @@ DISCLAIMER:
 extern int quiet;
 extern int verbose;
 
-#define SQL_NEXTSTATUSCHECK		"NextStatusCheck"
-#define SQL_SCHEMAVERSION		"SchemaVersion"
-#define SQL_BATCH_DATELIMIT		"Batch_DateLimit"
-#define SQL_BATCH_STATUSLIMIT	"Batch_StatusLimit"
+#define SQL_NEXTSTATUSCHECK     "NextStatusCheck"
+#define SQL_SCHEMAVERSION       "SchemaVersion"
+#define SQL_BATCH_DATELIMIT     "Batch_DateLimit"
+#define SQL_BATCH_STATUSLIMIT   "Batch_StatusLimit"
 
 #define SQL_MINIMUM_SCHEMA_VERSION 1
 #define SQL_RECOMMENDED_SCHEMA_VERSION 1
