@@ -98,14 +98,14 @@ int db_SQL_Base::close(void)
     return result;
 }
 
-int db_SQL_Base::exec_query(std::string qry)
+int db_SQL_Base::exec_query(const std::string &qry)
 {
     //returns 0 if success (SQL_OK)
     return mysql_real_query(m_dbHandle, qry.c_str(), qry.size());
 }
 
 // Execute multiple statements in one query (separated by ';')
-int db_SQL_Base::exec_query_multi(std::string qry)
+int db_SQL_Base::exec_query_multi(const std::string &qry)
 {
     mysql_set_server_option(m_dbHandle, MYSQL_OPTION_MULTI_STATEMENTS_ON);
     int result = mysql_real_query(m_dbHandle, qry.c_str(), qry.size());
