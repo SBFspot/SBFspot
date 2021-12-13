@@ -38,6 +38,7 @@ DISCLAIMER:
 #include "CSVexport.h"
 #include "mqtt.h"
 #include <vector>
+#include "mppt.h"
 
 Inverter::Inverter(const Config& config)
     : m_config(config)
@@ -373,7 +374,17 @@ int Inverter::process()
         if (m_config.calcMissingSpot == 1)
             CalcMissingSpot(m_inverters[inv]);
 
-        m_inverters[inv]->calPdcTot = m_inverters[inv]->Pdc1 + m_inverters[inv]->Pdc2;
+        //m_inverters[inv]->calPdcTot = m_inverters[inv]->Pdc1 + m_inverters[inv]->Pdc2;
+        if (VERBOSE_NORMAL)
+        {
+            printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
+            puts("DC Spot Data:");
+            for (std::map<uint8_t, mppt>::iterator it = m_inverters[inv]->mpp.begin(); it != m_inverters[inv]->mpp.end(); ++it)
+            {
+                printf("\tString %d Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", it->first, it->second.kW(), it->second.Volt(), it->second.Amp());
+            }
+            printf("\tCalculated Total Pdc: %7.3fkW\n", tokW(m_inverters[inv]->calPdcTot));
+        }
 
         m_inverters[inv]->calPacTot = m_inverters[inv]->Pac1 + m_inverters[inv]->Pac2 + m_inverters[inv]->Pac3;
         //Calculated Inverter Efficiency
@@ -381,11 +392,11 @@ int Inverter::process()
 
         if (VERBOSE_NORMAL)
         {
-            printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-            puts("DC Spot Data:");
-            printf("\tString 1 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc1), toVolt(m_inverters[inv]->Udc1), toAmp(m_inverters[inv]->Idc1));
-            printf("\tString 2 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc2), toVolt(m_inverters[inv]->Udc2), toAmp(m_inverters[inv]->Idc2));
-            printf("\tCalculated Total Pdc: %7.3fkW\n", tokW(m_inverters[inv]->calPdcTot));
+//            printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
+//            puts("DC Spot Data:");
+//            printf("\tString 1 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc1), toVolt(m_inverters[inv]->Udc1), toAmp(m_inverters[inv]->Idc1));
+//            printf("\tString 2 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc2), toVolt(m_inverters[inv]->Udc2), toAmp(m_inverters[inv]->Idc2));
+//            printf("\tCalculated Total Pdc: %7.3fkW\n", tokW(m_inverters[inv]->calPdcTot));
 
             puts("AC Spot Data:");
             printf("\tPhase 1 Pac : %7.3fkW - Uac: %6.2fV - Iac: %6.3fA\n", tokW(m_inverters[inv]->Pac1), toVolt(m_inverters[inv]->Uac1), toAmp(m_inverters[inv]->Iac1));

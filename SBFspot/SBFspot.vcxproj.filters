@@ -135,6 +135,12 @@
     <ClInclude Include="mqtt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mppt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="TagListDE-DE.txt">

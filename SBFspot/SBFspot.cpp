@@ -68,6 +68,7 @@ DISCLAIMER:
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/ip/address.hpp>
 #include "mqtt.h"
+#include "mppt.h"
 
 int MAX_CommBuf = 0;
 int MAX_pcktBuf = 0;
@@ -2147,6 +2148,8 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
     unsigned long first;
     unsigned long last;
 
+    MPPTlist::iterator it;
+
     switch (type)
     {
     case EnergyProduction:
@@ -2460,46 +2463,87 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                             case DcMsWatt: //SPOT_PDC1 / SPOT_PDC2
                                 if (recordsize == 0) recordsize = 28;
-                                if (cls == 1)   // MPP1
+
+                                // TODO: Remove cls 1/2
+                                if (cls == 1)
                                 {
                                     devList[inv]->Pdc1 = value;
-                                    if (DEBUG_NORMAL) printf(strWatt, "SPOT_PDC1", value, ctime(&datetime));
                                 }
-                                if (cls == 2)   // MPP2
+                                if (cls == 2)
                                 {
                                     devList[inv]->Pdc2 = value;
-                                    if (DEBUG_NORMAL) printf(strWatt, "SPOT_PDC2", value, ctime(&datetime));
                                 }
+
+                                it = devList[inv]->mpp.find((uint8_t)cls);
+                                if (it != devList[inv]->mpp.end())
+                                    it->second.Pdc(value);
+                                else
+                                {
+                                    mppt new_mppt;
+                                    new_mppt.Pdc(value);
+                                    devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
+                                }
+
+                                if (DEBUG_NORMAL) printf(strWatt, "SPOT_PDC", value, ctime(&datetime));
+
+                                devList[inv]->calPdcTot += value;
+
                                 devList[inv]->flags |= type;
                                 break;
 
                             case DcMsVol: //SPOT_UDC1 / SPOT_UDC2
                                 if (recordsize == 0) recordsize = 28;
+
+                                // TODO: Remove cls 1/2
                                 if (cls == 1)
                                 {
                                     devList[inv]->Udc1 = value;
-                                    if (DEBUG_NORMAL) printf(strVolt, "SPOT_UDC1", toVolt(value), ctime(&datetime));
                                 }
                                 if (cls == 2)
                                 {
                                     devList[inv]->Udc2 = value;
-                                    if (DEBUG_NORMAL) printf(strVolt, "SPOT_UDC2", toVolt(value), ctime(&datetime));
                                 }
+
+                                it = devList[inv]->mpp.find((uint8_t)cls);
+                                if (it != devList[inv]->mpp.end())
+                                    it->second.Udc(value);
+                                else
+                                {
+                                    mppt new_mppt;
+                                    new_mppt.Udc(value);
+                                    devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
+                                }
+
+                                if (DEBUG_NORMAL) printf(strVolt, "SPOT_UDC", toVolt(value), ctime(&datetime));
+
                                 devList[inv]->flags |= type;
                                 break;
 
                             case DcMsAmp: //SPOT_IDC1 / SPOT_IDC2
                                 if (recordsize == 0) recordsize = 28;
+
+                                // TODO: Remove cls 1/2
                                 if (cls == 1)
                                 {
                                     devList[inv]->Idc1 = value;
-                                    if (DEBUG_NORMAL) printf(strAmp, "SPOT_IDC1", toAmp(value), ctime(&datetime));
                                 }
                                 if (cls == 2)
                                 {
                                     devList[inv]->Idc2 = value;
-                                    if (DEBUG_NORMAL) printf(strAmp, "SPOT_IDC2", toAmp(value), ctime(&datetime));
                                 }
+
+                                it = devList[inv]->mpp.find((uint8_t)cls);
+                                if (it != devList[inv]->mpp.end())
+                                    it->second.Idc(value);
+                                else
+                                {
+                                    mppt new_mppt;
+                                    new_mppt.Idc(value);
+                                    devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
+                                }
+
+                                if (DEBUG_NORMAL) printf(strAmp, "SPOT_IDC", toAmp(value), ctime(&datetime));
+
                                 devList[inv]->flags |= type;
                                 break;
 

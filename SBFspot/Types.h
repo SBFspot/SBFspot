@@ -39,6 +39,7 @@ DISCLAIMER:
 #include <boost/date_time/local_time/local_time.hpp>
 
 class EventData;
+class mppt;
 
 enum CONNECTIONTYPE
 {
@@ -204,6 +205,8 @@ enum SMA_DATATYPE
     DT_SLONG = 64
 };
 
+typedef std::map<uint8_t, mppt> MPPTlist;
+
 struct InverterData
 {
     char DeviceName[33];    //32 bytes + terminating zero
@@ -222,6 +225,7 @@ struct InverterData
     long Udc2;
     long Idc1;
     long Idc2;
+    MPPTlist mpp;
     long Pmax1;
     long Pmax2;
     long Pmax3;
