@@ -73,6 +73,7 @@ public:
     int open(const std::string server, const std::string user, const std::string pass, const std::string database, const unsigned int port);
     int close(void);
     int exec_query(std::string qry);
+    int exec_query_multi(std::string qry);
     std::string errortext(void) const { return m_errortext; }
     bool isopen(void) { return (m_dbHandle != NULL); }
     int type_label(InverterData *inverters[]);
