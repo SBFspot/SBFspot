@@ -259,19 +259,23 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
             break;
         }
 
-        const char* INSERT_SpotDataX = "INSERT INTO SpotDataX VALUES(";
-        sql.str("");
-        for (MPPTlist::iterator it = inv[i]->mpp.begin(); it != inv[i]->mpp.end(); ++it)
+        // If inverter has more than 2 mppt, use SpotDataX table to store the data
+        if (inv[i]->mpp.size() > 2)
         {
-            sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsWatt | it->first) << ',' << it->second.Pdc() << ");";
-            sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsVol | it->first) << ',' << it->second.Udc() << ");";
-            sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsAmp | it->first) << ',' << it->second.Idc() << ");";
-        }
+            const char* INSERT_SpotDataX = "INSERT INTO SpotDataX VALUES(";
+            sql.str("");
+            for (MPPTlist::iterator it = inv[i]->mpp.begin(); it != inv[i]->mpp.end(); ++it)
+            {
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsWatt | it->first) << ',' << it->second.Pdc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsVol | it->first) << ',' << it->second.Udc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsAmp | it->first) << ',' << it->second.Idc() << ");";
+            }
 
-        if ((rc = exec_query_multi(sql.str())) != SQL_OK)
-        {
-            print_error("[spot_data]exec_query() returned", sql.str());
-            break;
+            if ((rc = exec_query_multi(sql.str())) != SQL_OK)
+            {
+                print_error("[spot_data]exec_query() returned", sql.str());
+                break;
+            }
         }
     }
 
