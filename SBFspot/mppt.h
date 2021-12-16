@@ -52,6 +52,7 @@ public:
     int32_t Udc() const { return m_Udc; }
     int32_t Idc() const { return m_Idc; }
     float kW() const { return (float)(m_Pdc) / 1000; }
+    float Watt() const { return (float)(m_Pdc); }
     float Volt() const { return (float)(m_Udc) / 100; }
     float Amp() const { return (float)(m_Idc) / 1000; }
 
