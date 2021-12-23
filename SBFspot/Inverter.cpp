@@ -104,9 +104,9 @@ int Inverter::process()
             {
                 printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
                 printf("Device Name:      %s\n", m_inverters[inv]->DeviceName);
-                printf("Device Class:     %s%s\n", m_inverters[inv]->DeviceClass, (m_inverters[inv]->SUSyID == 292) ? " (with battery)":"");
-                printf("Device Type:      %s\n", m_inverters[inv]->DeviceType);
-                printf("Software Version: %s\n", m_inverters[inv]->SWVersion);
+                printf("Device Class:     %s%s\n", m_inverters[inv]->DeviceClass.c_str(), (m_inverters[inv]->SUSyID == 292) ? " (with battery)":"");
+                printf("Device Type:      %s\n", m_inverters[inv]->DeviceType.c_str());
+                printf("Software Version: %s\n", m_inverters[inv]->SWVersion.c_str());
                 printf("Serial number:    %lu\n", m_inverters[inv]->Serial);
             }
         }
@@ -158,9 +158,9 @@ int Inverter::process()
                         {
                             printf("SUSyID: %d - SN: %lu\n", m_inverters[ii]->SUSyID, m_inverters[ii]->Serial);
                             printf("Device Name:      %s\n", m_inverters[ii]->DeviceName);
-                            printf("Device Class:     %s\n", m_inverters[ii]->DeviceClass);
-                            printf("Device Type:      %s\n", m_inverters[ii]->DeviceType);
-                            printf("Software Version: %s\n", m_inverters[ii]->SWVersion);
+                            printf("Device Class:     %s\n", m_inverters[ii]->DeviceClass.c_str());
+                            printf("Device Type:      %s\n", m_inverters[ii]->DeviceType.c_str());
+                            printf("Software Version: %s\n", m_inverters[ii]->SWVersion.c_str());
                             printf("Serial number:    %lu\n", m_inverters[ii]->Serial);
                         }
                     }

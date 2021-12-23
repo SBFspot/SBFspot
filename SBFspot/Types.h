@@ -245,10 +245,10 @@ struct InverterData
     long long EToday;
     long long ETotal;
     unsigned short modelID;
-    char DeviceType[64];
-    char DeviceClass[64];
+    std::string DeviceType;
+    std::string DeviceClass;
     DEVICECLASS DevClass;
-    char SWVersion[16];	//"03.01.05.R"
+    std::string SWVersion; // "03.01.05.R"
     int DeviceStatus;
     int GridRelayStatus;
     int flags;

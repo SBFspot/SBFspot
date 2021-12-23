@@ -100,9 +100,9 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             }
             else if (key == "invserial")        snprintf(value, sizeof(value) - 1, "%lu", inv.Serial);
             else if (key == "invname")          snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName);
-            else if (key == "invclass")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass);
-            else if (key == "invtype")          snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceType);
-            else if (key == "invswver")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion);
+            else if (key == "invclass")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass.c_str());
+            else if (key == "invtype")          snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceType.c_str());
+            else if (key == "invswver")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion.c_str());
             else if (key == "invtime")          snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.InverterDatetime));
             else if (key == "invstatus")        snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.DeviceStatus, "?").c_str());
             else if (key == "invtemperature")   FormatFloat(value, (float)inv.Temperature / 100, 0, prec, dp);

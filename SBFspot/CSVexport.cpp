@@ -149,7 +149,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
                         fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName, cfg->delimiter, inverters[inv]->DeviceName);
                     fputs("\n", csv);
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-                        fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType, cfg->delimiter, inverters[inv]->DeviceType);
+                        fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType.c_str(), cfg->delimiter, inverters[inv]->DeviceType.c_str());
                     fputs("\n", csv);
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                         fprintf(csv, "%c%lu%c%lu", cfg->delimiter, inverters[inv]->Serial, cfg->delimiter, inverters[inv]->Serial);
@@ -240,7 +240,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
                 fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName, cfg->delimiter, inverters[inv]->DeviceName);
             fputs("\n", csv);
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-                fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType, cfg->delimiter, inverters[inv]->DeviceType);
+                fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType.c_str(), cfg->delimiter, inverters[inv]->DeviceType.c_str());
             fputs("\n", csv);
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                 fprintf(csv, "%c%lu%c%lu", cfg->delimiter, inverters[inv]->Serial, cfg->delimiter, inverters[inv]->Serial);
@@ -377,7 +377,7 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverter
         for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
             for (int i = 0; i < colcnt; i++)
-                fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceType);
+                fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceType.c_str());
         }
         
         fputs("\n", csv);
@@ -580,7 +580,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
             for (std::vector<EventData>::iterator it = inverters[inv]->eventData.begin(); it != inverters[inv]->eventData.end(); ++it)
             {
 
-                fprintf(csv, "%s%c", inverters[inv]->DeviceType, cfg->delimiter);
+                fprintf(csv, "%s%c", inverters[inv]->DeviceType.c_str(), cfg->delimiter);
                 fprintf(csv, "%s%c", inverters[inv]->DeviceName, cfg->delimiter);
                 fprintf(csv, "%d%c", it->SUSyID(), cfg->delimiter);
                 fprintf(csv, "%u%c", it->SerNo(), cfg->delimiter);
@@ -898,13 +898,13 @@ int ExportInformationDataTo123s(const Config *cfg, InverterData* const inverters
     // Inverter device name
     printf("Device Name: %s%c", invdata->DeviceName, *s123_delimiter);
     // Inverter device class
-    printf("Device Class: %s%c", invdata->DeviceClass, *s123_delimiter);
+    printf("Device Class: %s%c", invdata->DeviceClass.c_str(), *s123_delimiter);
     // Inverter device type
-    printf("Device Type: %s%c", invdata->DeviceType, *s123_delimiter);
+    printf("Device Type: %s%c", invdata->DeviceType.c_str(), *s123_delimiter);
     // Inverter serial number
     printf("Serial Number: %lu%c", invdata->Serial, *s123_delimiter);
     // Inverter firmware version
-    printf("Firmware: %s%c", invdata->SWVersion, *s123_delimiter);
+    printf("Firmware: %s%c", invdata->SWVersion.c_str(), *s123_delimiter);
     // Inverter phase maximum Pac
     if (invdata->Pmax1 > 0) printf("Pac Max Phase 1: %luW%c", invdata->Pmax1, *s123_delimiter);
     if (invdata->Pmax2 > 0) printf("Pac Max Phase 2: %luW%c", invdata->Pmax2, *s123_delimiter);
