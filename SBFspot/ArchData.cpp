@@ -135,7 +135,7 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                                 datetime_next = (time_t)get_long(pcktBuf + x);
                                 if (0 != (datetime_next - datetime)) // Fix Issue 108: sbfspot v307 crashes for daily export (-adnn)
                                 {
-                                    if (totalWh != NaN_U64) // Fix 384/137/381/313/... Bad request 400: Power value too high for system size
+                                    if (!is_NaN(totalWh)) // Fix 384/137/381/313/... Bad request 400: Power value too high for system size
                                     {
                                         totalWh_prev = totalWh;
                                     }
@@ -147,7 +147,7 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                                     dblrecord = true;
 
                                 totalWh = (unsigned long long)get_longlong(pcktBuf + x + 4);
-                                if (totalWh != NaN_U64) // Fix Issue 109: Bad request 400: Power value too high for system size
+                                if (!is_NaN(totalWh)) // Fix Issue 109: Bad request 400: Power value too high for system size
                                 {
                                     if (totalWh > 0)
                                     {

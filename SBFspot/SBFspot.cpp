@@ -2135,7 +2135,7 @@ const std::string u64_tostring(const uint64_t u64)
 {
     std::ostringstream ss;
 
-    if (u64 == NaN_U64)
+    if (is_NaN(u64))
         ss << "NaN";
     else
         ss << u64;
@@ -2147,7 +2147,7 @@ const std::string s64_tostring(const int64_t s64)
 {
     std::ostringstream ss;
 
-    if (s64 == NaN_S64)
+    if (is_NaN(s64))
         ss << "NaN";
     else
         ss << s64;
@@ -2159,7 +2159,7 @@ const std::string u32_tostring(const uint32_t u32)
 {
     std::ostringstream ss;
 
-    if (u32 == NaN_U32)
+    if (is_NaN(u32))
         ss << "NaN";
     else
         ss << u32;
@@ -2171,7 +2171,7 @@ const std::string s32_tostring(const int32_t s32)
 {
     std::ostringstream ss;
 
-    if (s32 == NaN_S32)
+    if (is_NaN(s32))
         ss << "NaN";
     else
         ss << s32;
@@ -2482,12 +2482,14 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 if (recordsize == 16)
                                 {
                                     value64 = get_longlong(recptr + 8);
-                                    if ((value64 == (int64_t)NaN_S64) || (value64 == (int64_t)NaN_U64)) value64 = 0;
+                                    if (is_NaN(value64) || is_NaN((uint64_t)value64))
+                                        value64 = 0;
                                 }
                                 else if ((dataType != 0x10) && (dataType != 0x08)) //Not TEXT or STATUS, so it should be DWORD
                                 {
-                                    value = (int32_t)get_long(recptr + 16);
-                                    if ((value == (int32_t)NaN_S32) || (value == (int32_t)NaN_U32)) value = 0;
+                                    value = get_long(recptr + 16);
+                                    if (is_NaN(value) || is_NaN((uint32_t)value))
+                                        value = 0;
                                 }
 
                                 switch (lri)
@@ -2915,7 +2917,7 @@ void resetInverterData(InverterData *inv)
     inv->SleepTime = 0;
     inv->SUSyID = 0;
     inv->SWVersion[0] = 0;
-    inv->Temperature = 0;
+    inv->Temperature = NaN_S32;
     inv->TotalPac = 0;
     inv->Uac1 = 0;
     inv->Uac2 = 0;

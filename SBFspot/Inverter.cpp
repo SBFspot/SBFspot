@@ -199,7 +199,7 @@ int Inverter::process()
                     if (VERBOSE_NORMAL)
                     {
                         printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-                        printf("Batt. Temperature: %3.1f%s\n", (float)(m_inverters[inv]->BatTmpVal / 10), tagdefs.getDesc(tagdefs.DEG_C).c_str());
+                        printf("Batt. Temperature: %3.1f%s\n", (float)(m_inverters[inv]->BatTmpVal / 10), tagdefs.getDesc(tagdefs.TAG_DEG_C).c_str());
                         printf("Batt. Voltage    : %3.2fV\n", toVolt(m_inverters[inv]->BatVol));
                         printf("Batt. Current    : %2.3fA\n", toAmp(m_inverters[inv]->BatAmp));
                     }
@@ -249,7 +249,11 @@ int Inverter::process()
             if (VERBOSE_NORMAL)
             {
                 printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-                printf("Device Temperature: %3.1f%s\n", ((float)m_inverters[inv]->Temperature / 100), tagdefs.getDesc(tagdefs.DEG_C).c_str());
+                printf("Device Temperature: ");
+                if (is_NaN(m_inverters[inv]->Temperature))
+                    printf("%s\n", tagdefs.getDesc(tagdefs.TAG_NaNStt).c_str());
+                else
+                    printf("%3.1f%s\n", ((float)m_inverters[inv]->Temperature / 100), tagdefs.getDesc(tagdefs.TAG_DEG_C).c_str());
             }
         }
     }

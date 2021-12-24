@@ -268,7 +268,7 @@ struct InverterData
     unsigned long BatTmpVal;			// Battery temperature
     unsigned long BatVol;				// Battery voltage
     long BatAmp;						// Battery current
-    long Temperature;					// Inverter Temperature
+    int32_t Temperature;                // Inverter Temperature
     int32_t	MeteringGridMsTotWOut;		// Power grid feed-in (Out)
     int32_t MeteringGridMsTotWIn;		// Power grid reference (In)
     bool hasBattery;					// Smart Energy device

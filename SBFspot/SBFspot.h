@@ -49,15 +49,9 @@ DISCLAIMER:
 #include "boost/date_time/local_time/local_time.hpp"
 #include "boost/date_time/gregorian/gregorian.hpp"
 #include "boost/format.hpp"
+#include "nan.h"
 
 #include "Rec40S32.h"
-
-#define NaN_S16	0x8000		                    // "Not a Number" representation for SHORT (converted to 0 by SBFspot)
-#define NaN_U16	0xFFFF		                    // "Not a Number" representation for USHORT (converted to 0 by SBFspot)
-#define NaN_S32	(int32_t) 0x80000000	        // "Not a Number" representation for LONG (converted to 0 by SBFspot)
-#define NaN_U32	(uint32_t)0xFFFFFFFF	        // "Not a Number" representation for ULONG (converted to 0 by SBFspot)
-#define NaN_S64	(int64_t) 0x8000000000000000	// "Not a Number" representation for LONGLONG (converted to 0 by SBFspot)
-#define NaN_U64	(uint64_t)0xFFFFFFFFFFFFFFFF	// "Not a Number" representation for ULONGLONG (converted to 0 by SBFspot)
 
 #define NA				"N/A"
 
