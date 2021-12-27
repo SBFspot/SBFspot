@@ -61,6 +61,9 @@
     <ClCompile Include="mqtt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="db_update.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bluetooth.h">
@@ -139,6 +142,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="db_update.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
