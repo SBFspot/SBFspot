@@ -146,7 +146,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
                     ExportProperties(csv, cfg);
 
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-                        fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName, cfg->delimiter, inverters[inv]->DeviceName);
+                        fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName.c_str(), cfg->delimiter, inverters[inv]->DeviceName.c_str());
                     fputs("\n", csv);
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                         fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType.c_str(), cfg->delimiter, inverters[inv]->DeviceType.c_str());
@@ -237,7 +237,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
             ExportProperties(csv, cfg);
 
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-                fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName, cfg->delimiter, inverters[inv]->DeviceName);
+                fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName.c_str(), cfg->delimiter, inverters[inv]->DeviceName.c_str());
             fputs("\n", csv);
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                 fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType.c_str(), cfg->delimiter, inverters[inv]->DeviceType.c_str());
@@ -369,7 +369,7 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverter
         for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
             for (int i = 0; i < colcnt; i++)
-                fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceName);
+                fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceName.c_str());
         }
 
         fputs("\n", csv);
@@ -587,7 +587,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
             {
 
                 fprintf(csv, "%s%c", inverters[inv]->DeviceType.c_str(), cfg->delimiter);
-                fprintf(csv, "%s%c", inverters[inv]->DeviceName, cfg->delimiter);
+                fprintf(csv, "%s%c", inverters[inv]->DeviceName.c_str(), cfg->delimiter);
                 fprintf(csv, "%d%c", event.SUSyID(), cfg->delimiter);
                 fprintf(csv, "%u%c", event.SerNo(), cfg->delimiter);
                 fprintf(csv, "%s%c", strftime_t(cfg->DateTimeFormat, event.DateTime()), cfg->delimiter);
@@ -832,7 +832,7 @@ int ExportInformationDataTo123s(const Config *cfg, InverterData* const inverters
     // Inverter time ( YYYYMMDD-HH:MM:SS )
     printf("Time: %s%c", strftime_t(s123_dt_format, invdata->InverterDatetime), *s123_delimiter);
     // Inverter device name
-    printf("Device Name: %s%c", invdata->DeviceName, *s123_delimiter);
+    printf("Device Name: %s%c", invdata->DeviceName.c_str(), *s123_delimiter);
     // Inverter device class
     printf("Device Class: %s%c", invdata->DeviceClass.c_str(), *s123_delimiter);
     // Inverter device type
@@ -869,7 +869,7 @@ int ExportStateDataTo123s(const Config *cfg, InverterData* const inverters[])
     // Inverter time ( YYYYMMDD-HH:MM:SS )
     printf("Inverter Time: %s%c", strftime_t(s123_dt_format, invdata->InverterDatetime), *s123_delimiter);
     // Inverter device name
-    printf("Device Name: %s%c", invdata->DeviceName, *s123_delimiter);
+    printf("Device Name: %s%c", invdata->DeviceName.c_str(), *s123_delimiter);
     // Device status
     printf("Device Status: %s%c", tagdefs.getDesc(invdata->DeviceStatus, "?").c_str(), *s123_delimiter);
     // Grid relay status

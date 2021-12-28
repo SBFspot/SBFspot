@@ -208,7 +208,7 @@ typedef std::map<uint8_t, mppt> MPPTlist;
 
 struct InverterData
 {
-    char DeviceName[33];    //32 bytes + terminating zero
+    std::string DeviceName;
     unsigned char BTAddress[6];
     char IPAddress[20];
     unsigned short SUSyID;

@@ -35,6 +35,7 @@ DISCLAIMER:
 #pragma once
 
 #include "SQLselect.h"
+#if defined(USE_SQLITE)
 
 class db_SQL_Update : public db_SQL_Base
 {
@@ -42,3 +43,5 @@ public:
     int schema_version();
     int schema_update();
 };
+
+#endif

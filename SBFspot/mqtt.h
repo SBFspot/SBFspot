@@ -35,6 +35,7 @@ DISCLAIMER:
 #pragma once
 
 #include <vector>
+#include <string>
 
 struct Config;
 struct InverterData;

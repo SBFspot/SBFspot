@@ -2192,7 +2192,7 @@ void debug_watt(const char *txt, const int32_t val, const time_t dt)
 {
     if (DEBUG_NORMAL)
     {
-        printf("%-12s: %ld (W) %s", txt, val, ctime(&dt));
+        printf("%-12s: %d (W) %s", txt, val, ctime(&dt));
     }
 }
 
@@ -2449,6 +2449,8 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                 else
                 {
                     uint16_t status = get_short(pcktBuf + 23);
+                    if (VERBOSE_NORMAL && (status != 0))
+                        printf("Packet status: %d\n", status);
                     pcktcount = get_short(pcktBuf + 25);
                     unsigned short rcvpcktID = get_short(pcktBuf + 27) & 0x7FFF;
                     if (pcktID == rcvpcktID)
@@ -2687,9 +2689,9 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 case NameplateLocation: //INV_NAME
                                     //This function gives us the time when the inverter was switched on
                                     devList[inv]->WakeupTime = datetime;
-                                    strncpy(devList[inv]->DeviceName, (char *)recptr + 8, sizeof(devList[inv]->DeviceName) - 1);
+                                    devList[inv]->DeviceName = std::string((char *)recptr + 8, recordsize - 8);
                                     devList[inv]->flags |= type;
-                                    debug_text("INV_NAME", devList[inv]->DeviceName, datetime);
+                                    debug_text("INV_NAME", devList[inv]->DeviceName.c_str(), datetime);
                                     break;
 
                                 case NameplatePkgRev: //INV_SWVER
@@ -2704,7 +2706,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     {
                                         devList[inv]->DeviceType = "UNKNOWN TYPE";
                                                 printf("Unknown Inverter Type. Report this issue at https://github.com/SBFspot/SBFspot/issues with following info:\n");
-                                        printf("0x%08lX and Inverter Type=<Fill in the exact type> (e.g. SB1300TL-10)\n", getattribute(recptr).front());
+                                        printf("0x%08X and Inverter Type=<Fill in the exact type> (e.g. SB1300TL-10)\n", getattribute(recptr).front());
                                     }
                                     devList[inv]->flags |= type;
                                     debug_text("INV_TYPE", devList[inv]->DeviceType.c_str(), datetime);
@@ -2784,11 +2786,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     case 0: // unsigned int
                                         if (recordsize == 16)
                                         {
-                                            printf("%08lX %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), u64_tostring(get_longlong(recptr + 8)).c_str());
+                                            printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), u64_tostring(get_longlong(recptr + 8)).c_str());
                                         }
                                         else if (recordsize == 28)
                                         {
-                                            printf("%08lX %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                            printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
                                                 u32_tostring(get_long(recptr + 8)).c_str(),
                                                 u32_tostring(get_long(recptr + 12)).c_str(),
                                                 u32_tostring(get_long(recptr + 16)).c_str(),
@@ -2797,7 +2799,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         }
                                         else if (recordsize == 40)
                                         {
-                                            printf("%08lX %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                            printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
                                                 u32_tostring(get_long(recptr + 8)).c_str(),
                                                 u32_tostring(get_long(recptr + 12)).c_str(),
                                                 u32_tostring(get_long(recptr + 16)).c_str(),
@@ -2807,14 +2809,14 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                             );
                                         }
                                         else
-                                            printf("%08lX ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                            printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
                                         break;
 
                                     case 8: // attribute
                                         {
                                             std::vector<uint32_t> tags = getattribute(recptr);
                                             for (std::vector<uint32_t>::iterator tag_it = tags.begin(); tag_it != tags.end(); ++tag_it)
-                                                printf("%08lX %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(*tag_it,"???").c_str());
+                                                printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(*tag_it,"???").c_str());
                                         }
                                         break;
 
@@ -2822,18 +2824,18 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         {
                                             char str[40];
                                             strncpy(str, (char*)recptr + 8, recordsize - 8);
-                                            printf("%08lX %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), str);
+                                            printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), str);
                                         }
                                         break;
 
                                     case 64: // signed int
                                         if (recordsize == 16)
                                         {
-                                            printf("%08lX %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), s64_tostring(get_longlong(recptr + 8)).c_str());
+                                            printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), s64_tostring(get_longlong(recptr + 8)).c_str());
                                         }
                                         else if (recordsize == 28)
                                         {
-                                            printf("%08lX %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                            printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
                                                 s32_tostring(get_long(recptr + 8)).c_str(),
                                                 s32_tostring(get_long(recptr + 12)).c_str(),
                                                 s32_tostring(get_long(recptr + 16)).c_str(),
@@ -2843,7 +2845,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         }
                                         else if (recordsize == 40)
                                         {
-                                            printf("%08lX %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                            printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
                                                 s32_tostring(get_long(recptr + 8)).c_str(),
                                                 s32_tostring(get_long(recptr + 12)).c_str(),
                                                 s32_tostring(get_long(recptr + 16)).c_str(),
@@ -2853,11 +2855,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                             );
                                         }
                                         else
-                                            printf("%08lX ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                            printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
                                         break;
 
                                     default:
-                                        printf("%08lX %d %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                        printf("%08X %d %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
                                         break;
                                     }
                                     break;

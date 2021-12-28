@@ -102,7 +102,7 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
                 snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, std::mktime(sunset)));
             }
             else if (key == "invserial")        snprintf(value, sizeof(value) - 1, "%lu", inv.Serial);
-            else if (key == "invname")          snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName);
+            else if (key == "invname")          snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName.c_str());
             else if (key == "invclass")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass.c_str());
             else if (key == "invtype")          snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceType.c_str());
             else if (key == "invswver")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion.c_str());
