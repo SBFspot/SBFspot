@@ -24,6 +24,8 @@ V3.9.0
     Fix #421 SMA core2 has 12 strings
     Removed Web Solar Log (WSL) support
     Fix #496 WakeUp/Sleep time in MQTT
+    Fix #419 SMA Energymeter & SMA Inverter: report current MeteringGridMsTotW*
+    Fix #420/#440 (manually merged) Add inverter power measurements from a connected energy meter
 */
 
 /***

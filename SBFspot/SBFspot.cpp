@@ -2770,11 +2770,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     devList[inv]->flags |= type;
                                     break;
 
-                                case MeteringGridMsTotWhOut:
+                                case MeteringGridMsTotWOut:
                                     devList[inv]->MeteringGridMsTotWOut = value;
                                     break;
 
-                                case MeteringGridMsTotWhIn:
+                                case MeteringGridMsTotWIn:
                                     devList[inv]->MeteringGridMsTotWIn = value;
                                     break;
 

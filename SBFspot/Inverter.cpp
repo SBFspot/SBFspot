@@ -175,7 +175,7 @@ int Inverter::process()
             std::cerr << "getBatteryChargeStatus returned an error: " << rc << std::endl;
         else
         {
-            for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
             {
                 if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->hasBattery))
                 {
@@ -192,7 +192,7 @@ int Inverter::process()
             std::cerr << "getBatteryInfo returned an error: " << rc << std::endl;
         else
         {
-            for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
             {
                 if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->hasBattery))
                 {
@@ -206,21 +206,21 @@ int Inverter::process()
                 }
             }
         }
+    }
 
-        if ((rc = getInverterData(m_inverters, MeteringGridMsTotW)) != 0)
-            std::cerr << "getMeteringGridInfo returned an error: " << rc << std::endl;
-        else
+    if ((rc = getInverterData(m_inverters, MeteringGridMsTotW)) != 0)
+        std::cerr << "getMeteringGridInfo returned an error: " << rc << std::endl;
+    else
+    {
+        for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
-            for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+            if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->hasBattery))
             {
-                if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->hasBattery))
+                if (VERBOSE_NORMAL)
                 {
-                    if (VERBOSE_NORMAL)
-                    {
-                        printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-                        printf("Grid Power Out : %dW\n", m_inverters[inv]->MeteringGridMsTotWOut);
-                        printf("Grid Power In  : %dW\n", m_inverters[inv]->MeteringGridMsTotWIn);
-                    }
+                    printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
+                    printf("Grid Power Out : %dW\n", m_inverters[inv]->MeteringGridMsTotWOut);
+                    printf("Grid Power In  : %dW\n", m_inverters[inv]->MeteringGridMsTotWIn);
                 }
             }
         }

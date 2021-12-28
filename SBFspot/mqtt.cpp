@@ -139,6 +139,9 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             else if (key == "batchastt")        FormatFloat(value, ((float)inv.BatChaStt), 0, prec, dp);
             else if (key == "invwakeuptm")      snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.WakeupTime));
             else if (key == "invsleeptm")       snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.SleepTime));
+            else if (key == "meteringwin")      FormatFloat(value, (float)inv.MeteringGridMsTotWIn, 0, prec, dp);
+            else if (key == "meteringwout")     FormatFloat(value, (float)inv.MeteringGridMsTotWOut, 0, prec, dp);
+            else if (key == "meteringwtot")     FormatFloat(value, (float)(inv.MeteringGridMsTotWIn - inv.MeteringGridMsTotWOut), 0, prec, dp);
             else if (key == "pdc")
                 for (const auto& dc : inv.mpp)
                 {
