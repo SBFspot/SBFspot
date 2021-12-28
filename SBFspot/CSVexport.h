@@ -47,7 +47,6 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[]);
 int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::string dt_range_csv);
 int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[]);
 int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[]);
-int ExportSpotDataToWSL(const Config *cfg, InverterData* const inverters[]);
 int	ExportSpotDataTo123s(const Config *cfg, InverterData* const inverters[]);
 int	ExportInformationDataTo123s(const Config *cfg, InverterData* const inverters[]);
 int	ExportStateDataTo123s(const Config *cfg, InverterData* const inverters[]);

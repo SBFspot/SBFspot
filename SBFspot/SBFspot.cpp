@@ -1142,9 +1142,6 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     cfg->archEventMonths = 1;   // this month only
     cfg->forceInq = 0;          // Inquire inverter also during the night
     cfg->userGroup = UG_USER;
-    // WebSolarLog support (http://www.websolarlog.com/index.php/tag/sma-spot/)
-    // This is an undocumented feature and should only be used for WebSolarLog
-    cfg->wsl = 0;
     cfg->quiet = 0;
     cfg->nocsv = 0;
     cfg->nospot = 0;
@@ -1292,11 +1289,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
         else if (stricmp(argv[i], "-finq") == 0)
             cfg->forceInq = 1;
 
-        //Set WebSolarLog flag (Undocumented - For WSL usage only)
-        else if (stricmp(argv[i], "-wsl") == 0)
-            cfg->wsl = 1;
-
-        //Set 123Solar command value (Undocumented - For WSL usage only)
+        //Set 123Solar command value (Undocumented - For 123Solar usage only)
         else if (strnicmp(argv[i], "-123s", 5) == 0)
         {
             if (strlen(argv[i]) == 5)

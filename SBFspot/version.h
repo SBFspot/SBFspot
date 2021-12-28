@@ -22,6 +22,7 @@ V3.9.0
     Fix #3 Three string SMA inverters
     Fix 401 Multiple strings support
     Fix 421 SMA core2 has 12 strings
+    Removed Web Solar Log (WSL) support
 */
 
 /***

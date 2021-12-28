@@ -126,8 +126,7 @@ struct Config
     int		archMonths;			// -am			Number of months back to get Archived MonthData (0=disabled, 1=this month, ...)
     int		archEventMonths;	// -ae			Number of months back to get Archived Events (0=disabled, 1=this month, ...)
     int		forceInq;			// -finq		Inquire inverter also during the night
-    int		wsl;				// -wsl			WebSolarLog support (http://www.websolarlog.com/index.php/tag/sma-spot/)
-    int		quiet;				// -q			Silent operation (No output except for -wsl)
+    int		quiet;				// -q			Silent operation 
     int		nocsv;				// -nocsv		Disables CSV export (Overrules CSV_Export in config)
     int		nospot;				// -sp0			Disables Spot CSV export
     int		nosql;				// -nosql		Disables SQL export

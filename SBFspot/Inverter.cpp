@@ -723,9 +723,6 @@ void Inverter::exportSpotData()
         if ((m_config.CSV_Export == 1) && (m_config.nospot == 0))
             ExportSpotDataToCSV(&m_config, m_inverters);
 
-        if (m_config.wsl == 1)
-            ExportSpotDataToWSL(&m_config, m_inverters);
-
         if (m_config.s123 == S123_DATA)
             ExportSpotDataTo123s(&m_config, m_inverters);
         if (m_config.s123 == S123_INFO)
