@@ -108,7 +108,7 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             else if (key == "invswver")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion.c_str());
             else if (key == "invtime")          snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.InverterDatetime));
             else if (key == "invstatus")        snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.DeviceStatus, "?").c_str());
-            else if (key == "invtemperature")   FormatFloat(value, is_NaN(inv.Temperature) ? 0.0 : (float)inv.Temperature / 100, 0, prec, dp);
+            else if (key == "invtemperature")   FormatFloat(value, is_NaN(inv.Temperature) ? 0.0f : (float)inv.Temperature / 100, 0, prec, dp);
             else if (key == "invgridrelay")     snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.GridRelayStatus, "?").c_str());
             else if (key == "pdc1")             FormatFloat(value, (float)inv.Pdc1, 0, prec, dp);
             else if (key == "pdc2")             FormatFloat(value, (float)inv.Pdc2, 0, prec, dp);
@@ -137,6 +137,8 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             else if (key == "batvol")           FormatFloat(value, ((float)inv.BatVol) / 100, 0, prec, dp);
             else if (key == "batamp")           FormatFloat(value, ((float)inv.BatAmp) / 1000, 0, prec, dp);
             else if (key == "batchastt")        FormatFloat(value, ((float)inv.BatChaStt), 0, prec, dp);
+            else if (key == "invwakeuptm")      snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.WakeupTime));
+            else if (key == "invsleeptm")       snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.SleepTime));
             else if (key == "pdc")
                 for (const auto& dc : inv.mpp)
                 {
