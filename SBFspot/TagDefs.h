@@ -49,7 +49,12 @@ public:
     enum { READ_OK = 0, READ_ERROR = -1 };
 
     // Tag ID's
-    enum { DEG_C = 2, DEG_F = 32 };
+    enum
+    {
+        TAG_DEG_C = 2,
+        TAG_DEG_F = 32,
+        TAG_NaNStt = 16777213
+    };
 
 private:
     class TD

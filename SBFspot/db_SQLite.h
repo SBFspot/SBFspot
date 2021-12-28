@@ -43,10 +43,10 @@ DISCLAIMER:
 extern int quiet;
 extern int verbose;
 
-#define SQL_NEXTSTATUSCHECK		"NextStatusCheck"
-#define SQL_SCHEMAVERSION		"SchemaVersion"
-#define SQL_BATCH_DATELIMIT		"Batch_DateLimit"
-#define SQL_BATCH_STATUSLIMIT	"Batch_StatusLimit"
+#define SQL_NEXTSTATUSCHECK     "NextStatusCheck"
+#define SQL_SCHEMAVERSION       "SchemaVersion"
+#define SQL_BATCH_DATELIMIT     "Batch_DateLimit"
+#define SQL_BATCH_STATUSLIMIT   "Batch_StatusLimit"
 
 #define SQL_MINIMUM_SCHEMA_VERSION 1
 #define SQL_RECOMMENDED_SCHEMA_VERSION 1
@@ -70,7 +70,8 @@ public:
     ~db_SQL_Base() { if (m_dbHandle) close(); }
     int open(const std::string& database);
     int close(void);
-    int exec_query(std::string qry);
+    int exec_query(const std::string &qry);
+    int exec_query_multi(const std::string &qry);
     std::string errortext(void) { return m_dbHandle ? sqlite3_errmsg(m_dbHandle) : "Unable to open the database file [" + m_database + "]"; }
     bool isopen(void) { return (m_dbHandle != NULL); }
     int type_label(InverterData *inverters[]);

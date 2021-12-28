@@ -1,5 +1,5 @@
 /************************************************************************************************
-    SBFspot - Yet another tool to read power production of SMA solar inverters
+    SBFspot - Yet another tool to read power production of SMA® solar inverters
     (c)2012-2021, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
@@ -35,19 +35,30 @@ DISCLAIMER:
 #pragma once
 
 #include "osselect.h"
-#include "SBFspot.h"
-#include "EventData.h"
-#include <string>
+#include "nan.h"
 
-const std::string delim2txt(const char delim);
-const std::string dp2txt(char dp);
-const std::string linebreak2txt(void);
-const std::string DateTimeFormatToDMY(const char *dtf);
-int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[]);
-int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::string dt_range_csv);
-int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[]);
-int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[]);
-int	ExportSpotDataTo123s(const Config *cfg, InverterData* const inverters[]);
-int	ExportInformationDataTo123s(const Config *cfg, InverterData* const inverters[]);
-int	ExportStateDataTo123s(const Config *cfg, InverterData* const inverters[]);
-int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[]);
+class mppt
+{
+private:
+    int32_t m_Pdc = NaN_S32;
+    int32_t m_Udc = NaN_S32;
+    int32_t m_Idc = NaN_S32;
+
+public:
+    mppt() { }
+    ~mppt() { }
+
+    int32_t Pdc() const { return m_Pdc; }
+    int32_t Udc() const { return m_Udc; }
+    int32_t Idc() const { return m_Idc; }
+    float kW() const { return (float)(m_Pdc) / 1000; }
+    float Watt() const { return (float)(m_Pdc); }
+    float Volt() const { return (float)(m_Udc) / 100; }
+    float Amp() const { return (float)(m_Idc) / 1000; }
+
+    void Pdc(const int32_t Pdc) { m_Pdc = Pdc; }
+    void Udc(const int32_t Udc) { m_Udc = Udc; }
+    void Idc(const int32_t Idc) { m_Idc = Idc; }
+
+};
+

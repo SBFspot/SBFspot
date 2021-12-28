@@ -39,6 +39,7 @@ DISCLAIMER:
 #include <boost/date_time/local_time/local_time.hpp>
 
 class EventData;
+class mppt;
 
 enum CONNECTIONTYPE
 {
@@ -125,8 +126,7 @@ struct Config
     int		archMonths;			// -am			Number of months back to get Archived MonthData (0=disabled, 1=this month, ...)
     int		archEventMonths;	// -ae			Number of months back to get Archived Events (0=disabled, 1=this month, ...)
     int		forceInq;			// -finq		Inquire inverter also during the night
-    int		wsl;				// -wsl			WebSolarLog support (http://www.websolarlog.com/index.php/tag/sma-spot/)
-    int		quiet;				// -q			Silent operation (No output except for -wsl)
+    int		quiet;				// -q			Silent operation 
     int		nocsv;				// -nocsv		Disables CSV export (Overrules CSV_Export in config)
     int		nospot;				// -sp0			Disables Spot CSV export
     int		nosql;				// -nosql		Disables SQL export
@@ -204,6 +204,8 @@ enum SMA_DATATYPE
     DT_SLONG = 64
 };
 
+typedef std::map<uint8_t, mppt> MPPTlist;
+
 struct InverterData
 {
     char DeviceName[33];    //32 bytes + terminating zero
@@ -222,6 +224,7 @@ struct InverterData
     long Udc2;
     long Idc1;
     long Idc2;
+    MPPTlist mpp;
     long Pmax1;
     long Pmax2;
     long Pmax3;
@@ -241,10 +244,10 @@ struct InverterData
     long long EToday;
     long long ETotal;
     unsigned short modelID;
-    char DeviceType[64];
-    char DeviceClass[64];
+    std::string DeviceType;
+    std::string DeviceClass;
     DEVICECLASS DevClass;
-    char SWVersion[16];	//"03.01.05.R"
+    std::string SWVersion; // "03.01.05.R"
     int DeviceStatus;
     int GridRelayStatus;
     int flags;
@@ -264,7 +267,7 @@ struct InverterData
     unsigned long BatTmpVal;			// Battery temperature
     unsigned long BatVol;				// Battery voltage
     long BatAmp;						// Battery current
-    long Temperature;					// Inverter Temperature
+    int32_t Temperature;                // Inverter Temperature
     int32_t	MeteringGridMsTotWOut;		// Power grid feed-in (Out)
     int32_t MeteringGridMsTotWIn;		// Power grid reference (In)
     bool hasBattery;					// Smart Energy device

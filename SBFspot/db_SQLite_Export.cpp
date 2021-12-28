@@ -35,6 +35,7 @@ DISCLAIMER:
 #if defined(USE_SQLITE)
 
 #include "db_SQLite_Export.h"
+#include "mppt.h"
 
 int db_SQL_Export::exportDayData(InverterData *inverters[])
 {
@@ -220,12 +221,31 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
                (float)inv[i]->BT_Signal << ',' <<
                s_quoted(status_text(inv[i]->DeviceStatus)) << ',' <<
                s_quoted(status_text(inv[i]->GridRelayStatus)) << ',' <<
-               (float)inv[i]->Temperature/100 << ")";
+               (float)inv[i]->Temperature/100 << ')';
 
         if ((rc = exec_query(sql.str())) != SQLITE_OK)
         {
             print_error("[spot_data]exec_query() returned", sql.str());
             break;
+        }
+
+        // If inverter has more than 2 mppt, use SpotDataX table to store the data
+        if (inv[i]->mpp.size() > 2)
+        {
+            const char* INSERT_SpotDataX = "INSERT INTO SpotDataX VALUES(";
+            sql.str("");
+            for (MPPTlist::iterator it = inv[i]->mpp.begin(); it != inv[i]->mpp.end(); ++it)
+            {
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsWatt | it->first) << ',' << it->second.Pdc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsVol | it->first) << ',' << it->second.Udc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsAmp | it->first) << ',' << it->second.Idc() << ");";
+            }
+
+            if ((rc = exec_query_multi(sql.str())) != SQLITE_OK)
+            {
+                print_error("[spot_data]exec_query() returned", sql.str());
+                break;
+            }
         }
     }
 

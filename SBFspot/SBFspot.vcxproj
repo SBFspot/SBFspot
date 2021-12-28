@@ -367,11 +367,14 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="db_update.h" />
     <ClInclude Include="Ethernet.h" />
     <ClInclude Include="EventData.h" />
     <ClInclude Include="Inverter.h" />
     <ClInclude Include="misc.h" />
+    <ClInclude Include="mppt.h" />
     <ClInclude Include="mqtt.h" />
+    <ClInclude Include="nan.h" />
     <ClInclude Include="oslinux.h" />
     <ClInclude Include="osselect.h" />
     <ClInclude Include="oswindows.h" />
@@ -416,6 +419,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="db_update.cpp" />
     <ClCompile Include="endianness.h" />
     <ClCompile Include="Ethernet.cpp" />
     <ClCompile Include="EventData.cpp" />

@@ -1,20 +1,6 @@
-#define VERSION "3.8.4"
+#define VERSION "3.9.0"
 
 /*
-V3.8.0
-    Fix memory leaks (see #318)
-    Fix #7 MariaDB10 with Port 3307
-    Fix SQL daydata export (for PVoutput) : Include zero record, just after production stopped
-    Fix #395 Mix of ISO-8859-1 and UTF-8, CRLF and LF line endings
-    Merged #425 Move Inverter related stuff to dedicated class
-    Fix #290 Etoday and temperature are shown as ZERO from STP6.0 inverter
-
-V3.8.1
-    Fix #448 Error:sqlite3_exec() returned: "UNIQUE constraint failed"
-    Fix #402 How to specify bluetooth device on Raspbian?
-    Fix #378 MQTT / Missing Parameter BT-Signal - PdcTot
-    Merge #450 MQTT: let sunrise/sunset timestamps obey configured format
-
 V3.8.2
     Fix #455 Voltages and Currents in .csv file swapped for battery inverter
     Fix #428 SBFspotUploadDaemon crash
@@ -31,6 +17,12 @@ V3.8.4
     Fix 384/137/381/313/... Bad request 400: Power value too high for system size
     Improved event decoding
     Cleanup verbose/debug messages
+
+V3.9.0
+    Fix #3 Three string SMA inverters
+    Fix 401 Multiple strings support
+    Fix 421 SMA core2 has 12 strings
+    Removed Web Solar Log (WSL) support
 */
 
 /***

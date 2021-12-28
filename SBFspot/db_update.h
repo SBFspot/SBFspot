@@ -9,7 +9,7 @@
 
     You are free:
         to Share - to copy, distribute and transmit the work
-        to Remix - to adapt the work
+    to Remix - to adapt the work
     Under the following conditions:
     Attribution:
         You must attribute the work in the manner specified by the author or licensor
@@ -34,20 +34,11 @@ DISCLAIMER:
 
 #pragma once
 
-#include "osselect.h"
-#include "SBFspot.h"
-#include "EventData.h"
-#include <string>
+#include "SQLselect.h"
 
-const std::string delim2txt(const char delim);
-const std::string dp2txt(char dp);
-const std::string linebreak2txt(void);
-const std::string DateTimeFormatToDMY(const char *dtf);
-int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[]);
-int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::string dt_range_csv);
-int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[]);
-int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[]);
-int	ExportSpotDataTo123s(const Config *cfg, InverterData* const inverters[]);
-int	ExportInformationDataTo123s(const Config *cfg, InverterData* const inverters[]);
-int	ExportStateDataTo123s(const Config *cfg, InverterData* const inverters[]);
-int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[]);
+class db_SQL_Update : public db_SQL_Base
+{
+public:
+    int schema_version();
+    int schema_update();
+};

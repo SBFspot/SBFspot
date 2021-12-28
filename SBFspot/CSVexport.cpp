@@ -35,17 +35,18 @@ DISCLAIMER:
 #include "CSVexport.h"
 #include "EventData.h"
 #include <algorithm> // std::max
+#include "mppt.h"
 
 //DecimalPoint To Text
-const char *dp2txt(const char dp)
+const std::string dp2txt(const char dp)
 {
-    if (dp == '.') return "dot"; //Fix Issue 84
+    if (dp == '.') return "dot";
     if (dp == ',') return "comma";
     return "?";
 }
 
 //Delimiter To Text
-const char *delim2txt(const char delim)
+const std::string delim2txt(const char delim)
 {
     if (delim == ';') return "semicolon";
     if (delim == ',') return "comma";
@@ -53,7 +54,7 @@ const char *delim2txt(const char delim)
 }
 
 //Linebreak To Text
-const char *linebreak2txt(void)
+const std::string linebreak2txt(void)
 {
 #if defined(_WIN32)
     return "CR/LF";
@@ -65,48 +66,48 @@ const char *linebreak2txt(void)
 }
 
 // Convert format string like %d/%m/%Y %H:%M:%S to dd/mm/yyyy HH:mm:ss
-// Returns a pointer to DMY string
-// Caller is responsible to free the memory
-char *DateTimeFormatToDMY(const char *dtf)
+const std::string DateTimeFormatToDMY(const char *dtf)
 {
-    char DMY[80] = { 0 };
-    char ch[2];
-    for (int i = 0; (dtf[i] != 0) && (strlen(DMY) < sizeof(DMY) - 4); i++)
+    std::string DMY;
+    for (int i = 0; dtf[i] != 0; i++)
     {
         if (dtf[i] == '%')
         {
             i++;
             switch (dtf[i])
             {
-            case 0:	// end-of-string
-                i--; break;
+            case 0: // end-of-string
+                break;
             case 'y':
-                strcat(DMY, "yy"); break;
+                DMY += "yy"; break;
             case 'Y':
-                strcat(DMY, "yyyy"); break;
+                DMY += "yyyy"; break;
             case 'm':
-                strcat(DMY, "MM"); break;
+                DMY += "MM"; break;
             case 'd':
-                strcat(DMY, "dd"); break;
+                DMY += "dd"; break;
             case 'H':
-                strcat(DMY, "HH"); break;
+                DMY += "HH"; break;
             case 'M':
-                strcat(DMY, "mm"); break;
+                DMY += "mm"; break;
             case 'S':
-                strcat(DMY, "ss"); break; //Fix Issue 84
+                DMY += "ss"; break;
             default:
-                ch[0] = dtf[i]; ch[1] = 0;
-                strcat(DMY, ch);
+                DMY += dtf[i];
             }
         }
         else
         {
-            ch[0] = dtf[i]; ch[1] = 0;
-            strcat(DMY, ch);
+            DMY += dtf[i];
         }
     }
 
-    return strdup(DMY);
+    return DMY;
+}
+
+int ExportProperties(FILE *csv, const Config *cfg)
+{
+    return fprintf(csv, "sep=%c\nVersion CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s|Decimalpoint %s|Precision %d\n\n", cfg->delimiter, cfg->prgVersion, OS, linebreak2txt().c_str(), delim2txt(cfg->delimiter).c_str(), dp2txt(cfg->decimalpoint).c_str() , cfg->precision);
 }
 
 int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
@@ -142,13 +143,13 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
             {
                 if (cfg->CSV_ExtendedHeader == 1)
                 {
-                    fprintf(csv, "sep=%c\n", cfg->delimiter);
-                    fprintf(csv, "Version CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s|Decimalpoint %s|Precision %d\n\n", cfg->prgVersion, OS, linebreak2txt(), delim2txt(cfg->delimiter), dp2txt(cfg->decimalpoint), cfg->precision);
+                    ExportProperties(csv, cfg);
+
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                         fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName, cfg->delimiter, inverters[inv]->DeviceName);
                     fputs("\n", csv);
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-                        fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType, cfg->delimiter, inverters[inv]->DeviceType);
+                        fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType.c_str(), cfg->delimiter, inverters[inv]->DeviceType.c_str());
                     fputs("\n", csv);
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                         fprintf(csv, "%c%lu%c%lu", cfg->delimiter, inverters[inv]->Serial, cfg->delimiter, inverters[inv]->Serial);
@@ -162,9 +163,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
                 }
                 if (cfg->CSV_Header == 1)
                 {
-                    char *DMY = DateTimeFormatToDMY(cfg->DateFormat);
-                    fprintf(csv, "%s", DMY);
-                    free(DMY);
+                    fprintf(csv, "%s", DateTimeFormatToDMY(cfg->DateFormat).c_str());
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                         fprintf(csv, "%ckWh%ckWh", cfg->delimiter, cfg->delimiter);
                     fputs("\n", csv);
@@ -215,7 +214,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
     // Fix Issue 90: SBFspot still creating 1970 .csv files
     if (date == 0) return 0;	// Nothing to export! Silently exit.
 
-                                //Expand date specifiers in config::outputPath
+    //Expand date specifiers in config::outputPath
     std::stringstream csvpath;
     csvpath << strftime_t(cfg->outputPath, date);
     CreatePath(csvpath.str().c_str());
@@ -235,13 +234,13 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
     {
         if (cfg->CSV_ExtendedHeader == 1)
         {
-            fprintf(csv, "sep=%c\n", cfg->delimiter);
-            fprintf(csv, "Version CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s|Decimalpoint %s|Precision %d\n\n", cfg->prgVersion, OS, linebreak2txt(), delim2txt(cfg->delimiter), dp2txt(cfg->decimalpoint), cfg->precision);
+            ExportProperties(csv, cfg);
+
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                 fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceName, cfg->delimiter, inverters[inv]->DeviceName);
             fputs("\n", csv);
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-                fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType, cfg->delimiter, inverters[inv]->DeviceType);
+                fprintf(csv, "%c%s%c%s", cfg->delimiter, inverters[inv]->DeviceType.c_str(), cfg->delimiter, inverters[inv]->DeviceType.c_str());
             fputs("\n", csv);
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                 fprintf(csv, "%c%lu%c%lu", cfg->delimiter, inverters[inv]->Serial, cfg->delimiter, inverters[inv]->Serial);
@@ -255,9 +254,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
         }
         if (cfg->CSV_Header == 1)
         {
-            char *DMY = DateTimeFormatToDMY(cfg->DateTimeFormat);
-            fputs(DMY, csv);
-            free(DMY);
+            fputs(DateTimeFormatToDMY(cfg->DateTimeFormat).c_str(), csv);
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                 fprintf(csv, "%ckWh%ckW", cfg->delimiter, cfg->delimiter);
             fputs("\n", csv);
@@ -295,133 +292,135 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
     return 0;
 }
 
-int WriteStandardHeader(FILE *csv, const Config *cfg, DEVICECLASS devclass)
+int WriteStandardHeader(FILE *csv, const Config *cfg, DEVICECLASS devclass, const size_t num_mppt)
 {
-    char *Header1, *Header2;
-
-    char solar1[] = "||||Watt|Watt|Amp|Amp|Volt|Volt|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|Watt|%|kWh|kWh|Hz|Hours|Hours|%|Status|Status|degC\n";
-    char solar2[] = "|DeviceName|DeviceType|Serial|Pdc1|Pdc2|Idc1|Idc2|Udc1|Udc2|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PdcTot|PacTot|Efficiency|EToday|ETotal|Frequency|OperatingTime|FeedInTime|BT_Signal|Condition|GridRelay|Temperature\n";
-
-    char batt1[] = "||||Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|kWh|kWh|Hz|hours|hours|Status|%|degC|Volt|Amp|Watt|Watt\n";
-    char batt2[] = "|DeviceName|DeviceType|Serial|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PacTot|EToday|ETotal|Frequency|OperatingTime|FeedInTime|Condition|SOC|Tempbatt|Ubatt|Ibatt|TotWOut|TotWIn\n";
+    std::string exthdr("|||");
+    std::string stdhdr("|DeviceName|DeviceType|Serial");
 
     if (devclass == BatteryInverter)
     {
-        Header1 = batt1;
-        Header2 = batt2;
+        exthdr += "|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|kWh|kWh|Hz|hours|hours|Status|%|degC|Volt|Amp|Watt|Watt\n";
+        stdhdr += "|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PacTot|EToday|ETotal|Frequency|OperatingTime|FeedInTime|Condition|SOC|Tempbatt|Ubatt|Ibatt|TotWOut|TotWIn\n";
     }
     else
     {
-        Header1 = solar1;
-        Header2 = solar2;
+        for (size_t n = 1; n <= num_mppt; ++n) exthdr += "|Watt";
+        for (size_t n = 1; n <= num_mppt; ++n) exthdr += "|Amp";
+        for (size_t n = 1; n <= num_mppt; ++n) exthdr += "|Volt";
+        exthdr += "|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|Watt|%|kWh|kWh|Hz|Hours|Hours|%|Status|Status|degC\n";
+
+        for (size_t n = 1; n <= num_mppt; ++n) stdhdr += "|Pdc" + std::to_string(n);
+        for (size_t n = 1; n <= num_mppt; ++n) stdhdr += "|Idc" + std::to_string(n);
+        for (size_t n = 1; n <= num_mppt; ++n) stdhdr += "|Udc" + std::to_string(n);
+        stdhdr += "|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PdcTot|PacTot|Efficiency|EToday|ETotal|Frequency|OperatingTime|FeedInTime|BT_Signal|Condition|GridRelay|Temperature\n";
     }
 
     if (cfg->CSV_ExtendedHeader == 1)
     {
-        fprintf(csv, "sep=%c\n", cfg->delimiter);
-        fprintf(csv, "Version CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s|Decimalpoint %s|Precision %d\n\n", cfg->prgVersion, OS, linebreak2txt(), delim2txt(cfg->delimiter), dp2txt(cfg->decimalpoint), cfg->precision);
-
-        for (int i = 0; Header1[i] != 0; i++)
-            if (Header1[i] == '|') Header1[i] = cfg->delimiter;
-
-        fputs(Header1, csv);
+        ExportProperties(csv, cfg);
+        std::replace(exthdr.begin(), exthdr.end(), '|', cfg->delimiter);
+        fputs(exthdr.c_str(), csv);
     }
 
     if (cfg->CSV_Header == 1)
     {
-        char *DMY = DateTimeFormatToDMY(cfg->DateTimeFormat); //Caller must free the allocated memory
-        fputs(DMY, csv);
-        free(DMY);
-
-        for (int i = 0; Header2[i] != 0; i++)
-            if (Header2[i] == '|') Header2[i] = cfg->delimiter;
-        fputs(Header2, csv);
+        fputs(DateTimeFormatToDMY(cfg->DateTimeFormat).c_str(), csv);
+        std::replace(stdhdr.begin(), stdhdr.end(), '|', cfg->delimiter);
+        fputs(stdhdr.c_str(), csv);
     }
+
     return 0;
 }
 
-int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverters[])
+int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverters[], const size_t num_mppt)
 {
-    char *Header1, *Header2, *Header3;
-
-    char solar1[] = "|DcMs.Watt[A]|DcMs.Watt[B]|DcMs.Amp[A]|DcMs.Amp[B]|DcMs.Vol[A]|DcMs.Vol[B]|GridMs.W.phsA|GridMs.W.phsB|GridMs.W.phsC|GridMs.A.phsA|GridMs.A.phsB|GridMs.A.phsC|GridMs.PhV.phsA|GridMs.PhV.phsB|GridMs.PhV.phsC|SS_PdcTot|GridMs.TotW|SBFspot.Efficiency|Metering.DykWh|Metering.TotWhOut|GridMs.Hz|Metering.TotOpTms|Metering.TotFeedTms|SBFspot.BTSignal|Operation.Health|Operation.GriSwStt|Coolsys.TmpNom";
-    char solar2[] = "|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Counter|Counter|Analog|Counter|Counter|Analog|Counter|Counter|Analog|Status|Status|Analog";
-    char solar3[] = "|Watt|Watt|Amp|Amp|Volt|Volt|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|Watt|%|kWh|kWh|Hz|Hours|Hours|%|||degC";
-
-    char batt1[] = "|GridMs.W.phsA|GridMs.W.phsB|GridMs.W.phsC|GridMs.A.phsA|GridMs.A.phsB|GridMs.A.phsC|GridMs.PhV.phsA|GridMs.PhV.phsB|GridMs.PhV.phsC|GridMs.TotW|Metering.DykWh|Metering.TotWhOut|GridMs.Hz|Metering.TotOpTms|Metering.TotFeedTms|Operation.Health|Bat.ChaStt|Bat.TmpVal|Bat.Vol|Bat.Amp|Metering.GridMs.TotWOut|Metering.GridMs.TotWIn";
-    char batt2[] = "|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Counter|Counter|Analog|Counter|Counter|Status|Analog|Analog|Analog|Analog|Analog|Analog";
-    char batt3[] = "|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|kWh|kWh|Hz|Hours|Hours||%|degC|Volt|Amp|Watt|Watt";
+    std::string hdr1, hdr2, hdr3;
 
     if (inverters[0]->DevClass == BatteryInverter)
     {
-        Header1 = batt1;
-        Header2 = batt2;
-        Header3 = batt3;
+        hdr1 = "|GridMs.W.phsA|GridMs.W.phsB|GridMs.W.phsC|GridMs.A.phsA|GridMs.A.phsB|GridMs.A.phsC|GridMs.PhV.phsA|GridMs.PhV.phsB|GridMs.PhV.phsC|GridMs.TotW|Metering.DykWh|Metering.TotWhOut|GridMs.Hz|Metering.TotOpTms|Metering.TotFeedTms|Operation.Health|Bat.ChaStt|Bat.TmpVal|Bat.Vol|Bat.Amp|Metering.GridMs.TotWOut|Metering.GridMs.TotWIn";
+        hdr2 = "|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Counter|Counter|Analog|Counter|Counter|Status|Analog|Analog|Analog|Analog|Analog|Analog";
+        hdr3 = "|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|kWh|kWh|Hz|Hours|Hours||%|degC|Volt|Amp|Watt|Watt";
     }
     else
     {
-        Header1 = solar1;
-        Header2 = solar2;
-        Header3 = solar3;
+        for (size_t n = 1; n <= num_mppt; ++n) hdr1 += "|DcMs.Watt[" + std::string(1, '@' + (char)n) + ']';
+        for (size_t n = 1; n <= num_mppt; ++n) hdr1 += "|DcMs.Amp[" + std::string(1, '@' + (char)n) + ']';
+        for (size_t n = 1; n <= num_mppt; ++n) hdr1 += "|DcMs.Vol[" + std::string(1, '@' + (char)n) + ']';
+        hdr1 += "|GridMs.W.phsA|GridMs.W.phsB|GridMs.W.phsC|GridMs.A.phsA|GridMs.A.phsB|GridMs.A.phsC|GridMs.PhV.phsA|GridMs.PhV.phsB|GridMs.PhV.phsC|SS_PdcTot|GridMs.TotW|SBFspot.Efficiency|Metering.DykWh|Metering.TotWhOut|GridMs.Hz|Metering.TotOpTms|Metering.TotFeedTms|SBFspot.BTSignal|Operation.Health|Operation.GriSwStt|Coolsys.TmpNom";
+
+        for (size_t n = 1; n <= num_mppt * 3; ++n) hdr2 += "|Analog";
+        hdr2 += "|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Counter|Counter|Analog|Counter|Counter|Analog|Counter|Counter|Analog|Status|Status|Analog";
+
+        for (size_t n = 1; n <= num_mppt; ++n) hdr3 += "|Watt";
+        for (size_t n = 1; n <= num_mppt; ++n) hdr3 += "|Amp";
+        for (size_t n = 1; n <= num_mppt; ++n) hdr3 += "|Volt";
+        hdr3 += "|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|Watt|%|kWh|kWh|Hz|Hours|Hours|%|||degC";
     }
 
     if (cfg->CSV_ExtendedHeader == 1)
     {
-        fprintf(csv, "sep=%c\n", cfg->delimiter);
-        fprintf(csv, "Version CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s|Decimalpoint %s|Precision %d\n\n", cfg->prgVersion, OS, linebreak2txt(), delim2txt(cfg->delimiter), dp2txt(cfg->decimalpoint), cfg->precision);
+        ExportProperties(csv, cfg);
 
-        int colcnt = 0;
-        for (int i = 0; Header1[i] != 0; i++)
-            if (Header1[i] == '|')
-            {
-                Header1[i] = cfg->delimiter;
-                colcnt++;
-            }
+        auto colcnt = std::count(hdr1.begin(), hdr1.end(), '|');
 
-        for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-            for (int i = 0; i<colcnt; i++)
-                fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceName);
-        fputs("\n", csv);
+        std::replace(hdr1.begin(), hdr1.end(), '|', cfg->delimiter);
 
-        for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+        {
             for (int i = 0; i < colcnt; i++)
-                fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceType);
+                fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceName);
+        }
+
         fputs("\n", csv);
 
-        for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+        {
+            for (int i = 0; i < colcnt; i++)
+                fprintf(csv, "%c%s", cfg->delimiter, inverters[inv]->DeviceType.c_str());
+        }
+        
+        fputs("\n", csv);
+
+        for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+        {
             for (int i = 0; i < colcnt; i++)
                 fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
+        }
+        
         fputs("\n", csv);
     }
 
     if (cfg->CSV_Header == 1)
     {
         fputs("TimeStamp", csv);
+        
         for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-            fputs(Header1, csv);
+            fputs(hdr1.c_str(), csv);
+        
         fputs("\n", csv);
     }
 
 
     if (cfg->CSV_ExtendedHeader == 1)
     {
-        for (int i = 0; Header2[i] != 0; i++)
-            if (Header2[i] == '|') Header2[i] = cfg->delimiter;
+        std::replace(hdr2.begin(), hdr2.end(), '|', cfg->delimiter);
 
         for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-            fputs(Header2, csv);
+            fputs(hdr2.c_str(), csv);
+
         fputs("\n", csv);
 
-        char *DMY = DateTimeFormatToDMY(cfg->DateTimeFormat); //Caller must free the allocated memory
-        fputs(DMY, csv);
-        free(DMY);
+        fputs(DateTimeFormatToDMY(cfg->DateTimeFormat).c_str(), csv);
 
-        for (int i = 0; Header3[i] != 0; i++)
-            if (Header3[i] == '|') Header3[i] = cfg->delimiter;
+        std::replace(hdr3.begin(), hdr3.end(), '|', cfg->delimiter);
+
         for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-            fputs(Header3, csv);
+            fputs(hdr3.c_str(), csv);
+
         fputs("\n", csv);
     }
+
     return 0;
 }
 
@@ -461,9 +460,9 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
 #endif
         {
             if (cfg->SpotWebboxHeader == 0)
-                WriteStandardHeader(csv, cfg, SolarInverter);
+                WriteStandardHeader(csv, cfg, SolarInverter, inverters[0]->mpp.size()); // TODO: get highest mppt count for all inverters
             else
-                WriteWebboxHeader(csv, cfg, inverters);
+                WriteWebboxHeader(csv, cfg, inverters, inverters[0]->mpp.size()); // TODO: get highest mppt count for all inverters
         }
 
         char FormattedFloat[32];
@@ -482,12 +481,18 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
                 fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
             }
 
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pdc1, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pdc2, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Idc1 / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Idc2 / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Udc1 / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Udc2 / 100, 0, cfg->precision, cfg->decimalpoint));
+            for (const auto &mpp : inverters[inv]->mpp)
+            {
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Watt(), 0, cfg->precision, cfg->decimalpoint));
+            }
+            for (const auto &mpp : inverters[inv]->mpp)
+            {
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Amp(), 0, cfg->precision, cfg->decimalpoint));
+            }
+            for (const auto &mpp : inverters[inv]->mpp)
+            {
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Volt(), 0, cfg->precision, cfg->decimalpoint));
+            }
             fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac1, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac2, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac3, 0, cfg->precision, cfg->decimalpoint));
@@ -505,10 +510,16 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
             fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->GridFreq / 100, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->OperationTime / 3600, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->FeedInTime / 3600, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, inverters[inv]->BT_Signal, 0, cfg->precision, cfg->decimalpoint));
+            if (inverters[inv]->BT_Signal == 0)
+                fprintf(csv, strout, cfg->delimiter, NA);
+            else
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, inverters[inv]->BT_Signal, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->DeviceStatus, "?").c_str());
             fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->GridRelayStatus, "?").c_str());
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Temperature / 100, 0, cfg->precision, cfg->decimalpoint));
+            if (is_NaN(inverters[inv]->Temperature))
+                fprintf(csv, strout, cfg->delimiter, NA);
+            else
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Temperature / 100, 0, cfg->precision, cfg->decimalpoint));
             if (cfg->SpotWebboxHeader == 0)
                 fputs("\n", csv);
         }
@@ -557,16 +568,13 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
         {
             if (cfg->CSV_ExtendedHeader == 1)
             {
-                fprintf(csv, "sep=%c\n", cfg->delimiter);
-                fprintf(csv, "Version CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s\n\n", cfg->prgVersion, OS, linebreak2txt(), delim2txt(cfg->delimiter));
+                ExportProperties(csv, cfg);
             }
             if (cfg->CSV_Header == 1)
             {
-                char Header[] = "DeviceType|DeviceLocation|SusyId|SerNo|TimeStamp|EntryId|EventCode|EventType|Category|Group|Tag|OldValue|NewValue|UserGroup\n";
-                for (int i = 0; Header[i] != 0; i++)
-                    if (Header[i] == '|')
-                        Header[i] = cfg->delimiter;
-                fputs(Header, csv);
+                std::string Header("DeviceType|DeviceLocation|SusyId|SerNo|TimeStamp|EntryId|EventCode|EventType|Category|Group|Tag|OldValue|NewValue|UserGroup\n");
+                std::replace(Header.begin(), Header.end(), '|', cfg->delimiter);
+                fputs(Header.c_str(), csv);
             }
         }
 
@@ -575,48 +583,48 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
             // Sort events on ascending Entry_ID
             std::sort(inverters[inv]->eventData.begin(), inverters[inv]->eventData.end(), SortEntryID_Asc);
 
-            for (std::vector<EventData>::iterator it = inverters[inv]->eventData.begin(); it != inverters[inv]->eventData.end(); ++it)
+            for (const auto &event : inverters[inv]->eventData)
             {
 
-                fprintf(csv, "%s%c", inverters[inv]->DeviceType, cfg->delimiter);
+                fprintf(csv, "%s%c", inverters[inv]->DeviceType.c_str(), cfg->delimiter);
                 fprintf(csv, "%s%c", inverters[inv]->DeviceName, cfg->delimiter);
-                fprintf(csv, "%d%c", it->SUSyID(), cfg->delimiter);
-                fprintf(csv, "%u%c", it->SerNo(), cfg->delimiter);
-                fprintf(csv, "%s%c", strftime_t(cfg->DateTimeFormat, it->DateTime()), cfg->delimiter);
-                fprintf(csv, "%d%c", it->EntryID(), cfg->delimiter);
-                fprintf(csv, "%d%c", it->EventCode(), cfg->delimiter);
-                fprintf(csv, "%s%c", it->EventType().c_str(), cfg->delimiter);
-                fprintf(csv, "%s%c", it->EventCategory().c_str(), cfg->delimiter);
-                fprintf(csv, "%s%c", tagdefs.getDesc(it->Group()).c_str(), cfg->delimiter);
-                fprintf(csv, "%s%c", it->EventDescription().c_str(), cfg->delimiter);
+                fprintf(csv, "%d%c", event.SUSyID(), cfg->delimiter);
+                fprintf(csv, "%u%c", event.SerNo(), cfg->delimiter);
+                fprintf(csv, "%s%c", strftime_t(cfg->DateTimeFormat, event.DateTime()), cfg->delimiter);
+                fprintf(csv, "%d%c", event.EntryID(), cfg->delimiter);
+                fprintf(csv, "%d%c", event.EventCode(), cfg->delimiter);
+                fprintf(csv, "%s%c", event.EventType().c_str(), cfg->delimiter);
+                fprintf(csv, "%s%c", event.EventCategory().c_str(), cfg->delimiter);
+                fprintf(csv, "%s%c", tagdefs.getDesc(event.Group()).c_str(), cfg->delimiter);
+                fprintf(csv, "%s%c", event.EventDescription().c_str(), cfg->delimiter);
 
-                switch (it->DataType())
+                switch (event.DataType())
                 {
                 case 0x08: // Status
-                    fprintf(csv, "%s%c", tagdefs.getDesc(it->OldVal() & 0xFFFF).c_str(), cfg->delimiter);
-                    fprintf(csv, "%s%c", tagdefs.getDesc(it->NewVal() & 0xFFFF).c_str(), cfg->delimiter);
+                    fprintf(csv, "%s%c", tagdefs.getDesc(event.OldVal() & 0xFFFF).c_str(), cfg->delimiter);
+                    fprintf(csv, "%s%c", tagdefs.getDesc(event.NewVal() & 0xFFFF).c_str(), cfg->delimiter);
                     break;
 
                 case 0x00: // Unsigned int
-                    fprintf(csv, "%u%c", it->OldVal(), cfg->delimiter);
-                    fprintf(csv, "%u%c", it->NewVal(), cfg->delimiter);
+                    fprintf(csv, "%u%c", event.OldVal(), cfg->delimiter);
+                    fprintf(csv, "%u%c", event.NewVal(), cfg->delimiter);
                     break;
 
                 case 0x40: // Signed int
-                    fprintf(csv, "%d%c", it->OldVal(), cfg->delimiter);
-                    fprintf(csv, "%d%c", it->NewVal(), cfg->delimiter);
+                    fprintf(csv, "%d%c", event.OldVal(), cfg->delimiter);
+                    fprintf(csv, "%d%c", event.NewVal(), cfg->delimiter);
                     break;
 
                 case 0x10: // String
-                    fprintf(csv, "%08X%c", it->OldVal(), cfg->delimiter);
-                    fprintf(csv, "%08X%c", it->NewVal(), cfg->delimiter);
+                    fprintf(csv, "%08X%c", event.OldVal(), cfg->delimiter);
+                    fprintf(csv, "%08X%c", event.NewVal(), cfg->delimiter);
                     break;
 
                 default:
                     fprintf(csv, "%c%c", cfg->delimiter, cfg->delimiter);
                 }
 
-                fprintf(csv, "%s\n", tagdefs.getDesc(it->UserGroupTagID()).c_str());
+                fprintf(csv, "%s\n", tagdefs.getDesc(event.UserGroupTagID()).c_str());
             }
         }
 
@@ -663,9 +671,9 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
 #endif
         {
             if (cfg->SpotWebboxHeader == 0)
-                WriteStandardHeader(csv, cfg, BatteryInverter);
+                WriteStandardHeader(csv, cfg, BatteryInverter, inverters[0]->mpp.size()); // TODO: get highest mppt count for all inverters
             else
-                WriteWebboxHeader(csv, cfg, inverters);
+                WriteWebboxHeader(csv, cfg, inverters, inverters[0]->mpp.size()); // TODO: get highest mppt count for all inverters
         }
 
         char FormattedFloat[32];
@@ -714,76 +722,6 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
 
         fclose(csv);
     }
-    return 0;
-}
-
-
-
-
-// Undocumented - For WebSolarLog usage only
-// WSL needs unlocalized strings
-const char *WSL_AttributeToText(int attribute)
-{
-    switch (attribute)
-    {
-        //Grid Relay Status
-    case 311: return "Open";
-    case 51: return "Closed";
-
-        //Device Status
-    case 307: return "OK";
-    case 455: return "Warning";
-    case 35: return "Fault";
-
-    default: return "?";
-    }
-}
-
-//Undocumented - For WebSolarLog usage only
-//TODO:
-//Version 2.1.0 (multi inverter plant) takes only values from first inverter
-//Must be calculated for ALL inverters - Align with WSL developers
-int ExportSpotDataToWSL(const Config *cfg, InverterData* const inverters[])
-{
-    if (VERBOSE_NORMAL) puts("ExportSpotDataToWSL()");
-
-    time_t spottime = inverters[0]->InverterDatetime;
-    if (cfg->SpotTimeSource == 1) // Take time from computer instead of inverter
-        time(&spottime);
-
-
-    char FormattedFloat[32];
-    const char *strout = "%s%c";
-
-    printf(strout, "WSL_START", cfg->delimiter);
-    printf(strout, strftime_t(cfg->DateTimeFormat, spottime), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pdc1, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pdc2, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Idc1 / 1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Idc2 / 1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Udc1 / 100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Udc2 / 100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pac1, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pac2, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Pac3, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Iac1 / 1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Iac2 / 1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Iac3 / 1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Uac1 / 100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Uac2 / 100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->Uac3 / 100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->calPdcTot, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->TotalPac, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, inverters[0]->calEfficiency, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatDouble(FormattedFloat, (double)inverters[0]->EToday / 1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatDouble(FormattedFloat, (double)inverters[0]->ETotal / 1000, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatFloat(FormattedFloat, (float)inverters[0]->GridFreq / 100, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatDouble(FormattedFloat, (double)inverters[0]->OperationTime / 3600, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatDouble(FormattedFloat, (double)inverters[0]->FeedInTime / 3600, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, FormatDouble(FormattedFloat, inverters[0]->BT_Signal, 0, cfg->precision, cfg->decimalpoint), cfg->delimiter);
-    printf(strout, tagdefs.getDesc(inverters[0]->DeviceStatus, "?").c_str(), cfg->delimiter);
-    printf(strout, tagdefs.getDesc(inverters[0]->GridRelayStatus, "?").c_str(), cfg->delimiter);
-    printf("%s\n", "WSL_END");
     return 0;
 }
 
@@ -896,13 +834,13 @@ int ExportInformationDataTo123s(const Config *cfg, InverterData* const inverters
     // Inverter device name
     printf("Device Name: %s%c", invdata->DeviceName, *s123_delimiter);
     // Inverter device class
-    printf("Device Class: %s%c", invdata->DeviceClass, *s123_delimiter);
+    printf("Device Class: %s%c", invdata->DeviceClass.c_str(), *s123_delimiter);
     // Inverter device type
-    printf("Device Type: %s%c", invdata->DeviceType, *s123_delimiter);
+    printf("Device Type: %s%c", invdata->DeviceType.c_str(), *s123_delimiter);
     // Inverter serial number
     printf("Serial Number: %lu%c", invdata->Serial, *s123_delimiter);
     // Inverter firmware version
-    printf("Firmware: %s%c", invdata->SWVersion, *s123_delimiter);
+    printf("Firmware: %s%c", invdata->SWVersion.c_str(), *s123_delimiter);
     // Inverter phase maximum Pac
     if (invdata->Pmax1 > 0) printf("Pac Max Phase 1: %luW%c", invdata->Pmax1, *s123_delimiter);
     if (invdata->Pmax2 > 0) printf("Pac Max Phase 2: %luW%c", invdata->Pmax2, *s123_delimiter);
