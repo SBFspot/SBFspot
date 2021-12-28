@@ -49,4 +49,6 @@ public:
 
 private:
     const Config& m_config;
+
+    std::string to_keyvalue(const std::string key, const std::string value) const;
 };

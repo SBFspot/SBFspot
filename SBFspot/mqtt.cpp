@@ -36,6 +36,7 @@ DISCLAIMER:
 #include "mqtt.h"
 #include "SBFspot.h"
 #include <boost/algorithm/string.hpp>
+#include "mppt.h"
 
 MqttExport::MqttExport(const Config& config)
     : m_config(config)
@@ -79,11 +80,13 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
 
         for (std::vector<std::string>::iterator it = items.begin(); it != items.end(); ++it)
         {
+            bool add_to_msg = true;
             time_t timestamp = time(NULL);
             key = *it;
             memset(value, 0, sizeof(value));
             std::transform((key).begin(), (key).end(), (key).begin(), ::tolower);
-            if (key == "timestamp")             snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, timestamp));
+            if (key == "timestamp")
+                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, timestamp));
             else if (key == "sunrise") {
                 std::tm *sunrise = std::localtime(&timestamp);
                 sunrise->tm_sec = 0;
@@ -134,45 +137,65 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             else if (key == "batvol")           FormatFloat(value, ((float)inv.BatVol) / 100, 0, prec, dp);
             else if (key == "batamp")           FormatFloat(value, ((float)inv.BatAmp) / 1000, 0, prec, dp);
             else if (key == "batchastt")        FormatFloat(value, ((float)inv.BatChaStt), 0, prec, dp);
-
-            // None of the above, so it's an unhandled item or a typo...
-            else if (VERBOSE_NORMAL) std::cout << "MQTT: Don't know what to do with '" << *it << "'" << std::endl;
-
-            std::string key_value = m_config.mqtt_item_format;
-            boost::replace_all(key_value, "{key}", (*it));
-            boost::replace_first(key_value, "{value}", value);
-
-            boost::replace_all(key_value, "\"\"", "\"");
-#if defined(_WIN32)
-            boost::replace_all(key_value, "\"", "\"\"");
-#endif
-
-            // Append delimiter, except for first item
-            if (mqtt_message.str() != "")
+            else if (key == "pdc")
+                for (const auto& dc : inv.mpp)
+                {
+                    FormatFloat(value, (float)dc.second.Pdc(), 0, prec, dp);
+                    mqtt_message << to_keyvalue(std::string("PDC") + std::to_string(dc.first), value);
+                    add_to_msg = false;
+                }
+            else if (key == "idc")
+                for (const auto& dc : inv.mpp)
+                {
+                    FormatFloat(value, (float)dc.second.Idc() / 1000, 0, prec, dp);
+                    mqtt_message << to_keyvalue(std::string("IDC") + std::to_string(dc.first), value);
+                    add_to_msg = false;
+                }
+            else if (key == "udc")
+                for (const auto& dc : inv.mpp)
+                {
+                    FormatFloat(value, (float)dc.second.Udc() / 100, 0, prec, dp);
+                    mqtt_message << to_keyvalue(std::string("UDC") + std::to_string(dc.first), value);
+                    add_to_msg = false;
+                }
+            else // None of the above, so it's an unhandled item or a typo...
             {
-                mqtt_message << m_config.mqtt_item_delimiter;
+                add_to_msg = false;
+                if (VERBOSE_NORMAL) std::cout << "MQTT: Don't know what to do with '" << *it << "'" << std::endl;
             }
 
-            mqtt_message << key_value;
+            if (add_to_msg)
+                mqtt_message << to_keyvalue((*it), value);
         }
 
-        if (VERBOSE_NORMAL) std::cout << "MQTT: Publishing (" << m_config.mqtt_topic << ") " << mqtt_message.str() << std::endl;
-
-        std::stringstream serial;
-        serial.str("");
-        serial << inv.Serial;
         boost::replace_first(mqtt_command_line, "{plantname}", m_config.plantname);
-        boost::replace_first(mqtt_command_line, "{serial}", serial.str());
-        boost::replace_first(mqtt_command_line, "{message}", mqtt_message.str());
+        boost::replace_first(mqtt_command_line, "{serial}", std::to_string(inv.Serial));
+        boost::replace_first(mqtt_command_line, "{message}", mqtt_message.str().substr(1));
+
+        if (VERBOSE_NORMAL) std::cout << "MQTT: Publishing (" << m_config.mqtt_topic << ") " << mqtt_message.str().substr(1) << std::endl;
 
         int system_rc = ::system(mqtt_command_line.c_str());
 
         if (system_rc != 0) // Error
         {
-            std::cout << "MQTT: Failed te execute '" << m_config.mqtt_publish_exe << "' mosquitto clients installed?" << std::endl;
+            std::cout << "MQTT: Failed te execute '" << m_config.mqtt_publish_exe << "' mosquitto client installed?" << std::endl;
             rc = system_rc;
         }
     }
 
     return rc;
+}
+
+std::string MqttExport::to_keyvalue(const std::string key, const std::string value) const
+{
+    std::string key_value = m_config.mqtt_item_delimiter + m_config.mqtt_item_format;
+    boost::replace_all(key_value, "{key}", key);
+    boost::replace_first(key_value, "{value}", value);
+
+    boost::replace_all(key_value, "\"\"", "\"");
+#if defined(_WIN32)
+    boost::replace_all(key_value, "\"", "\"\"");
+#endif
+
+    return key_value;
 }
