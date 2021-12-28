@@ -510,10 +510,16 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
             fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->GridFreq / 100, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->OperationTime / 3600, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->FeedInTime / 3600, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, inverters[inv]->BT_Signal, 0, cfg->precision, cfg->decimalpoint));
+            if (inverters[inv]->BT_Signal == 0)
+                fprintf(csv, strout, cfg->delimiter, NA);
+            else
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, inverters[inv]->BT_Signal, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->DeviceStatus, "?").c_str());
             fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->GridRelayStatus, "?").c_str());
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Temperature / 100, 0, cfg->precision, cfg->decimalpoint));
+            if (is_NaN(inverters[inv]->Temperature))
+                fprintf(csv, strout, cfg->delimiter, NA);
+            else
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Temperature / 100, 0, cfg->precision, cfg->decimalpoint));
             if (cfg->SpotWebboxHeader == 0)
                 fputs("\n", csv);
         }
