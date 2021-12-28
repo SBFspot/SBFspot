@@ -481,17 +481,17 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
                 fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
             }
 
-            for (MPPTlist::iterator it = inverters[inv]->mpp.begin(); it != inverters[inv]->mpp.end(); ++it)
+            for (const auto &mpp : inverters[inv]->mpp)
             {
-                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, it->second.Watt(), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Watt(), 0, cfg->precision, cfg->decimalpoint));
             }
-            for (MPPTlist::iterator it = inverters[inv]->mpp.begin(); it != inverters[inv]->mpp.end(); ++it)
+            for (const auto &mpp : inverters[inv]->mpp)
             {
-                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, it->second.Amp(), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Amp(), 0, cfg->precision, cfg->decimalpoint));
             }
-            for (MPPTlist::iterator it = inverters[inv]->mpp.begin(); it != inverters[inv]->mpp.end(); ++it)
+            for (const auto &mpp : inverters[inv]->mpp)
             {
-                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, it->second.Volt(), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Volt(), 0, cfg->precision, cfg->decimalpoint));
             }
             fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac1, 0, cfg->precision, cfg->decimalpoint));
             fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac2, 0, cfg->precision, cfg->decimalpoint));
@@ -577,48 +577,48 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
             // Sort events on ascending Entry_ID
             std::sort(inverters[inv]->eventData.begin(), inverters[inv]->eventData.end(), SortEntryID_Asc);
 
-            for (std::vector<EventData>::iterator it = inverters[inv]->eventData.begin(); it != inverters[inv]->eventData.end(); ++it)
+            for (const auto &event : inverters[inv]->eventData)
             {
 
                 fprintf(csv, "%s%c", inverters[inv]->DeviceType.c_str(), cfg->delimiter);
                 fprintf(csv, "%s%c", inverters[inv]->DeviceName, cfg->delimiter);
-                fprintf(csv, "%d%c", it->SUSyID(), cfg->delimiter);
-                fprintf(csv, "%u%c", it->SerNo(), cfg->delimiter);
-                fprintf(csv, "%s%c", strftime_t(cfg->DateTimeFormat, it->DateTime()), cfg->delimiter);
-                fprintf(csv, "%d%c", it->EntryID(), cfg->delimiter);
-                fprintf(csv, "%d%c", it->EventCode(), cfg->delimiter);
-                fprintf(csv, "%s%c", it->EventType().c_str(), cfg->delimiter);
-                fprintf(csv, "%s%c", it->EventCategory().c_str(), cfg->delimiter);
-                fprintf(csv, "%s%c", tagdefs.getDesc(it->Group()).c_str(), cfg->delimiter);
-                fprintf(csv, "%s%c", it->EventDescription().c_str(), cfg->delimiter);
+                fprintf(csv, "%d%c", event.SUSyID(), cfg->delimiter);
+                fprintf(csv, "%u%c", event.SerNo(), cfg->delimiter);
+                fprintf(csv, "%s%c", strftime_t(cfg->DateTimeFormat, event.DateTime()), cfg->delimiter);
+                fprintf(csv, "%d%c", event.EntryID(), cfg->delimiter);
+                fprintf(csv, "%d%c", event.EventCode(), cfg->delimiter);
+                fprintf(csv, "%s%c", event.EventType().c_str(), cfg->delimiter);
+                fprintf(csv, "%s%c", event.EventCategory().c_str(), cfg->delimiter);
+                fprintf(csv, "%s%c", tagdefs.getDesc(event.Group()).c_str(), cfg->delimiter);
+                fprintf(csv, "%s%c", event.EventDescription().c_str(), cfg->delimiter);
 
-                switch (it->DataType())
+                switch (event.DataType())
                 {
                 case 0x08: // Status
-                    fprintf(csv, "%s%c", tagdefs.getDesc(it->OldVal() & 0xFFFF).c_str(), cfg->delimiter);
-                    fprintf(csv, "%s%c", tagdefs.getDesc(it->NewVal() & 0xFFFF).c_str(), cfg->delimiter);
+                    fprintf(csv, "%s%c", tagdefs.getDesc(event.OldVal() & 0xFFFF).c_str(), cfg->delimiter);
+                    fprintf(csv, "%s%c", tagdefs.getDesc(event.NewVal() & 0xFFFF).c_str(), cfg->delimiter);
                     break;
 
                 case 0x00: // Unsigned int
-                    fprintf(csv, "%u%c", it->OldVal(), cfg->delimiter);
-                    fprintf(csv, "%u%c", it->NewVal(), cfg->delimiter);
+                    fprintf(csv, "%u%c", event.OldVal(), cfg->delimiter);
+                    fprintf(csv, "%u%c", event.NewVal(), cfg->delimiter);
                     break;
 
                 case 0x40: // Signed int
-                    fprintf(csv, "%d%c", it->OldVal(), cfg->delimiter);
-                    fprintf(csv, "%d%c", it->NewVal(), cfg->delimiter);
+                    fprintf(csv, "%d%c", event.OldVal(), cfg->delimiter);
+                    fprintf(csv, "%d%c", event.NewVal(), cfg->delimiter);
                     break;
 
                 case 0x10: // String
-                    fprintf(csv, "%08X%c", it->OldVal(), cfg->delimiter);
-                    fprintf(csv, "%08X%c", it->NewVal(), cfg->delimiter);
+                    fprintf(csv, "%08X%c", event.OldVal(), cfg->delimiter);
+                    fprintf(csv, "%08X%c", event.NewVal(), cfg->delimiter);
                     break;
 
                 default:
                     fprintf(csv, "%c%c", cfg->delimiter, cfg->delimiter);
                 }
 
-                fprintf(csv, "%s\n", tagdefs.getDesc(it->UserGroupTagID()).c_str());
+                fprintf(csv, "%s\n", tagdefs.getDesc(event.UserGroupTagID()).c_str());
             }
         }
 

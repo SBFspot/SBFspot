@@ -78,11 +78,11 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
 
         mqtt_message.str("");
 
-        for (std::vector<std::string>::iterator it = items.begin(); it != items.end(); ++it)
-        {
+        for (const auto& item : items)
+            {
             bool add_to_msg = true;
             time_t timestamp = time(NULL);
-            key = *it;
+            key = item;
             memset(value, 0, sizeof(value));
             std::transform((key).begin(), (key).end(), (key).begin(), ::tolower);
             if (key == "timestamp")
@@ -161,11 +161,11 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             else // None of the above, so it's an unhandled item or a typo...
             {
                 add_to_msg = false;
-                if (VERBOSE_NORMAL) std::cout << "MQTT: Don't know what to do with '" << *it << "'" << std::endl;
+                if (VERBOSE_NORMAL) std::cout << "MQTT: Don't know what to do with '" << item << "'" << std::endl;
             }
 
             if (add_to_msg)
-                mqtt_message << to_keyvalue((*it), value);
+                mqtt_message << to_keyvalue(item, value);
         }
 
         boost::replace_first(mqtt_command_line, "{plantname}", m_config.plantname);
