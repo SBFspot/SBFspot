@@ -101,8 +101,8 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
 
             do
             {
-                unsigned long long totalWh = 0;
-                unsigned long long totalWh_prev = 0;
+                uint64_t totalWh = 0;
+                uint64_t totalWh_prev = 0;
                 time_t datetime = 0;
                 time_t datetime_prev = 0;
                 time_t datetime_next = 0;
@@ -146,7 +146,7 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                                 else
                                     dblrecord = true;
 
-                                totalWh = (unsigned long long)get_longlong(pcktBuf + x + 4);
+                                totalWh = (uint64_t)get_longlong(pcktBuf + x + 4);
                                 if (!is_NaN(totalWh)) // Fix Issue 109: Bad request 400: Power value too high for system size
                                 {
                                     if (totalWh > 0)
