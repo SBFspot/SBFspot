@@ -2689,7 +2689,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 case NameplateLocation: //INV_NAME
                                     //This function gives us the time when the inverter was switched on
                                     devList[inv]->WakeupTime = datetime;
-                                    devList[inv]->DeviceName = std::string((char *)recptr + 8, recordsize - 8);
+                                    devList[inv]->DeviceName = std::string((char *)recptr + 8, strnlen((char *)recptr + 8, recordsize - 8)); // Fix #506
                                     devList[inv]->flags |= type;
                                     debug_text("INV_NAME", devList[inv]->DeviceName.c_str(), datetime);
                                     break;
