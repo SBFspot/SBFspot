@@ -2463,7 +2463,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     if (is_NaN(value64) || is_NaN((uint64_t)value64))
                                         value64 = 0;
                                 }
-                                else if ((dataType != 0x10) && (dataType != 0x08)) //Not TEXT or STATUS, so it should be DWORD
+                                else if ((dataType != DT_STRING) && (dataType != DT_STATUS))
                                 {
                                     value = get_long(recptr + 16);
                                     if (is_NaN(value) || is_NaN((uint32_t)value))
@@ -2748,7 +2748,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 default:
                                     switch (dataType)
                                     {
-                                    case 0: // unsigned int
+                                    case DT_ULONG:
                                         if (recordsize == 16)
                                         {
                                             printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), u64_tostring(get_longlong(recptr + 8)).c_str());
@@ -2777,14 +2777,14 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                             printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
                                         break;
 
-                                    case 8: // attribute
+                                    case DT_STATUS:
                                         {
                                             for (const auto &tag : getattribute(recptr))
                                                 printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(tag,"???").c_str());
                                         }
                                         break;
 
-                                    case 16: // text
+                                    case DT_STRING:
                                         {
                                             char str[40];
                                             strncpy(str, (char*)recptr + 8, recordsize - 8);
@@ -2792,7 +2792,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         }
                                         break;
 
-                                    case 64: // signed int
+                                    case DT_SLONG:
                                         if (recordsize == 16)
                                         {
                                             printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), s64_tostring(get_longlong(recptr + 8)).c_str());
