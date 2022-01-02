@@ -1404,9 +1404,6 @@ int parseCmdline(int argc, char **argv, Config *cfg)
         else if (stricmp(argv[i], "-mqtt") == 0)
             cfg->mqtt = 1;
 
-        else if (stricmp(argv[i], "-ble") == 0)
-            cfg->ble = 1;
-
         //Show Help
         else if (stricmp(argv[i], "-?") == 0)
         {
@@ -2315,20 +2312,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
         last = 0x004657FF;
         break;
 
-    case MaxACPower:
-        // INV_PACMAX1, INV_PACMAX2, INV_PACMAX3
-        command = 0x51000200;
-        first = 0x00411E00;
-        last = 0x004120FF;
-        break;
-
-    case MaxACPower2:
-        // INV_PACMAX1_2
-        command = 0x51000200;
-        first = 0x00832A00;
-        last = 0x00832AFF;
-        break;
-
     case SpotACTotalPower:
         // SPOT_PACTOT
         command = 0x51000200;
@@ -2495,24 +2478,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     devList[inv]->TotalPac = value;
                                     devList[inv]->flags |= type;
                                     debug_watt("SPOT_PACTOT", value, datetime);
-                                    break;
-
-                                case OperationHealthSttOk: //INV_PACMAX1
-                                    devList[inv]->Pmax1 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_watt("INV_PACMAX1", value, datetime);
-                                    break;
-
-                                case OperationHealthSttWrn: //INV_PACMAX2
-                                    devList[inv]->Pmax2 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_watt("INV_PACMAX2", value, datetime);
-                                    break;
-
-                                case OperationHealthSttAlm: //INV_PACMAX3
-                                    devList[inv]->Pmax3 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_watt("INV_PACMAX3", value, datetime);
                                     break;
 
                                 case GridMsWphsA: //SPOT_PAC1
@@ -2814,9 +2779,8 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                                     case 8: // attribute
                                         {
-                                            std::vector<uint32_t> tags = getattribute(recptr);
-                                            for (std::vector<uint32_t>::iterator tag_it = tags.begin(); tag_it != tags.end(); ++tag_it)
-                                                printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(*tag_it,"???").c_str());
+                                            for (const auto &tag : getattribute(recptr))
+                                                printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(tag,"???").c_str());
                                         }
                                         break;
 

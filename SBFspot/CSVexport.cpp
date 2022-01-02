@@ -476,8 +476,8 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
             if (cfg->SpotWebboxHeader == 0)
             {
                 fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
-                fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName);
-                fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceType);
+                fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName.c_str());
+                fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceType.c_str());
                 fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
             }
 

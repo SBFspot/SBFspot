@@ -145,10 +145,10 @@ int TagDefs::readall(std::string path, std::string locale)
 unsigned int TagDefs::getTagIDForLRI(unsigned int LRI)
 {
     LRI &= 0x00FFFF00;
-    for (std::map<unsigned long, TD>::iterator it = m_tagdefmap.begin(); it != m_tagdefmap.end(); ++it)
+    for (const auto &tagdef : m_tagdefmap)
     {
-        if (LRI == it->second.getLRI())
-            return it->first;
+        if (LRI == tagdef.second.getLRI())
+            return tagdef.first;
     }
 
     return 0;
@@ -157,10 +157,10 @@ unsigned int TagDefs::getTagIDForLRI(unsigned int LRI)
 std::string TagDefs::getTagForLRI(unsigned int LRI)
 {
     LRI &= 0x00FFFF00;
-    for (std::map<unsigned long, TD>::iterator it = m_tagdefmap.begin(); it != m_tagdefmap.end(); ++it)
+    for (const auto &tagdef : m_tagdefmap)
     {
-        if (LRI == it->second.getLRI())
-            return it->second.getTag();
+        if (LRI == tagdef.second.getLRI())
+            return tagdef.second.getTag();
     }
 
     return "";
@@ -169,10 +169,10 @@ std::string TagDefs::getTagForLRI(unsigned int LRI)
 std::string TagDefs::getDescForLRI(unsigned int LRI)
 {
     LRI &= 0x00FFFF00;
-    for (std::map<unsigned long, TD>::iterator it = m_tagdefmap.begin(); it != m_tagdefmap.end(); ++it)
+    for (const auto &tagdef : m_tagdefmap)
     {
-        if (LRI == it->second.getLRI())
-            return it->second.getDesc();
+        if (LRI == tagdef.second.getLRI())
+            return tagdef.second.getDesc();
     }
 
     return "";

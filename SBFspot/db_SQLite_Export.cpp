@@ -234,11 +234,11 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
         {
             const char* INSERT_SpotDataX = "INSERT INTO SpotDataX VALUES(";
             sql.str("");
-            for (MPPTlist::iterator it = inv[i]->mpp.begin(); it != inv[i]->mpp.end(); ++it)
+            for (const auto &mpp : inv[i]->mpp)
             {
-                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsWatt | it->first) << ',' << it->second.Pdc() << ");";
-                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsVol | it->first) << ',' << it->second.Udc() << ");";
-                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsAmp | it->first) << ',' << it->second.Idc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsWatt | mpp.first) << ',' << mpp.second.Pdc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsVol | mpp.first) << ',' << mpp.second.Udc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsAmp | mpp.first) << ',' << mpp.second.Idc() << ");";
             }
 
             if ((rc = exec_query_multi(sql.str())) != SQLITE_OK)
@@ -264,43 +264,43 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
 
         for (uint32_t i=0; inv[i]!=NULL && i<MAX_INVERTERS; i++)
         {
-            for (std::vector<EventData>::iterator it=inv[i]->eventData.begin(); it!=inv[i]->eventData.end(); ++it)
+            for (const auto &event : inv[i]->eventData)
             {
-                std::string grp = tags.getDesc(it->Group());
-                std::string desc = it->EventDescription();
-                std::string usrgrp = tags.getDesc(it->UserGroupTagID());
+                std::string grp = tags.getDesc(event.Group());
+                std::string desc = event.EventDescription();
+                std::string usrgrp = tags.getDesc(event.UserGroupTagID());
                 std::stringstream oldval;
                 std::stringstream newval;
 
-                switch (it->DataType())
+                switch (event.DataType())
                 {
                 case DT_STATUS:
-                    oldval << tags.getDesc(it->OldVal() & 0xFFFF);
-                    newval << tags.getDesc(it->NewVal() & 0xFFFF);
+                    oldval << tags.getDesc(event.OldVal() & 0xFFFF);
+                    newval << tags.getDesc(event.NewVal() & 0xFFFF);
                     break;
 
                 case DT_STRING:
                     oldval.width(8); oldval.fill('0');
-                    oldval << it->OldVal();
+                    oldval << event.OldVal();
                     newval.width(8); newval.fill('0');
-                    newval << it->NewVal();
+                    newval << event.NewVal();
                     break;
 
                 default:
-                    oldval << it->OldVal();
-                    newval << it->NewVal();
+                    oldval << event.OldVal();
+                    newval << event.NewVal();
                 }
 
-                sqlite3_bind_int(pStmt,  1, it->EntryID());
-                sqlite3_bind_int(pStmt,  2, it->DateTime());
+                sqlite3_bind_int(pStmt,  1, event.EntryID());
+                sqlite3_bind_int(pStmt,  2, event.DateTime());
                 // Fix #269
                 // To store unsigned int32 serial numbers, we're using sqlite3_bind_int64
                 // SQLite will store these uint32 in 4 bytes
-                sqlite3_bind_int64(pStmt,  3, it->SerNo());
-                sqlite3_bind_int(pStmt,  4, it->SUSyID());
-                sqlite3_bind_int(pStmt,  5, it->EventCode());
-                sqlite3_bind_text(pStmt, 6, it->EventType().c_str(), it->EventType().size(), SQLITE_TRANSIENT);
-                sqlite3_bind_text(pStmt, 7, it->EventCategory().c_str(), it->EventCategory().size(), SQLITE_TRANSIENT);
+                sqlite3_bind_int64(pStmt,  3, event.SerNo());
+                sqlite3_bind_int(pStmt,  4, event.SUSyID());
+                sqlite3_bind_int(pStmt,  5, event.EventCode());
+                sqlite3_bind_text(pStmt, 6, event.EventType().c_str(), event.EventType().size(), SQLITE_TRANSIENT);
+                sqlite3_bind_text(pStmt, 7, event.EventCategory().c_str(), event.EventCategory().size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt, 8, grp.c_str(), grp.size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt, 9, desc.c_str(), desc.size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt,10, oldval.str().c_str(), oldval.str().size(), SQLITE_TRANSIENT);

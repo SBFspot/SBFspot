@@ -132,10 +132,9 @@ struct Config
     int		nosql;				// -nosql		Disables SQL export
     int		loadlive;			// -loadlive	Force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
     time_t	startdate;			// -startdate	Start reading of historic data at the given date (YYYYMMDD)
-    S123_COMMAND	s123;		// -123s		123Solar Web Solar logger support(http://www.123solar.org/)
+    S123_COMMAND	s123;		// -123s		123Solar logger support(http://www.123solar.org/)
     int		settime;			// -settime		Set plant time
     int		mqtt;				// -mqtt		Publish spot data to mqtt broker
-    int		ble = 0;			// -ble			Publish spot data via Bluetooth LE
 };
 
 struct MonthData
@@ -167,8 +166,8 @@ enum getInverterDataType
     SpotACPower			= 1 << 3,
     SpotACVoltage		= 1 << 4,
     SpotGridFrequency	= 1 << 5,
-    MaxACPower			= 1 << 6,
-    MaxACPower2			= 1 << 7,
+    //MaxACPower			= 1 << 6,
+    //MaxACPower2			= 1 << 7,
     SpotACTotalPower	= 1 << 8,
     TypeLabel			= 1 << 9,
     OperationTime		= 1 << 10,
@@ -345,9 +344,9 @@ enum LriDef
     MeteringDyWhOut                 = 0x00262200,   // *00* Day yield (aka SPOT_ETODAY)
     GridMsTotW                      = 0x00263F00,   // *40* Power (aka SPOT_PACTOT)
     BatChaStt                       = 0x00295A00,   // *00* Current battery charge status
-    OperationHealthSttOk            = 0x00411E00,   // *00* Nominal power in Ok Mode (aka INV_PACMAX1)
-    OperationHealthSttWrn           = 0x00411F00,   // *00* Nominal power in Warning Mode (aka INV_PACMAX2)
-    OperationHealthSttAlm           = 0x00412000,   // *00* Nominal power in Fault Mode (aka INV_PACMAX3)
+    OperationHealthSttOk            = 0x00411E00,   // *00* Nominal power in Ok Mode (deprecated INV_PACMAX1)
+    OperationHealthSttWrn           = 0x00411F00,   // *00* Nominal power in Warning Mode (deprecated INV_PACMAX2)
+    OperationHealthSttAlm           = 0x00412000,   // *00* Nominal power in Fault Mode (deprecated INV_PACMAX3)
     OperationGriSwStt               = 0x00416400,   // *08* Grid relay/contactor (aka INV_GRIDRELAY)
     OperationRmgTms                 = 0x00416600,   // *00* Waiting time until feed-in
     DcMsVol                         = 0x00451F00,   // *40* DC voltage input (aka SPOT_UDC1 / SPOT_UDC2)
@@ -356,7 +355,7 @@ enum LriDef
     MeteringGridMsTotWhOut          = 0x00462400,   // *00* Grid feed-in counter reading
     MeteringGridMsTotWhIn           = 0x00462500,   // *00* Grid reference counter reading
     MeteringCsmpTotWhIn             = 0x00462600,   // *00* Meter reading consumption meter
-    MeteringGridMsDyWhOut	        = 0x00462700,   // *00* ?
+    MeteringGridMsDyWhOut           = 0x00462700,   // *00* ?
     MeteringGridMsDyWhIn            = 0x00462800,   // *00* ?
     MeteringTotOpTms                = 0x00462E00,   // *00* Operating time (aka SPOT_OPERTM)
     MeteringTotFeedTms              = 0x00462F00,   // *00* Feed-in time (aka SPOT_FEEDTM)
@@ -396,7 +395,7 @@ enum LriDef
     NameplateModel                  = 0x00822000,   // *08* Device type (aka INV_TYPE)
     NameplateAvalGrpUsr             = 0x00822100,   // *  * Unknown
     NameplatePkgRev                 = 0x00823400,   // *08* Software package (aka INV_SWVER)
-    InverterWLim                    = 0x00832A00,   // *00* Maximum active power device (aka INV_PACMAX1_2) (Some inverters like SB3300/SB1200)
+    InverterWLim                    = 0x00832A00,   // *00* Maximum active power device (deprecated INV_PACMAX1_2) (Some inverters like SB3300/SB1200)
     GridMsPhVphsA2B6100             = 0x00464B00,
     GridMsPhVphsB2C6100             = 0x00464C00,
     GridMsPhVphsC2A6100             = 0x00464D00
@@ -404,17 +403,18 @@ enum LriDef
 
 enum E_SBFSPOT
 {
-    E_OK			=  0,
-    E_NODATA		= -1,	// Bluetooth buffer empty
-    E_BADARG		= -2,	// Unknown command line argument
-    E_CHKSUM		= -3,	// Invalid Checksum
-    E_BUFOVRFLW		= -4,	// Buffer overflow
-    E_ARCHNODATA	= -5,	// No archived data found for given timespan
-    E_INIT			= -6,	// Unable to initialize
-    E_INVPASSW		= -7,	// Invalid password
-    E_RETRY			= -8,	// Retry the last action
-    E_EOF			= -9,	// End of data
-    E_PRIVILEGE		= -10,	// Privilege not held (need installer login)
-    E_LOGONFAILED	= -11,	// Logon failed, other than Invalid Password (E_INVPASSW)
-    E_COMM			= -12	// General communication error
+    E_LRINOTAVAIL   =  21,  // Requested LRI not available
+    E_OK            =  0,   // No error
+    E_NODATA        = -1,   // Bluetooth buffer empty
+    E_BADARG        = -2,   // Unknown command line argument
+    E_CHKSUM        = -3,   // Invalid Checksum
+    E_BUFOVRFLW     = -4,   // Buffer overflow
+    E_ARCHNODATA    = -5,   // No archived data found for given timespan
+    E_INIT          = -6,   // Unable to initialize
+    E_INVPASSW      = -7,   // Invalid password
+    E_RETRY         = -8,   // Retry the last action
+    E_EOF           = -9,   // End of data
+    E_PRIVILEGE     = -10,  // Privilege not held (need installer login)
+    E_LOGONFAILED   = -11,  // Logon failed, other than Invalid Password (E_INVPASSW)
+    E_COMM          = -12   // General communication error
 };

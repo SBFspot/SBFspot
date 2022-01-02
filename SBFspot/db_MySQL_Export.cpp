@@ -264,11 +264,11 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
         {
             const char* INSERT_SpotDataX = "INSERT INTO SpotDataX VALUES(";
             sql.str("");
-            for (MPPTlist::iterator it = inv[i]->mpp.begin(); it != inv[i]->mpp.end(); ++it)
+            for (const auto &mpp : inv[i]->mpp)
             {
-                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsWatt | it->first) << ',' << it->second.Pdc() << ");";
-                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsVol | it->first) << ',' << it->second.Udc() << ");";
-                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsAmp | it->first) << ',' << it->second.Idc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsWatt | mpp.first) << ',' << mpp.second.Pdc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsVol | mpp.first) << ',' << mpp.second.Udc() << ");";
+                sql << INSERT_SpotDataX << spottime << ',' << inv[i]->Serial << ',' << (LriDef::DcMsAmp | mpp.first) << ',' << mpp.second.Idc() << ");";
             }
 
             if ((rc = exec_query_multi(sql.str())) != SQL_OK)
@@ -302,73 +302,73 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
 
         for (uint32_t i = 0; inv[i] != NULL && i<MAX_INVERTERS; i++)
         {
-            for (std::vector<EventData>::iterator it = inv[i]->eventData.begin(); it != inv[i]->eventData.end(); ++it)
+            for (const auto &event : inv[i]->eventData)
             {
-                std::string grp = tags.getDesc(it->Group());
-                std::string desc = it->EventDescription();
-                std::string usrgrp = tags.getDesc(it->UserGroupTagID());
+                std::string grp = tags.getDesc(event.Group());
+                std::string desc = event.EventDescription();
+                std::string usrgrp = tags.getDesc(event.UserGroupTagID());
                 std::stringstream oldval;
                 std::stringstream newval;
 
-                switch (it->DataType())
+                switch (event.DataType())
                 {
                 case DT_STATUS:
-                    oldval << tags.getDesc(it->OldVal() & 0xFFFF);
-                    newval << tags.getDesc(it->NewVal() & 0xFFFF);
+                    oldval << tags.getDesc(event.OldVal() & 0xFFFF);
+                    newval << tags.getDesc(event.NewVal() & 0xFFFF);
                     break;
 
                 case DT_STRING:
                     oldval.width(8); oldval.fill('0');
-                    oldval << it->OldVal();
+                    oldval << event.OldVal();
                     newval.width(8); newval.fill('0');
-                    newval << it->NewVal();
+                    newval << event.NewVal();
                     break;
 
                 default:
-                    oldval << it->OldVal();
-                    newval << it->NewVal();
+                    oldval << event.OldVal();
+                    newval << event.NewVal();
                 }
 
                 memset(values, 0, sizeof(values));
 
                 // Entry ID
-                uint16_t EntryID = it->EntryID();
+                uint16_t EntryID = event.EntryID();
                 values[0].buffer_type = MYSQL_TYPE_SHORT;
                 values[0].buffer = &EntryID;
                 values[0].is_unsigned = true;
 
                 // Timestamp
-                int32_t DateTime = it->DateTime();
+                int32_t DateTime = event.DateTime();
                 values[1].buffer_type = MYSQL_TYPE_LONG;
                 values[1].buffer = &DateTime;
                 values[1].is_unsigned = false;
 
                 // Serial
-                uint32_t SerNo = it->SerNo();
+                uint32_t SerNo = event.SerNo();
                 values[2].buffer_type = MYSQL_TYPE_LONG;
                 values[2].buffer = &SerNo;
                 values[2].is_unsigned = true;
 
                 // SUSy ID
-                uint16_t SUSyID = it->SUSyID();
+                uint16_t SUSyID = event.SUSyID();
                 values[3].buffer_type = MYSQL_TYPE_SHORT;
                 values[3].buffer = &SUSyID;
                 values[3].is_unsigned = true;
 
                 // Event Code
-                uint16_t EventCode = it->EventCode();
+                uint16_t EventCode = event.EventCode();
                 values[4].buffer_type = MYSQL_TYPE_SHORT;
                 values[4].buffer = &EventCode;
                 values[4].is_unsigned = true;
 
                 // Event Type
-                std::string EventType = it->EventType();
+                std::string EventType = event.EventType();
                 values[5].buffer_type = MYSQL_TYPE_STRING;
                 values[5].buffer = (char *)EventType.c_str();
                 values[5].buffer_length = EventType.size();
 
                 // Event Category
-                std::string EventCategory = it->EventCategory();
+                std::string EventCategory = event.EventCategory();
                 values[6].buffer_type = MYSQL_TYPE_STRING;
                 values[6].buffer = (char *)EventCategory.c_str();
                 values[6].buffer_length = EventCategory.size();

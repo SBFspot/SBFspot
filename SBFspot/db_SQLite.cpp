@@ -302,15 +302,15 @@ int db_SQL_Base::batch_set_pvoflag(const std::string &data, unsigned int Serial)
         "IN (";
 
     bool firstitem = true;
-    for (std::vector<std::string>::iterator it = items.begin(); it != items.end(); ++it)
+    for (const auto &item : items)
     {
-        if ((it->size() == 16) && (it->back() == '1'))
+        if ((item.size() == 16) && (item.back() == '1'))
         {
             if (!firstitem)
                 sql << ",";
             else
                 firstitem = false;
-            sql << s_quoted(it->substr(0, 14));
+            sql << s_quoted(item.substr(0, 14));
         }
     }
 

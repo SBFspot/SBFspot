@@ -1,13 +1,6 @@
 #define VERSION "3.9.0"
 
 /*
-V3.8.2
-    Fix #455 Voltages and Currents in .csv file swapped for battery inverter
-    Fix #428 SBFspotUploadDaemon crash
-    Fix #459 Incorrect Calculated EToday
-    Fix #330 From Sqlite3 to MySQL
-    Fix #457 Serial number too big for defined field
-
 V3.8.3
     Fix #476 V3.8.2 fails to compile on Fedora 34
     Merged #467 Let executable return errors in Inverter::process()
@@ -26,6 +19,14 @@ V3.9.0
     Fix #496 WakeUp/Sleep time in MQTT
     Fix #419 SMA Energymeter & SMA Inverter: report current MeteringGridMsTotW*
     Fix #420/#440 (manually merged) Add inverter power measurements from a connected energy meter
+
+V3.9.1
+    Fix #508: V390: no contents written into the csv file: 'spot'
+    Removed PAC_MAX
+    C++11 range-based for-loops
+    Removed -ble option
+    Show MeteringGridInfo only when available
+
 */
 
 /***

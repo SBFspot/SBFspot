@@ -208,13 +208,13 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, MeteringGridMsTotW)) != 0)
+    if ((rc = getInverterData(m_inverters, MeteringGridMsTotW)) < 0)
         std::cerr << "getMeteringGridInfo returned an error: " << rc << std::endl;
     else
     {
-        for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
+        if (rc == E_OK)
         {
-            if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->hasBattery))
+            for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
             {
                 if (VERBOSE_NORMAL)
                 {
@@ -278,28 +278,6 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, MaxACPower)) != 0)
-        std::cerr << "getMaxACPower returned an error: " << rc << std::endl;
-    else
-    {
-        //TODO: REVIEW THIS PART (getMaxACPower & getMaxACPower2 should be 1 function)
-        if ((m_inverters[0]->Pmax1 == 0) && (rc = getInverterData(m_inverters, MaxACPower2)) != 0)
-            std::cerr << "getMaxACPower2 returned an error: " << rc << std::endl;
-        else
-        {
-            for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-            {
-                if (VERBOSE_NORMAL)
-                {
-                    printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-                    printf("Pac max phase 1: %luW\n", m_inverters[inv]->Pmax1);
-                    printf("Pac max phase 2: %luW\n", m_inverters[inv]->Pmax2);
-                    printf("Pac max phase 3: %luW\n", m_inverters[inv]->Pmax3);
-                }
-            }
-        }
-    }
-
     if ((rc = getInverterData(m_inverters, EnergyProduction)) != 0)
     {
         std::cerr << "getEnergyProduction returned an error: " << rc << std::endl;
@@ -311,9 +289,6 @@ int Inverter::process()
 
     for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
     {
-        /* reset day yield counter to test the issue */
-        // m_inverters[inv]->EToday = 0;
-
         if (m_inverters[inv]->EToday == 0)
         {
             if (!archdata_available)
@@ -383,9 +358,10 @@ int Inverter::process()
         {
             printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
             puts("DC Spot Data:");
-            for (std::map<uint8_t, mppt>::iterator it = m_inverters[inv]->mpp.begin(); it != m_inverters[inv]->mpp.end(); ++it)
+
+            for (const auto &mpp : m_inverters[inv]->mpp)
             {
-                printf("\tString %d Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", it->first, it->second.kW(), it->second.Volt(), it->second.Amp());
+                printf("\tMPPT %d Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", mpp.first, mpp.second.kW(), mpp.second.Volt(), mpp.second.Amp());
             }
             printf("\tCalculated Total Pdc: %7.3fkW\n", tokW(m_inverters[inv]->calPdcTot));
         }
@@ -396,12 +372,6 @@ int Inverter::process()
 
         if (VERBOSE_NORMAL)
         {
-//            printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-//            puts("DC Spot Data:");
-//            printf("\tString 1 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc1), toVolt(m_inverters[inv]->Udc1), toAmp(m_inverters[inv]->Idc1));
-//            printf("\tString 2 Pdc: %7.3fkW - Udc: %6.2fV - Idc: %6.3fA\n", tokW(m_inverters[inv]->Pdc2), toVolt(m_inverters[inv]->Udc2), toAmp(m_inverters[inv]->Idc2));
-//            printf("\tCalculated Total Pdc: %7.3fkW\n", tokW(m_inverters[inv]->calPdcTot));
-
             puts("AC Spot Data:");
             printf("\tPhase 1 Pac : %7.3fkW - Uac: %6.2fV - Iac: %6.3fA\n", tokW(m_inverters[inv]->Pac1), toVolt(m_inverters[inv]->Uac1), toAmp(m_inverters[inv]->Iac1));
             printf("\tPhase 2 Pac : %7.3fkW - Uac: %6.2fV - Iac: %6.3fA\n", tokW(m_inverters[inv]->Pac2), toVolt(m_inverters[inv]->Uac2), toAmp(m_inverters[inv]->Iac2));
@@ -453,17 +423,6 @@ int Inverter::process()
 #elif defined(USE_SQLITE)
         m_db.open(m_config.sqlDatabase);
 #endif
-/* Fix #448
-        if (m_db.isopen())
-        {
-            time_t spottime = time(NULL);
-            m_db.type_label(m_inverters);
-            m_db.device_status(m_inverters, spottime);
-            m_db.exportSpotData(m_inverters, spottime);
-            if (hasBatteryDevice)
-                m_db.exportBatteryData(m_inverters, spottime);
-        }
-*/
     }
 #endif
 
@@ -593,14 +552,17 @@ int Inverter::process()
         {
             for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
             {
-                std::cout << "Events for device " << m_inverters[inv]->SUSyID << ":" << m_inverters[inv]->Serial << '\n';
-                
-                // Sort events on descending Entry_ID
-                std::sort(m_inverters[inv]->eventData.begin(), m_inverters[inv]->eventData.end(), SortEntryID_Desc);
-
-                for (std::vector<EventData>::iterator it = m_inverters[inv]->eventData.begin(); it != m_inverters[inv]->eventData.end(); ++it)
+                if (m_inverters[inv]->eventData.size() > 0)
                 {
-                    std::cout << it->ToString(m_config.DateTimeFormat) << '\n';
+                    std::cout << "Events for device " << m_inverters[inv]->SUSyID << ":" << m_inverters[inv]->Serial << '\n';
+
+                    // Sort events on descending Entry_ID
+                    std::sort(m_inverters[inv]->eventData.begin(), m_inverters[inv]->eventData.end(), SortEntryID_Desc);
+
+                    for (const auto &event : m_inverters[inv]->eventData)
+                    {
+                        std::cout << event.ToString(m_config.DateTimeFormat) << '\n';
+                    }
                 }
             }
 
