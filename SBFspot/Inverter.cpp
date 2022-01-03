@@ -658,9 +658,14 @@ int Inverter::logOn()
         }
     }
 
-    if (logonSMAInverter(m_inverters, m_config.userGroup, m_config.SMA_Password) != E_OK)
+    rc = logonSMAInverter(m_inverters, m_config.userGroup, m_config.SMA_Password);
+    if (rc != E_OK)
     {
-        snprintf(msg, sizeof(msg), "Logon failed. Check '%s' Password\n", m_config.userGroup == UG_USER? "USER":"INSTALLER");
+        if (rc == E_INVPASSW)
+            snprintf(msg, sizeof(msg), "Logon failed. Check '%s' Password\n", m_config.userGroup == UG_USER? "USER":"INSTALLER");
+        else
+            snprintf(msg, sizeof(msg), "Logon failed. Reason unknown (%d)\n", rc);
+
         print_error(stdout, PROC_CRITICAL, msg);
         bthClose();
         return 1;

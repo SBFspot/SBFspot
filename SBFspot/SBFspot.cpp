@@ -2432,8 +2432,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                 else
                 {
                     uint16_t status = get_short(pcktBuf + 23);
-                    if (VERBOSE_NORMAL && (status != 0))
-                        printf("Packet status: %d\n", status);
+                    if (status != 0)
+                    {
+                        if (VERBOSE_NORMAL) printf("Packet status: %d\n", status);
+                        return status;
+                    }
                     pcktcount = get_short(pcktBuf + 25);
                     unsigned short rcvpcktID = get_short(pcktBuf + 27) & 0x7FFF;
                     if (pcktID == rcvpcktID)
@@ -2564,7 +2567,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
                                     }
 
-                                    debug_watt("SPOT_PDC", value, datetime);
+                                    debug_watt((std::string("SPOT_PDC") + std::to_string(cls)).c_str(), value, datetime);
 
                                     devList[inv]->calPdcTot += value;
 
@@ -2592,7 +2595,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
                                     }
 
-                                    debug_volt("SPOT_UDC", value, datetime);
+                                    debug_volt((std::string("SPOT_UDC") + std::to_string(cls)).c_str(), value, datetime);
 
                                     devList[inv]->flags |= type;
                                     break;
@@ -2618,7 +2621,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
                                     }
 
-                                    debug_amp("SPOT_IDC", value, datetime);
+                                    debug_amp((std::string("SPOT_IDC") + std::to_string(cls)).c_str(), value, datetime);
 
                                     devList[inv]->flags |= type;
                                     break;
