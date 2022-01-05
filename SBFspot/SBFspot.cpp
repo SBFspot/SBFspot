@@ -2862,10 +2862,10 @@ void resetInverterData(InverterData *inv)
     inv->calPacTot = 0;
     inv->calPdcTot = 0;
     inv->DevClass = AllDevices;
-    inv->DeviceClass[0] = 0;
-    inv->DeviceName[0] = 0;
+    //inv->DeviceClass[0] = 0;
+    //inv->DeviceName[0] = 0;
     inv->DeviceStatus = 0;
-    inv->DeviceType[0] = 0;
+    //inv->DeviceType[0] = 0;
     inv->EToday = 0;
     inv->ETotal = 0;
     inv->FeedInTime = 0;
@@ -2893,7 +2893,7 @@ void resetInverterData(InverterData *inv)
     inv->Serial = 0;
     inv->SleepTime = 0;
     inv->SUSyID = 0;
-    inv->SWVersion[0] = 0;
+    //inv->SWVersion[0] = 0;
     inv->Temperature = NaN_S32;
     inv->TotalPac = 0;
     inv->Uac1 = 0;
