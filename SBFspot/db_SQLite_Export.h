@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2018, SBF
+    (c)2012-2022, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -50,6 +50,15 @@ public:
     int exportSpotData(InverterData *inv[], time_t spottime);
     int exportEventData(InverterData *inv[], TagDefs& tags);
     int exportBatteryData(InverterData *inverters[], time_t spottime);
+
+    template<class T1, class T2>
+    std::string null_if_nan(const T1 t1, const T2 t2) const
+    {
+        if (is_NaN(t1))
+            return "NULL";
+        else
+            return std::to_string(t2);
+    }
 
 private:
     int insert_battery_data(sqlite3_stmt* pStmt, int32_t tm, int32_t sn, int32_t key, int32_t val);

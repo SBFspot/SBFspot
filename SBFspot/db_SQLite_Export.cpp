@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2022, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -196,32 +196,33 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
     {
         sql.str("");
         sql << "INSERT INTO SpotData VALUES(" <<
-               spottime << ',' <<
-               inv[i]->Serial << ',' <<
-               inv[i]->Pdc1 << ',' <<
-               inv[i]->Pdc2 << ',' <<
-               (float)inv[i]->Idc1/1000 << ',' <<
-               (float)inv[i]->Idc2/1000 << ',' <<
-               (float)inv[i]->Udc1/100 << ',' <<
-               (float)inv[i]->Udc2/100 << ',' <<
-               inv[i]->Pac1 << ',' <<
-               inv[i]->Pac2 << ',' <<
-               inv[i]->Pac3 << ',' <<
-               (float)inv[i]->Iac1/1000 << ',' <<
-               (float)inv[i]->Iac2/1000 << ',' <<
-               (float)inv[i]->Iac3/1000 << ',' <<
-               (float)inv[i]->Uac1/100 << ',' <<
-               (float)inv[i]->Uac2/100 << ',' <<
-               (float)inv[i]->Uac3/100 << ',' <<
-               inv[i]->EToday << ',' <<
-               inv[i]->ETotal << ',' <<
-               (float)inv[i]->GridFreq/100 << ',' <<
-               (double)inv[i]->OperationTime/3600 << ',' <<
-               (double)inv[i]->FeedInTime/3600 << ',' <<
-               (float)inv[i]->BT_Signal << ',' <<
-               s_quoted(status_text(inv[i]->DeviceStatus)) << ',' <<
-               s_quoted(status_text(inv[i]->GridRelayStatus)) << ',' <<
-               (float)inv[i]->Temperature/100 << ')';
+            spottime << ',' <<
+            inv[i]->Serial << ',' <<
+            inv[i]->Pdc1 << ',' <<
+            inv[i]->Pdc2 << ',' <<
+            (float)inv[i]->Idc1 / 1000 << ',' <<
+            (float)inv[i]->Idc2 / 1000 << ',' <<
+            (float)inv[i]->Udc1 / 100 << ',' <<
+            (float)inv[i]->Udc2 / 100 << ',' <<
+            inv[i]->Pac1 << ',' <<
+            inv[i]->Pac2 << ',' <<
+            inv[i]->Pac3 << ',' <<
+            (float)inv[i]->Iac1 / 1000 << ',' <<
+            (float)inv[i]->Iac2 / 1000 << ',' <<
+            (float)inv[i]->Iac3 / 1000 << ',' <<
+            (float)inv[i]->Uac1 / 100 << ',' <<
+            (float)inv[i]->Uac2 / 100 << ',' <<
+            (float)inv[i]->Uac3 / 100 << ',' <<
+            inv[i]->EToday << ',' <<
+            inv[i]->ETotal << ',' <<
+            (float)inv[i]->GridFreq / 100 << ',' <<
+            (double)inv[i]->OperationTime / 3600 << ',' <<
+            (double)inv[i]->FeedInTime / 3600 << ',' <<
+            (float)inv[i]->BT_Signal << ',' <<
+            s_quoted(status_text(inv[i]->DeviceStatus)) << ',' <<
+            s_quoted(status_text(inv[i]->GridRelayStatus)) << ',' <<
+            null_if_nan(inv[i]->Temperature, (float)inv[i]->Temperature / 100) <<
+            ')';
 
         if ((rc = exec_query(sql.str())) != SQLITE_OK)
         {

@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2022, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -251,7 +251,8 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
             (float)inv[i]->BT_Signal << ',' <<
             s_quoted(status_text(inv[i]->DeviceStatus)) << ',' <<
             s_quoted(status_text(inv[i]->GridRelayStatus)) << ',' <<
-            (float)inv[i]->Temperature / 100 << ')';
+            null_if_nan(inv[i]->Temperature, (float)inv[i]->Temperature / 100) <<
+            ')';
 
         if ((rc = exec_query(sql.str())) != SQL_OK)
         {
