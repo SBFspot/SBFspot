@@ -38,6 +38,7 @@ DISCLAIMER:
 
 #include "db_SQLite.h"
 #include <sstream>
+#include <iomanip>
 
 extern int quiet;
 extern int verbose;
@@ -51,13 +52,20 @@ public:
     int exportEventData(InverterData *inv[], TagDefs& tags);
     int exportBatteryData(InverterData *inverters[], time_t spottime);
 
-    template<class T1, class T2>
-    std::string null_if_nan(const T1 t1, const T2 t2) const
+    template <typename T>
+    std::string null_if_nan(const T rawval, const uint32_t prec) const
     {
-        if (is_NaN(t1))
+        assert(prec >= 0 && prec <= 3);
+
+        if (is_NaN(rawval))
             return "NULL";
         else
-            return std::to_string(t2);
+        {
+            static const float div[4] = { 1.0f, 10.0f, 100.0f, 1000.0f };
+            std::ostringstream os;
+            os << std::fixed << std::setprecision(prec) << (float)rawval / div[prec] ;
+            return os.str();
+        }
     }
 
 private:
