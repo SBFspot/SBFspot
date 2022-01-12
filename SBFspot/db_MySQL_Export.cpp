@@ -251,7 +251,7 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
             (float)inv[i]->BT_Signal << ',' <<
             s_quoted(status_text(inv[i]->DeviceStatus)) << ',' <<
             s_quoted(status_text(inv[i]->GridRelayStatus)) << ',' <<
-            null_if_nan(inv[i]->Temperature, (float)inv[i]->Temperature / 100) <<
+            null_if_nan(inv[i]->Temperature, 2) <<
             ')';
 
         if ((rc = exec_query(sql.str())) != SQL_OK)
