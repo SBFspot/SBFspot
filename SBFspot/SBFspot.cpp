@@ -2669,36 +2669,60 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     break;
 
                                 case NameplateModel: //INV_TYPE
-                                    devList[inv]->DeviceType = tagdefs.getDesc(getattribute(recptr).front());
-                                    if (devList[inv]->DeviceType.empty())
+                                {
+                                    auto attr = getattribute(recptr);
+                                    if (attr.size() > 0)
                                     {
-                                        devList[inv]->DeviceType = "UNKNOWN TYPE";
-                                                printf("Unknown Inverter Type. Report this issue at https://github.com/SBFspot/SBFspot/issues with following info:\n");
-                                        printf("0x%08X and Inverter Type=<Fill in the exact type> (e.g. SB1300TL-10)\n", getattribute(recptr).front());
+                                        devList[inv]->DeviceType = tagdefs.getDesc(attr.front());
+                                        if (devList[inv]->DeviceType.empty())
+                                        {
+                                            devList[inv]->DeviceType = "UNKNOWN TYPE";
+                                            printf("Unknown Inverter Type. Report this issue at https://github.com/SBFspot/SBFspot/issues with following info:\n");
+                                            printf("ID='%d' and Type=<Fill in the exact inverter model> (e.g. SB1300TL-10)\n", attr.front());
+                                        }
+                                        devList[inv]->flags |= type;
+                                        debug_text("INV_TYPE", devList[inv]->DeviceType.c_str(), datetime);
                                     }
-                                    devList[inv]->flags |= type;
-                                    debug_text("INV_TYPE", devList[inv]->DeviceType.c_str(), datetime);
                                     break;
+                                }
 
                                 case NameplateMainModel: //INV_CLASS
-                                    devList[inv]->DevClass = (DEVICECLASS)getattribute(recptr).front();
-                                    devList[inv]->DeviceClass = tagdefs.getDesc(devList[inv]->DevClass, "UNKNOWN CLASS");
+                                {
+                                    auto attr = getattribute(recptr);
+                                    if (attr.size() > 0)
+                                    {
+                                        devList[inv]->DevClass = (DEVICECLASS)attr.front();
+                                        devList[inv]->DeviceClass = tagdefs.getDesc(devList[inv]->DevClass, "UNKNOWN CLASS");
 
-                                    devList[inv]->flags |= type;
-                                    debug_text("INV_CLASS", devList[inv]->DeviceClass.c_str(), datetime);
+                                        devList[inv]->flags |= type;
+                                        debug_text("INV_CLASS", devList[inv]->DeviceClass.c_str(), datetime);
+                                    }
                                     break;
+                                }
 
                                 case OperationHealth: //INV_STATUS:
-                                    devList[inv]->DeviceStatus = getattribute(recptr).front();
-                                    devList[inv]->flags |= type;
-                                    debug_text("INV_STATUS", tagdefs.getDesc(devList[inv]->DeviceStatus, "?").c_str(), datetime);
+                                {
+                                    auto attr = getattribute(recptr);
+                                    if (attr.size() > 0)
+                                    {
+                                        devList[inv]->DeviceStatus = attr.front();
+                                        devList[inv]->flags |= type;
+                                        debug_text("INV_STATUS", tagdefs.getDesc(devList[inv]->DeviceStatus, "?").c_str(), datetime);
+                                    }
                                     break;
+                                }
 
                                 case OperationGriSwStt: //INV_GRIDRELAY
-                                    devList[inv]->GridRelayStatus = getattribute(recptr).front();
-                                    devList[inv]->flags |= type;
-                                    debug_text("INV_GRIDRELAY", tagdefs.getDesc(devList[inv]->GridRelayStatus, "?").c_str(), datetime);
+                                {
+                                    auto attr = getattribute(recptr);
+                                    if (attr.size() > 0)
+                                    {
+                                        devList[inv]->GridRelayStatus = attr.front();
+                                        devList[inv]->flags |= type;
+                                        debug_text("INV_GRIDRELAY", tagdefs.getDesc(devList[inv]->GridRelayStatus, "?").c_str(), datetime);
+                                    }
                                     break;
+                                }
 
                                 case BatChaStt:
                                     devList[inv]->BatChaStt = value;
