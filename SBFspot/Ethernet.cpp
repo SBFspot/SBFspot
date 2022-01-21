@@ -95,61 +95,61 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
 
     fd_set readfds;
 
-	do
-	{
-		struct timeval tv;
-		tv.tv_sec = timeout;     //set timeout of reading
-		tv.tv_usec = 0;
+    do
+    {
+        struct timeval tv;
+        tv.tv_sec = timeout;     //set timeout of reading
+        tv.tv_usec = 0;
 
-		FD_ZERO(&readfds);
-		FD_SET(sock, &readfds);
+        FD_ZERO(&readfds);
+        FD_SET(sock, &readfds);
 
-		int rc = select(sock+1, &readfds, NULL, NULL, &tv);
-		if (DEBUG_HIGHEST) printf("select() returned %d\n", rc);
-		if (rc == -1)
-		{
-			if (DEBUG_HIGHEST) printf("errno = %d\n", errno);
-		}
+        int rc = select(sock + 1, &readfds, NULL, NULL, &tv);
+        if (DEBUG_HIGHEST) printf("select() returned %d\n", rc);
+        if (rc == -1)
+        {
+            if (DEBUG_HIGHEST) printf("errno = %d\n", errno);
+        }
 
-		if (FD_ISSET(sock, &readfds))
-			bytes_read = recvfrom(sock, (char*)buf, bufsize, 0, (struct sockaddr *)&addr_in, &addr_in_len);
-		else
-		{
-			if (DEBUG_NORMAL) puts("Timeout reading socket");
-			return -1;
-		}
+        if (FD_ISSET(sock, &readfds))
+            bytes_read = recvfrom(sock, (char*)buf, bufsize, 0, (struct sockaddr *)&addr_in, &addr_in_len);
+        else
+        {
+            if (DEBUG_NORMAL) puts("Timeout reading socket");
+            return -1;
+        }
 
-		if ( bytes_read > 0)
-		{
-			if (bytes_read > MAX_CommBuf)
-			{
-				MAX_CommBuf = bytes_read;
-				if (DEBUG_NORMAL)
-					printf("MAX_CommBuf is now %d bytes\n", MAX_CommBuf);
-			}
-		   	if (DEBUG_NORMAL)
-		   	{
-				printf("%d bytes received from [%s]\n", bytes_read, inet_ntoa(addr_in.sin_addr));
-		   		if (bytes_read == 600 || bytes_read == 608 || bytes_read == 0)
-		   			printf(" ==> packet ignored\n");
-			}
-		}
-		else
-			printf("recvfrom() returned an error: %d\n", bytes_read);
+        if (bytes_read > 0)
+        {
+            if (bytes_read > MAX_CommBuf)
+            {
+                MAX_CommBuf = bytes_read;
+                if (DEBUG_HIGHEST)
+                    printf("MAX_CommBuf is now %d bytes\n", MAX_CommBuf);
+            }
+            if (DEBUG_HIGHEST)
+            {
+                printf("%d bytes received from [%s]\n", bytes_read, inet_ntoa(addr_in.sin_addr));
+                if (bytes_read == 600 || bytes_read == 608 || bytes_read == 0)
+                    printf(" ==> packet ignored\n");
+            }
+        }
+        else
+            printf("recvfrom() returned an error: %d\n", bytes_read);
 
-	} while (bytes_read == 600 || bytes_read == 608); // keep on reading if data received from Energy Meter (600 bytes) or Sunny Home Manager (608 bytes)
+    } while (bytes_read == 600 || bytes_read == 608); // keep on reading if data received from Energy Meter (600 bytes) or Sunny Home Manager (608 bytes)
 
     return bytes_read;
 }
 
 int ethSend(unsigned char *buffer, const char *toIP)
 {
-	if (DEBUG_HIGHEST) HexDump(buffer, packetposition, 10);
+    if (DEBUG_HIGHEST) HexDump(buffer, packetposition, 10);
 
-	addr_out.sin_addr.s_addr = inet_addr(toIP);
+    addr_out.sin_addr.s_addr = inet_addr(toIP);
     size_t bytes_sent = sendto(sock, (const char*)buffer, packetposition, 0, (struct sockaddr *)&addr_out, sizeof(addr_out));
 
-	if (DEBUG_NORMAL) std::cout << bytes_sent << " Bytes sent to [" << inet_ntoa(addr_out.sin_addr) << "]" << std::endl;
+    if (DEBUG_HIGHEST) std::cout << bytes_sent << " Bytes sent to [" << inet_ntoa(addr_out.sin_addr) << "]" << std::endl;
 
     return bytes_sent;
 }

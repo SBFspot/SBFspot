@@ -453,17 +453,17 @@ int bthRead(unsigned char *buf, unsigned int bufsize)
         if (bytes_read > MAX_CommBuf)
         {
             MAX_CommBuf = bytes_read;
-			if (DEBUG_NORMAL)
-				printf("MAX_CommBuf is now %d bytes\n", MAX_CommBuf);
+            if (DEBUG_HIGHEST)
+                printf("MAX_CommBuf is now %d bytes\n", MAX_CommBuf);
         }
-       	if (DEBUG_NORMAL)
-			printf("Received %d bytes\n", bytes_read);
+        if (DEBUG_HIGHEST)
+            printf("Received %d bytes\n", bytes_read);
     }
     else
-	{
-		std::cerr << "recv() returned an error: " << errno << std::endl;
+    {
+        std::cerr << "recv() returned an error: " << errno << std::endl;
         return -1; // E_NODATA
-	}
+    }
 
     return bytes_read;
 }
