@@ -405,7 +405,7 @@ enum E_SBFSPOT
 {
     E_LRINOTAVAIL   =  21,  // Requested LRI not available
     E_OK            =  0,   // No error
-    E_NODATA        = -1,   // Bluetooth buffer empty
+    E_NODATA        = -1,   // Receive buffer empty
     E_BADARG        = -2,   // Unknown command line argument
     E_CHKSUM        = -3,   // Invalid Checksum
     E_BUFOVRFLW     = -4,   // Buffer overflow
@@ -415,6 +415,6 @@ enum E_SBFSPOT
     E_RETRY         = -8,   // Retry the last action
     E_EOF           = -9,   // End of data
     E_PRIVILEGE     = -10,  // Privilege not held (need installer login)
-    E_LOGONFAILED   = -11,  // Logon failed, other than Invalid Password (E_INVPASSW)
+    E_LOGONFAILED   = -11,  // *DEPRECATED*: Logon failed, other than Invalid Password (E_INVPASSW)
     E_COMM          = -12   // General communication error
 };

@@ -889,7 +889,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
                             {
                                 case 0: rc = E_OK; break;
                                 case 0x0100: rc = E_INVPASSW; break;
-                                default: rc = E_LOGONFAILED; break;
+                                default: rc = (E_SBFSPOT)retcode; break;
                             }
                         }
                         else if (DEBUG_NORMAL) printf("Unexpected response from %02X:%02X:%02X:%02X:%02X:%02X -> ", CommBuf[9], CommBuf[8], CommBuf[7], CommBuf[6], CommBuf[5], CommBuf[4]);
@@ -944,7 +944,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
                         {
                             case 0: rc = E_OK; break;
                             case 0x0100: rc = E_INVPASSW; break;
-                            default: rc = E_LOGONFAILED; break;
+                            default: rc = (E_SBFSPOT)retcode; break;
                         }
                     }
                     else

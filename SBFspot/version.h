@@ -1,11 +1,6 @@
-#define VERSION "3.9.2"
+#define VERSION "3.9.3"
 
 /*
-V3.8.4
-    Fix 384/137/381/313/... Bad request 400: Power value too high for system size
-    Improved event decoding
-    Cleanup verbose/debug messages
-
 V3.9.0
     Fix #3 Three string SMA inverters
     Fix #401 Multiple strings support
@@ -25,6 +20,8 @@ V3.9.1
 V3.9.2
     Fix #511 Segmentation fault on V3.9.1
 
+V3.9.3
+    Return real error code when logon failed (deprecated E_LOGONFAILED)
 */
 
 /***
