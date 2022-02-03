@@ -2543,7 +2543,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                 case GridMsHz: //SPOT_FREQ
                                     devList[inv]->GridFreq = value;
                                     devList[inv]->flags |= type;
-                                    debug_amp("SPOT_FREQ", value, datetime);
+                                    debug_hz("SPOT_FREQ", value, datetime);
                                     break;
 
                                 case DcMsWatt: //SPOT_PDC1 / SPOT_PDC2
