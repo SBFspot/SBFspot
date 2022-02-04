@@ -2022,21 +2022,32 @@ int GetConfig(Config *cfg)
 
 void ShowConfig(Config *cfg)
 {
-    std::cout << "Configuration settings:";
-    if (strlen(cfg->IP_Address) == 0)       // No IP address -> Show BT address
-        std::cout << "\nBTAddress=" << cfg->BT_Address;
-    if (strlen(cfg->Local_BT_Address) > 0)  // Show Local BT address
-        std::cout << "\nLocalBTAddress=" << cfg->Local_BT_Address;
-    if (strlen(cfg->BT_Address) == 0)       // No BT address -> Show IP address
-        std::cout << "\nIP_Address=" << cfg->IP_Address;
-    std::cout << "\nPassword=<undisclosed>" << \
+    std::cout << "\nConfiguration settings:";
+    if (strlen(cfg->BT_Address) > 0)
+        std::cout << "\nBTAddress=" << cfg->BT_Address << \
         "\nMIS_Enabled=" << cfg->MIS_Enabled << \
+        "\nBTConnectRetries=" << cfg->BT_ConnectRetries;
+
+    if (strlen(cfg->Local_BT_Address) > 0)
+        std::cout << "\nLocalBTAddress=" << cfg->Local_BT_Address;
+    
+    if (cfg->ip_addresslist.size() > 0)
+    {
+        std::ostringstream iplist;
+        for (const auto &ip : cfg->ip_addresslist)
+            iplist << ',' << ip;
+
+        std::cout << "\nIP_Address=" << iplist.str().substr(1);
+    }
+    
+    std::cout << "\nPassword=<undisclosed>" << \
         "\nPlantname=" << cfg->plantname << \
         "\nOutputPath=" << cfg->outputPath << \
         "\nOutputPathEvents=" << cfg->outputPath_Events << \
         "\nLatitude=" << cfg->latitude << \
         "\nLongitude=" << cfg->longitude << \
         "\nTimezone=" << cfg->timezone << \
+        "\nLocale=" << cfg->locale << \
         "\nCalculateMissingSpotValues=" << cfg->calcMissingSpot << \
         "\nDateTimeFormat=" << cfg->DateTimeFormat << \
         "\nDateFormat=" << cfg->DateFormat << \
@@ -2053,32 +2064,31 @@ void ShowConfig(Config *cfg)
         "\nCSV_Header=" << cfg->CSV_Header << \
         "\nCSV_SaveZeroPower=" << cfg->CSV_SaveZeroPower << \
         "\nCSV_Spot_TimeSource=" << cfg->SpotTimeSource << \
-        "\nCSV_Spot_WebboxHeader=" << cfg->SpotWebboxHeader << \
-        "\nLocale=" << cfg->locale << \
-        "\nBTConnectRetries=" << cfg->BT_ConnectRetries << std::endl;
+        "\nCSV_Spot_WebboxHeader=" << cfg->SpotWebboxHeader;
 
 #if defined(USE_MYSQL) || defined(USE_SQLITE)
-    std::cout << "SQL_Database=" << cfg->sqlDatabase << std::endl;
+    std::cout << "\nSQL_Database=" << cfg->sqlDatabase;
 #endif
 
 #if defined(USE_MYSQL)
-    std::cout << "SQL_Hostname=" << cfg->sqlHostname << \
+    std::cout << "\nSQL_Hostname=" << cfg->sqlHostname << \
+        "\nSQL_Port=" << cfg->sqlPort << \
         "\nSQL_Username=" << cfg->sqlUsername << \
-        "\nSQL_Password=<undisclosed>" << std::endl;
+        "\nSQL_Password=<undisclosed>";
 #endif
 
     if (cfg->mqtt == 1)
     {
-        std::cout << "MQTT_Host=" << cfg->mqtt_host << \
+        std::cout << "\nMQTT_Host=" << cfg->mqtt_host << \
             "\nMQTT_Port=" << cfg->mqtt_port << \
             "\nMQTT_Topic=" << cfg->mqtt_topic << \
             "\nMQTT_Publisher=" << cfg->mqtt_publish_exe << \
             "\nMQTT_PublisherArgs=" << cfg->mqtt_publish_args << \
             "\nMQTT_Data=" << cfg->mqtt_publish_data << \
-            "\nMQTT_ItemFormat=" << cfg->mqtt_item_format << std::endl;
+            "\nMQTT_ItemFormat=" << cfg->mqtt_item_format;
     }
 
-    std::cout << "### End of Config ###" << std::endl;
+    std::cout << "\nEnd of Config\n" << std::endl;
 }
 
 int isCrcValid(unsigned char lb, unsigned char hb)
