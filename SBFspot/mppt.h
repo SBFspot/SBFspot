@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA® solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2022, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -46,6 +46,12 @@ private:
 
 public:
     mppt() { }
+    mppt(const int32_t Pdc, const int32_t Udc, const int32_t Idc)
+    {
+        m_Pdc = Pdc;
+        m_Udc = Udc;
+        m_Idc = Idc;
+    }
     ~mppt() { }
 
     int32_t Pdc() const { return m_Pdc; }

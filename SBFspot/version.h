@@ -22,6 +22,7 @@ V3.9.2
 
 V3.9.3
     Return real error code when logon failed (deprecated E_LOGONFAILED)
+    Fix #519 SMA2500TLST values wrong in CSV
 */
 
 /***

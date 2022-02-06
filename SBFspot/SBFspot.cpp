@@ -7,7 +7,7 @@
                                                    |_|
 
     SBFspot - Yet another tool to read power production of SMA solar/battery inverters
-    (c)2012-2021, SBF
+    (c)2012-2022, SBF
 
     Latest version can be found at https://github.com/SBFspot/SBFspot
 
@@ -2896,10 +2896,7 @@ void resetInverterData(InverterData *inv)
     inv->calPacTot = 0;
     inv->calPdcTot = 0;
     inv->DevClass = AllDevices;
-    //inv->DeviceClass[0] = 0;
-    //inv->DeviceName[0] = 0;
     inv->DeviceStatus = 0;
-    //inv->DeviceType[0] = 0;
     inv->EToday = 0;
     inv->ETotal = 0;
     inv->FeedInTime = 0;
@@ -2941,6 +2938,8 @@ void resetInverterData(InverterData *inv)
     inv->MeteringGridMsTotWIn = 0;
     inv->MeteringGridMsTotWOut = 0;
     inv->hasBattery = false;
+    inv->mpp.insert(std::make_pair(1, mppt(0, 0, 0)));
+    inv->mpp.insert(std::make_pair(2, mppt(0, 0, 0)));
 }
 
 E_SBFSPOT setDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &data)
