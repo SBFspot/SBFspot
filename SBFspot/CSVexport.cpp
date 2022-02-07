@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2022, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -740,7 +740,7 @@ int ExportSpotDataTo123s(const Config *cfg, InverterData* const inverters[])
     const char *s123_decimalpoint = ".";
 
     //Calculated DC Power Values (Sum of Power per string)
-    float calPdcTot = (float)(invdata->Pdc1 + invdata->Pdc2);
+    float calPdcTot = (float)(invdata->mpp.at(1).Pdc() + invdata->mpp.at(2).Pdc());
 
     //Calculated AC Side Values (Sum of Power & Current / Maximum of Voltage)
     float calPacTot = (float)(invdata->Pac1 + invdata->Pac2 + invdata->Pac3);
@@ -788,17 +788,17 @@ int ExportSpotDataTo123s(const Config *cfg, InverterData* const inverters[])
     // $KWHT = Metering.TotWhOut (kWh)
     printf(strout, FormatDouble(FormattedFloat, (double)invdata->ETotal / 1000, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $I1V = DcMs.Vol[A]
-    printf(strout, FormatFloat(FormattedFloat, (float)invdata->Udc1 / 100, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+    printf(strout, FormatFloat(FormattedFloat, (float)invdata->mpp.at(1).Udc() / 100, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $I1A = DcMs.Amp[A]
-    printf(strout, FormatFloat(FormattedFloat, (float)invdata->Idc1 / 1000, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+    printf(strout, FormatFloat(FormattedFloat, (float)invdata->mpp.at(1).Idc() / 1000, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $I1P = DcMs.Watt[A]
-    printf(strout, FormatFloat(FormattedFloat, (float)invdata->Pdc1, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+    printf(strout, FormatFloat(FormattedFloat, (float)invdata->mpp.at(1).Pdc(), 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $I2V = DcMs.Vol[B]
-    printf(strout, FormatFloat(FormattedFloat, (float)invdata->Udc2 / 100, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+    printf(strout, FormatFloat(FormattedFloat, (float)invdata->mpp.at(2).Udc() / 100, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $I2A = DcMs.Amp[B]
-    printf(strout, FormatFloat(FormattedFloat, (float)invdata->Idc2 / 1000, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+    printf(strout, FormatFloat(FormattedFloat, (float)invdata->mpp.at(2).Idc() / 1000, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $I2P = DcMs.Watt[B]
-    printf(strout, FormatFloat(FormattedFloat, (float)invdata->Pdc2, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
+    printf(strout, FormatFloat(FormattedFloat, (float)invdata->mpp.at(2).Pdc(), 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $GV = Was grid voltage in single phase 123Solar - For backwards compatibility
     printf(strout, FormatFloat(FormattedFloat, (float)calUacMax / 100, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $GA = Was grid current in single phase 123Solar - For backwards compatibility

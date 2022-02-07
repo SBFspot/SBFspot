@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2022, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -110,13 +110,13 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             else if (key == "invstatus")        snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.DeviceStatus, "?").c_str());
             else if (key == "invtemperature")   FormatFloat(value, is_NaN(inv.Temperature) ? 0.0f : (float)inv.Temperature / 100, 0, prec, dp);
             else if (key == "invgridrelay")     snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.GridRelayStatus, "?").c_str());
-            else if (key == "pdc1")             FormatFloat(value, (float)inv.Pdc1, 0, prec, dp);
-            else if (key == "pdc2")             FormatFloat(value, (float)inv.Pdc2, 0, prec, dp);
+            else if (key == "pdc1")             FormatFloat(value, (float)inv.mpp.at(1).Pdc(), 0, prec, dp);
+            else if (key == "pdc2")             FormatFloat(value, (float)inv.mpp.at(2).Pdc(), 0, prec, dp);
             else if (key == "pdctot")           FormatFloat(value, (float)inv.calPdcTot, 0, prec, dp);
-            else if (key == "idc1")             FormatFloat(value, (float)inv.Idc1 / 1000, 0, prec, dp);
-            else if (key == "idc2")             FormatFloat(value, (float)inv.Idc2 / 1000, 0, prec, dp);
-            else if (key == "udc1")             FormatFloat(value, (float)inv.Udc1 / 100, 0, prec, dp);
-            else if (key == "udc2")             FormatFloat(value, (float)inv.Udc2 / 100, 0, prec, dp);
+            else if (key == "idc1")             FormatFloat(value, (float)inv.mpp.at(1).Idc() / 1000, 0, prec, dp);
+            else if (key == "idc2")             FormatFloat(value, (float)inv.mpp.at(2).Idc() / 1000, 0, prec, dp);
+            else if (key == "udc1")             FormatFloat(value, (float)inv.mpp.at(1).Udc() / 100, 0, prec, dp);
+            else if (key == "udc2")             FormatFloat(value, (float)inv.mpp.at(2).Udc() / 100, 0, prec, dp);
             else if (key == "etotal")           FormatDouble(value, (double)inv.ETotal / 1000, 0, prec, dp);
             else if (key == "etoday")           FormatDouble(value, (double)inv.EToday / 1000, 0, prec, dp);
             else if (key == "pactot")           FormatFloat(value, (float)inv.TotalPac, 0, prec, dp);

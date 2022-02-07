@@ -1452,17 +1452,17 @@ void SayHello(int ShowHelp)
 #endif
     std::cout << "SBFspot V" << VERSION << "\n";
     std::cout << "Yet another tool to read power production of SMA solar inverters\n";
-    std::cout << "(c) 2012-2021, SBF (https://github.com/SBFspot/SBFspot)\n";
+    std::cout << "(c) 2012-2022, SBF (https://github.com/SBFspot/SBFspot)\n";
     std::cout << "Compiled for " << OS << " (" << BYTEORDER << ") " << sizeof(long) * 8 << " bit";
 #if defined(USE_SQLITE)
-    std::cout << " with SQLite support" << std::endl;
+    std::cout << " with SQLite support\n";
 #endif
 #if defined(USE_MYSQL)
-    std::cout << " with MySQL support" << std::endl;
+    std::cout << " with MySQL support\n";
 #endif
     if (ShowHelp != 0)
     {
-        std::cout << "SBFspot [-options]" << std::endl;
+        std::cout << "SBFspot [-options]\n";
         std::cout << " -scan               Scan for bluetooth enabled SMA inverters.\n";
         std::cout << " -d#                 Set debug level: 0-5 (0=none, default=2)\n";
         std::cout << " -v#                 Set verbose output level: 0-5 (0=none, default=2)\n";
@@ -1483,11 +1483,11 @@ void SayHello(int ShowHelp)
         std::cout << " -loadlive           Use predefined settings for manual upload to pvoutput.org\n";
         std::cout << " -startdate:YYYYMMDD Set start date for historic data retrieval\n";
         std::cout << " -settime            Sync inverter time with host time\n";
-        std::cout << " -mqtt               Publish spot data to MQTT broker\n" << std::endl;
+        std::cout << " -mqtt               Publish spot data to MQTT broker\n";
 
-        std::cout << "Libraries used:\n";
+        std::cout << "\nLibraries used:\n";
 #if defined(USE_SQLITE)
-        std::cout << "\tSQLite V" << sqlite3_libversion() << std::endl;
+        std::cout << "\tSQLite V" << sqlite3_libversion() << '\n';
 #endif
 #if defined(USE_MYSQL)
         unsigned long mysql_version = mysql_get_client_version();
@@ -1495,7 +1495,7 @@ void SayHello(int ShowHelp)
             << mysql_version / 10000     << "." // major
             << mysql_version / 100 % 100 << "." // minor
             << mysql_version % 100       << " (Client)" // build
-            << std::endl;
+            << '\n';
 #endif
         std::cout << "\tBOOST V"     
             << BOOST_VERSION / 100000     << "." // major
@@ -2108,8 +2108,10 @@ int isCrcValid(unsigned char lb, unsigned char hb)
 //Power Values are missing on some inverters
 void CalcMissingSpot(InverterData *invData)
 {
-    if (invData->Pdc1 == 0) invData->Pdc1 = (invData->Idc1 * invData->Udc1) / 100000;
-    if (invData->Pdc2 == 0) invData->Pdc2 = (invData->Idc2 * invData->Udc2) / 100000;
+    for (auto &mppt : invData->mpp)
+    {
+        if (mppt.second.Pdc() == 0) mppt.second.Pdc(mppt.second.Idc() * mppt.second.Udc() / 100000);
+    }
 
     if (invData->Pac1 == 0) invData->Pac1 = (invData->Iac1 * invData->Uac1) / 100000;
     if (invData->Pac2 == 0) invData->Pac2 = (invData->Iac2 * invData->Uac2) / 100000;
@@ -2557,16 +2559,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     break;
 
                                 case DcMsWatt: //SPOT_PDC1 / SPOT_PDC2
-                                    // TODO: Remove cls 1/2
-                                    if (cls == 1)
-                                    {
-                                        devList[inv]->Pdc1 = value;
-                                    }
-                                    if (cls == 2)
-                                    {
-                                        devList[inv]->Pdc2 = value;
-                                    }
-
                                     it = devList[inv]->mpp.find((uint8_t)cls);
                                     if (it != devList[inv]->mpp.end())
                                         it->second.Pdc(value);
@@ -2585,16 +2577,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     break;
 
                                 case DcMsVol: //SPOT_UDC1 / SPOT_UDC2
-                                    // TODO: Remove cls 1/2
-                                    if (cls == 1)
-                                    {
-                                        devList[inv]->Udc1 = value;
-                                    }
-                                    if (cls == 2)
-                                    {
-                                        devList[inv]->Udc2 = value;
-                                    }
-
                                     it = devList[inv]->mpp.find((uint8_t)cls);
                                     if (it != devList[inv]->mpp.end())
                                         it->second.Udc(value);
@@ -2611,16 +2593,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     break;
 
                                 case DcMsAmp: //SPOT_IDC1 / SPOT_IDC2
-                                    // TODO: Remove cls 1/2
-                                    if (cls == 1)
-                                    {
-                                        devList[inv]->Idc1 = value;
-                                    }
-                                    if (cls == 2)
-                                    {
-                                        devList[inv]->Idc2 = value;
-                                    }
-
                                     it = devList[inv]->mpp.find((uint8_t)cls);
                                     if (it != devList[inv]->mpp.end())
                                         it->second.Idc(value);
@@ -2906,8 +2878,6 @@ void resetInverterData(InverterData *inv)
     inv->Iac1 = 0;
     inv->Iac2 = 0;
     inv->Iac3 = 0;
-    inv->Idc1 = 0;
-    inv->Idc2 = 0;
     inv->InverterDatetime = 0;
     inv->IPAddress[0] = 0;
     inv->modelID = 0;
@@ -2916,22 +2886,17 @@ void resetInverterData(InverterData *inv)
     inv->Pac1 = 0;
     inv->Pac2 = 0;
     inv->Pac3 = 0;
-    inv->Pdc1 = 0;
-    inv->Pdc2 = 0;
     inv->Pmax1 = 0;
     inv->Pmax2 = 0;
     inv->Pmax3 = 0;
     inv->Serial = 0;
     inv->SleepTime = 0;
     inv->SUSyID = 0;
-    //inv->SWVersion[0] = 0;
     inv->Temperature = NaN_S32;
     inv->TotalPac = 0;
     inv->Uac1 = 0;
     inv->Uac2 = 0;
     inv->Uac3 = 0;
-    inv->Udc1 = 0;
-    inv->Udc2 = 0;
     inv->WakeupTime = 0;
     inv->monthDataOffset = 0;
     inv->multigateID = NaN_U32;

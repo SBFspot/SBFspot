@@ -198,12 +198,12 @@ int db_SQL_Export::exportSpotData(InverterData *inv[], time_t spottime)
         sql << "INSERT INTO SpotData VALUES(" <<
             spottime << ',' <<
             inv[i]->Serial << ',' <<
-            inv[i]->Pdc1 << ',' <<
-            inv[i]->Pdc2 << ',' <<
-            (float)inv[i]->Idc1 / 1000 << ',' <<
-            (float)inv[i]->Idc2 / 1000 << ',' <<
-            (float)inv[i]->Udc1 / 100 << ',' <<
-            (float)inv[i]->Udc2 / 100 << ',' <<
+            inv[i]->mpp.at(1).Pdc() << ',' <<
+            inv[i]->mpp.at(2).Pdc() << ',' <<
+            (float)inv[i]->mpp.at(1).Idc() / 1000 << ',' <<
+            (float)inv[i]->mpp.at(2).Idc() / 1000 << ',' <<
+            (float)inv[i]->mpp.at(1).Udc() / 100 << ',' <<
+            (float)inv[i]->mpp.at(2).Udc() / 100 << ',' <<
             inv[i]->Pac1 << ',' <<
             inv[i]->Pac2 << ',' <<
             inv[i]->Pac3 << ',' <<
