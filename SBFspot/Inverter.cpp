@@ -289,7 +289,7 @@ int Inverter::process()
 
     for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
     {
-        if (m_inverters[inv]->EToday == 0)
+        if (m_inverters[inv]->EToday == 0 && m_inverters[inv]->ETotal != 0)
         {
             if (!archdata_available)
             {
