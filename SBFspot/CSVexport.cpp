@@ -105,6 +105,18 @@ const std::string DateTimeFormatToDMY(const char *dtf)
     return DMY;
 }
 
+size_t max_mppt(InverterData* const inverters[])
+{
+    size_t mppt_max = 0;
+
+    for (size_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
+    {
+        mppt_max = std::max(inverters[inv]->mpp.size(), mppt_max);
+    }
+
+    return mppt_max;
+}
+
 int ExportProperties(FILE *csv, const Config *cfg)
 {
     return fprintf(csv, "sep=%c\nVersion CSV1|Tool SBFspot%s (%s)|Linebreaks %s|Delimiter %s|Decimalpoint %s|Precision %d\n\n", cfg->delimiter, cfg->prgVersion, OS, linebreak2txt().c_str(), delim2txt(cfg->delimiter).c_str(), dp2txt(cfg->decimalpoint).c_str() , cfg->precision);
@@ -450,6 +462,8 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
     }
     else
     {
+        size_t maxmppt = max_mppt(inverters);   // Max mppt of plant
+
         //Write header when new file has been created
 #if defined(_WIN32)
         if (filelength(fileno(csv)) == 0)
@@ -460,9 +474,9 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
 #endif
         {
             if (cfg->SpotWebboxHeader == 0)
-                WriteStandardHeader(csv, cfg, SolarInverter, inverters[0]->mpp.size()); // TODO: get highest mppt count for all inverters
+                WriteStandardHeader(csv, cfg, SolarInverter, maxmppt);
             else
-                WriteWebboxHeader(csv, cfg, inverters, inverters[0]->mpp.size()); // TODO: get highest mppt count for all inverters
+                WriteWebboxHeader(csv, cfg, inverters, maxmppt);
         }
 
         char FormattedFloat[32];
@@ -471,62 +485,73 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
         if (cfg->SpotWebboxHeader == 1)
             fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
 
-        for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
-            if (cfg->SpotWebboxHeader == 0)
+            if (inverters[inv]->DevClass == SolarInverter)
             {
-                fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
-                fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName.c_str());
-                fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceType.c_str());
-                fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
-            }
+                if (cfg->SpotWebboxHeader == 0)
+                {
+                    fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
+                    fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName.c_str());
+                    fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceType.c_str());
+                    fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
+                }
 
-            for (const auto &mpp : inverters[inv]->mpp)
-            {
-                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Watt(), 0, cfg->precision, cfg->decimalpoint));
+                // Fix #520
+                // If inverter has less mppt than max mppt in plant, reserve space in CSV for missing ones
+                std::string missing_mppt(maxmppt - inverters[inv]->mpp.size(), cfg->delimiter);
+
+                for (const auto &mpp : inverters[inv]->mpp)
+                {
+                    fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Watt(), 0, cfg->precision, cfg->decimalpoint));
+                }
+                fputs(missing_mppt.c_str(), csv);
+
+                for (const auto &mpp : inverters[inv]->mpp)
+                {
+                    fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Amp(), 0, cfg->precision, cfg->decimalpoint));
+                }
+                fputs(missing_mppt.c_str(), csv);
+
+                for (const auto &mpp : inverters[inv]->mpp)
+                {
+                    fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Volt(), 0, cfg->precision, cfg->decimalpoint));
+                }
+                fputs(missing_mppt.c_str(), csv);
+
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac1, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac2, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac3, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Iac1 / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Iac2 / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Iac3 / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Uac1 / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Uac2 / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Uac3 / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->calPdcTot, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->TotalPac, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, inverters[inv]->calEfficiency, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->EToday / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->ETotal / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->GridFreq / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->OperationTime / 3600, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->FeedInTime / 3600, 0, cfg->precision, cfg->decimalpoint));
+                if (inverters[inv]->BT_Signal == 0)
+                    fprintf(csv, strout, cfg->delimiter, NA);
+                else
+                    fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, inverters[inv]->BT_Signal, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->DeviceStatus, "?").c_str());
+                fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->GridRelayStatus, "?").c_str());
+                if (is_NaN(inverters[inv]->Temperature))
+                    fprintf(csv, strout, cfg->delimiter, NA);
+                else
+                    fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Temperature / 100, 0, cfg->precision, cfg->decimalpoint));
+                if (cfg->SpotWebboxHeader == 0)
+                    fputs("\n", csv);
             }
-            for (const auto &mpp : inverters[inv]->mpp)
-            {
-                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Amp(), 0, cfg->precision, cfg->decimalpoint));
-            }
-            for (const auto &mpp : inverters[inv]->mpp)
-            {
-                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, mpp.second.Volt(), 0, cfg->precision, cfg->decimalpoint));
-            }
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac1, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac2, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Pac3, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Iac1 / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Iac2 / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Iac3 / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Uac1 / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Uac2 / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Uac3 / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->calPdcTot, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->TotalPac, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, inverters[inv]->calEfficiency, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->EToday / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->ETotal / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->GridFreq / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->OperationTime / 3600, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->FeedInTime / 3600, 0, cfg->precision, cfg->decimalpoint));
-            if (inverters[inv]->BT_Signal == 0)
-                fprintf(csv, strout, cfg->delimiter, NA);
-            else
-                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, inverters[inv]->BT_Signal, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->DeviceStatus, "?").c_str());
-            fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->GridRelayStatus, "?").c_str());
-            if (is_NaN(inverters[inv]->Temperature))
-                fprintf(csv, strout, cfg->delimiter, NA);
-            else
-                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Temperature / 100, 0, cfg->precision, cfg->decimalpoint));
-            if (cfg->SpotWebboxHeader == 0)
+            if (cfg->SpotWebboxHeader == 1)
                 fputs("\n", csv);
         }
-
-        if (cfg->SpotWebboxHeader == 1)
-            fputs("\n", csv);
-
         fclose(csv);
     }
     return 0;
@@ -671,9 +696,9 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
 #endif
         {
             if (cfg->SpotWebboxHeader == 0)
-                WriteStandardHeader(csv, cfg, BatteryInverter, inverters[0]->mpp.size()); // TODO: get highest mppt count for all inverters
+                WriteStandardHeader(csv, cfg, BatteryInverter, 0);
             else
-                WriteWebboxHeader(csv, cfg, inverters, inverters[0]->mpp.size()); // TODO: get highest mppt count for all inverters
+                WriteWebboxHeader(csv, cfg, inverters, 0);
         }
 
         char FormattedFloat[32];
@@ -682,44 +707,46 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
         if (cfg->SpotWebboxHeader == 1)
             fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
 
-        for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
+        for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
-            if (cfg->SpotWebboxHeader == 0)
+            if (inverters[inv]->DevClass == BatteryInverter)
             {
-                fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
-                fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName);
-                fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceType);
-                fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
-            }
+                if (cfg->SpotWebboxHeader == 0)
+                {
+                    fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
+                    fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName);
+                    fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceType);
+                    fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
+                }
 
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac1), 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac2), 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac3), 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac1) / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac2) / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac3) / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac1) / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac2) / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac3) / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->TotalPac), 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->EToday) / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->ETotal) / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->GridFreq) / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->OperationTime) / 3600, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->FeedInTime) / 3600, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->DeviceStatus, "?").c_str());
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatChaStt), 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatTmpVal) / 10, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatVol) / 100, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatAmp) / 1000, 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->MeteringGridMsTotWOut), 0, cfg->precision, cfg->decimalpoint));
-            fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->MeteringGridMsTotWIn), 0, cfg->precision, cfg->decimalpoint));
-            if (cfg->SpotWebboxHeader == 0)
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac1), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac2), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Pac3), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac1) / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac2) / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Iac3) / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac1) / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac2) / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->Uac3) / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->TotalPac), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->EToday) / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->ETotal) / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->GridFreq) / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatDouble(FormattedFloat, ((double)inverters[inv]->OperationTime) / 3600, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->FeedInTime) / 3600, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, tagdefs.getDesc(inverters[inv]->DeviceStatus, "?").c_str());
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatChaStt), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatTmpVal) / 10, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatVol) / 100, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatAmp) / 1000, 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->MeteringGridMsTotWOut), 0, cfg->precision, cfg->decimalpoint));
+                fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->MeteringGridMsTotWIn), 0, cfg->precision, cfg->decimalpoint));
+                if (cfg->SpotWebboxHeader == 0)
+                    fputs("\n", csv);
+            }
+            if (cfg->SpotWebboxHeader == 1)
                 fputs("\n", csv);
         }
-        if (cfg->SpotWebboxHeader == 1)
-            fputs("\n", csv);
-
         fclose(csv);
     }
     return 0;
