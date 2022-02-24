@@ -539,13 +539,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 
     //If Root Device has changed, copy the new address
     if (pcktBuf[24] == 2)
-    {
-        for (int i=0; i<6; i++)
-            RootDeviceAddress[i] = pcktBuf[18+i];
-        //Get local BT address
-        for (int i=0; i<6; i++)
-            LocalBTAddress[i] = pcktBuf[25+i];
-    }
+        memcpy(RootDeviceAddress, pcktBuf + 18, sizeof(RootDeviceAddress));
 
     if (DEBUG_NORMAL)
         printf("Root device address: %02X:%02X:%02X:%02X:%02X:%02X\n",
@@ -553,8 +547,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
                RootDeviceAddress[2], RootDeviceAddress[1], RootDeviceAddress[0]);
 
     //Get local BT address
-    for (int i=0; i<6; i++)
-        LocalBTAddress[i] = pcktBuf[25+i];
+    memcpy(LocalBTAddress, pcktBuf + 25, sizeof(LocalBTAddress));
 
     if (DEBUG_NORMAL)
         printf("Local BT address: %02X:%02X:%02X:%02X:%02X:%02X\n",
@@ -581,8 +574,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
                 inverters[devcount] = new InverterData;
                 resetInverterData(inverters[devcount]);
 
-                for (int i=0; i<6; i++)
-                    inverters[devcount]->BTAddress[i] = pcktBuf[ptr+i];
+                memcpy(inverters[devcount]->BTAddress, pcktBuf + ptr, sizeof(InverterData::BTAddress));
 
                 inverters[devcount]->NetID = NetID;
                 devcount++;
@@ -696,8 +688,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
                             resetInverterData(inverters[devcount]);
                         }
 
-                        for (int i=0; i<6; i++)
-                            inverters[devcount]->BTAddress[i] = pcktBuf[ptr+i];
+                        memcpy(inverters[devcount]->BTAddress, pcktBuf + ptr, sizeof(InverterData::BTAddress));
 
                         inverters[devcount]->NetID = NetID;
                         devcount++;
@@ -784,8 +775,7 @@ E_SBFSPOT initialiseSMAConnection(InverterData* const invData)
         return E_INIT;
 
     //Get local BT address - Added V3.1.5 (SetPlantTime)
-    for (int i=0; i<6; i++)
-        LocalBTAddress[i] = pcktBuf[26+i];
+    memcpy(LocalBTAddress, pcktBuf + 26, sizeof(LocalBTAddress));
 
     if (DEBUG_NORMAL)
     {

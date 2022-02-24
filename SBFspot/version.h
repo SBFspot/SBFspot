@@ -24,6 +24,7 @@ V3.9.3
     Return real error code when logon failed (deprecated E_LOGONFAILED)
     Fix #519 SMA2500TLST values wrong in CSV
     Fix #520 Output format modified - earlier format had standard format with 2 MPPT's
+    Fix #522 Redundant loop
 */
 
 /***
