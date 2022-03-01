@@ -624,7 +624,11 @@ int Inverter::logOn()
 
         if (rc != E_OK)
         {
-            print_error(stdout, PROC_CRITICAL, "Failed to initialize communication with inverter.\n");
+            if (rc == E_FWVERSION)
+                print_error(stdout, PROC_CRITICAL, "Incompatible FW version detected.\n");
+            else
+                print_error(stdout, PROC_CRITICAL, "Failed to initialize communication with inverter.\n");
+
             bthClose();
             return rc;
         }

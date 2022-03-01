@@ -410,5 +410,6 @@ enum E_SBFSPOT
     E_EOF           = -9,   // End of data
     E_PRIVILEGE     = -10,  // Privilege not held (need installer login)
     E_LOGONFAILED   = -11,  // *DEPRECATED*: Logon failed, other than Invalid Password (E_INVPASSW)
-    E_COMM          = -12   // General communication error
+    E_COMM          = -12,  // General communication error
+    E_FWVERSION     = -13   // Incompatible FW version
 };

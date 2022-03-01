@@ -329,12 +329,11 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
 {
     if (VERBOSE_NORMAL) puts("Initializing...");
 
-    //Generate a Serial Number for application
+    //Generate a unique session ID for application
     AppSUSyID = 125;
-    srand(time(NULL));
+    srand(time(nullptr));
     AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
-    // Fix Issue 103: Eleminate confusion: apply name: session-id iso SN
-    if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu (0x%08lX)\n", AppSUSyID, AppSerial, AppSerial);
+    if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
 
     E_SBFSPOT rc = E_OK;
 
@@ -422,11 +421,10 @@ E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::str
 {
     if (VERBOSE_NORMAL) puts("Initializing...");
 
-    //Generate a Serial Number for application
+    //Generate a unique session ID for application
     AppSUSyID = 125;
-    srand(time(NULL));
+    srand(time(nullptr));
     AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
-
     if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
 
     E_SBFSPOT rc = E_OK;
@@ -475,12 +473,11 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 {
     if (VERBOSE_NORMAL) puts("Initializing...");
 
-    //Generate a Serial Number for application
+    //Generate a unique session ID for application
     AppSUSyID = 125;
-    srand(time(NULL));
+    srand(time(nullptr));
     AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
-    // Fix Issue 103: Eleminate confusion: apply name: session-id iso SN
-    if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu (0x%08lX)\n", AppSUSyID, AppSerial, AppSerial);
+    if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
 
     //Convert BT_Address '00:00:00:00:00:00' to BTAddress[6]
     //scanf reads %02X as int, but we need unsigned char
@@ -520,6 +517,12 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
     // This can take up to 3 seconds!
     if (getPacket(RootDeviceAddress, 0x02) != E_OK)
         return E_INIT;
+
+    // Check protocol version
+    // 3 => FW <  1.71 (NOK)
+    // 4 => FW >= 1.71 (OK)
+    if (pcktBuf[19] < 4)
+        return E_FWVERSION;
 
     //Search devices
     unsigned char NetID = pcktBuf[22];
