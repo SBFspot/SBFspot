@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2022, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -597,6 +597,8 @@ int Inverter::logOn()
 {
     char msg[80];
     int rc = 0;
+
+    AppSerial = genSessionID();
 
     if (m_config.ConnectionType == CT_BLUETOOTH)
     {

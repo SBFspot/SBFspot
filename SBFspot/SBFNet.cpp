@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2022, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -44,7 +44,7 @@ unsigned char  RootDeviceAddress[6]= {0, 0, 0, 0, 0, 0};	//Hold byte array with 
 unsigned char  LocalBTAddress[6] = {0, 0, 0, 0, 0, 0};		//Hold byte array with BT address of local adapter
 unsigned char  addr_broadcast[6] = {0, 0, 0, 0, 0, 0};
 unsigned char  addr_unknown[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
-unsigned short AppSUSyID;
+unsigned short AppSUSyID = 125;
 unsigned long  AppSerial;
 const unsigned short anySUSyID = 0xFFFF;
 const unsigned long anySerial = 0xFFFFFFFF;
@@ -293,3 +293,9 @@ short get_short(BYTE *buf)
     return shrt;
 }
 
+// Generate a unique session ID for application
+uint32_t genSessionID()
+{
+    srand(time(nullptr));
+    return 900000000 + ((rand() << 16) + rand()) % 100000000;
+}

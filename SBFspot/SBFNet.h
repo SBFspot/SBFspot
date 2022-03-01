@@ -1,6 +1,6 @@
 /************************************************************************************************
 	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2018, SBF
+	(c)2012-2022, SBF
 
 	Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -32,8 +32,7 @@ DISCLAIMER:
 
 ************************************************************************************************/
 
-#ifndef _SMANET_H_
-#define _SMANET_H_
+#pragma once
 
 #include "osselect.h"
 #include "bluetooth.h"
@@ -61,5 +60,4 @@ int validateChecksum(void);
 short get_short(unsigned char *buf);
 int32_t get_long(unsigned char *buf);
 int64_t get_longlong(unsigned char *buf);
-
-#endif
+uint32_t genSessionID();

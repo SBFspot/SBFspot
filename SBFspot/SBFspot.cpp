@@ -327,13 +327,11 @@ E_SBFSPOT ethGetPacket(void)
 
 E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
 {
-    if (VERBOSE_NORMAL) puts("Initializing...");
-
-    //Generate a unique session ID for application
-    AppSUSyID = 125;
-    srand(time(nullptr));
-    AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
-    if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
+    if (VERBOSE_NORMAL)
+    {
+        puts("Initializing...");
+        printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
+    }
 
     E_SBFSPOT rc = E_OK;
 
@@ -419,13 +417,11 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
 // Initialise multiple ethernet connected inverters
 E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::string> IPaddresslist)
 {
-    if (VERBOSE_NORMAL) puts("Initializing...");
-
-    //Generate a unique session ID for application
-    AppSUSyID = 125;
-    srand(time(nullptr));
-    AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
-    if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
+    if (VERBOSE_NORMAL)
+    {
+        puts("Initializing...");
+        printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
+    }
 
     E_SBFSPOT rc = E_OK;
 
@@ -471,13 +467,11 @@ E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::str
 
 E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], int MIS)
 {
-    if (VERBOSE_NORMAL) puts("Initializing...");
-
-    //Generate a unique session ID for application
-    AppSUSyID = 125;
-    srand(time(nullptr));
-    AppSerial = 900000000 + ((rand() << 16) + rand()) % 100000000;
-    if (VERBOSE_NORMAL) printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
+    if (VERBOSE_NORMAL)
+    {
+        puts("Initializing...");
+        printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
+    }
 
     //Convert BT_Address '00:00:00:00:00:00' to BTAddress[6]
     //scanf reads %02X as int, but we need unsigned char
