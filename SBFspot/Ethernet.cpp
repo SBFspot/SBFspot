@@ -1,34 +1,34 @@
 /************************************************************************************************
-	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2021, SBF
+    SBFspot - Yet another tool to read power production of SMA solar inverters
+    (c)2012-2022, SBF
 
-	Latest version found at https://github.com/SBFspot/SBFspot
+    Latest version found at https://github.com/SBFspot/SBFspot
 
-	License: Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
-	http://creativecommons.org/licenses/by-nc-sa/3.0/
+    License: Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
+    http://creativecommons.org/licenses/by-nc-sa/3.0/
 
-	You are free:
-		to Share - to copy, distribute and transmit the work
-		to Remix - to adapt the work
-	Under the following conditions:
-	Attribution:
-		You must attribute the work in the manner specified by the author or licensor
-		(but not in any way that suggests that they endorse you or your use of the work).
-	Noncommercial:
-		You may not use this work for commercial purposes.
-	Share Alike:
-		If you alter, transform, or build upon this work, you may distribute the resulting work
-		only under the same or similar license to this one.
+    You are free:
+        to Share - to copy, distribute and transmit the work
+        to Remix - to adapt the work
+    Under the following conditions:
+    Attribution:
+        You must attribute the work in the manner specified by the author or licensor
+        (but not in any way that suggests that they endorse you or your use of the work).
+    Noncommercial:
+        You may not use this work for commercial purposes.
+    Share Alike:
+        If you alter, transform, or build upon this work, you may distribute the resulting work
+        only under the same or similar license to this one.
 
 DISCLAIMER:
-	A user of SBFspot software acknowledges that he or she is receiving this
-	software on an "as is" basis and the user is not relying on the accuracy
-	or functionality of the software for any purpose. The user further
-	acknowledges that any use of this software will be at his own risk
-	and the copyright owner accepts no responsibility whatsoever arising from
-	the use or application of the software.
+    A user of SBFspot software acknowledges that he or she is receiving this
+    software on an "as is" basis and the user is not relying on the accuracy
+    or functionality of the software for any purpose. The user further
+    acknowledges that any use of this software will be at his own risk
+    and the copyright owner accepts no responsibility whatsoever arising from
+    the use or application of the software.
 
-	SMA is a registered trademark of SMA Solar Technology AG
+    SMA is a registered trademark of SMA Solar Technology AG
 
 ************************************************************************************************/
 
@@ -42,7 +42,7 @@ int ethConnect(short port)
     int ret = 0;
 
 #if defined(_WIN32)
-	WSADATA wsa;
+    WSADATA wsa;
      
     if (DEBUG_NORMAL) printf("Initialising Winsock...\n");
     if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
@@ -65,7 +65,7 @@ int ethConnect(short port)
     addr_out.sin_addr.s_addr = htonl(INADDR_ANY);
     ret = bind(sock, (struct sockaddr*) &addr_out, sizeof(addr_out));
     // here is the destination IP
-	addr_out.sin_addr.s_addr = inet_addr(IP_Broadcast);
+    addr_out.sin_addr.s_addr = inet_addr(IP_Broadcast);
 
     // set options to receive broadcasted packets
     // leave this block and you have normal UDP communication (after the inverter scan)
@@ -74,7 +74,7 @@ int ethConnect(short port)
     mreq.imr_multiaddr.s_addr = inet_addr(IP_Broadcast);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
     ret = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char*)&mreq, sizeof(mreq));
-	unsigned char loop = 0;
+    uint8_t loop = 0;
     ret = setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, (const char *)&loop, sizeof(loop));
 
     if (ret < 0)
@@ -87,7 +87,7 @@ int ethConnect(short port)
     return 0; //OK
 }
 
-int ethRead(unsigned char *buf, unsigned int bufsize)
+int ethRead(uint8_t *buf, unsigned int bufsize)
 {
     int bytes_read;
     short timeout = 5;
@@ -142,7 +142,7 @@ int ethRead(unsigned char *buf, unsigned int bufsize)
     return bytes_read;
 }
 
-int ethSend(unsigned char *buffer, const char *toIP)
+int ethSend(uint8_t *buffer, const char *toIP)
 {
     if (DEBUG_HIGHEST) HexDump(buffer, packetposition, 10);
 
@@ -157,13 +157,13 @@ int ethSend(unsigned char *buffer, const char *toIP)
 #if defined(_WIN32)
 int ethClose()
 {
-	if (sock != 0)
-	{
-		closesocket(sock);
-		sock = 0;
-	}
+    if (sock != 0)
+    {
+        closesocket(sock);
+        sock = 0;
+    }
 
-	return 0;
+    return 0;
 }
 
 #endif
@@ -171,15 +171,15 @@ int ethClose()
 #if defined(__linux__)
 int ethClose()
 {
-	if (sock != 0)
-	{
-		close(sock);
-		sock = 0;
-	}
+    if (sock != 0)
+    {
+        close(sock);
+        sock = 0;
+    }
     return 0;
 }
 
-int getLocalIP(unsigned char IPaddress[4])
+int getLocalIP(uint8_t IPaddress[4])
 {
     int rc = 0;
     struct ifaddrs *myaddrs;

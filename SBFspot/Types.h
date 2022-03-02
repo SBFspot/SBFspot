@@ -208,11 +208,11 @@ typedef std::map<uint8_t, mppt> MPPTlist;
 struct InverterData
 {
     std::string DeviceName;
-    unsigned char BTAddress[6];
+    uint8_t BTAddress[6];
     char IPAddress[20];
     unsigned short SUSyID;
     unsigned long Serial;
-    unsigned char NetID;
+    uint8_t NetID;
     float BT_Signal;
     time_t InverterDatetime;
     time_t WakeupTime;
@@ -272,11 +272,11 @@ struct InverterData
 #pragma pack(push, 1)
 typedef struct PacketHeader
 {
-    unsigned char   SOP;                // Start Of Packet (0x7E)
+    uint8_t   SOP;                // Start Of Packet (0x7E)
     unsigned short  pkLength;
-    unsigned char   pkChecksum;
-    unsigned char   SourceAddr[6];      // SMA Inverter Address
-    unsigned char   DestinationAddr[6]; // Local BT Address
+    uint8_t   pkChecksum;
+    uint8_t   SourceAddr[6];      // SMA Inverter Address
+    uint8_t   DestinationAddr[6]; // Local BT Address
     unsigned short  command;
 } pkHeader;
 
@@ -285,15 +285,15 @@ struct ethPacketHeaderL1
     uint32_t        MagicNumber;        // Packet signature 53 4d 41 00 (SMA\0)
     uint32_t        unknown1;           // 00 04 02 a0
     uint32_t        unknown2;           // 00 00 00 01
-    unsigned char   hiPacketLen;        // Packet length stored as big endian
-    unsigned char   loPacketLen ;       // Packet length Low Byte
+    uint8_t   hiPacketLen;        // Packet length stored as big endian
+    uint8_t   loPacketLen ;       // Packet length Low Byte
 };
 
 struct ethPacketHeaderL2
 {
     uint32_t        MagicNumber;        // Level 2 packet signature 00 10 60 65
-    unsigned char   longWords;          // int(PacketLen/4)
-    unsigned char   ctrl;
+    uint8_t   longWords;          // int(PacketLen/4)
+    uint8_t   ctrl;
 };
 
 struct ethPacketHeaderL1L2
@@ -311,7 +311,7 @@ struct ethEndpoint
 
 struct ethPacket
 {
-    unsigned char dummy0;
+    uint8_t dummy0;
     ethPacketHeaderL2 pcktHdrL2;
     ethEndpoint Destination;
     ethEndpoint Source;
@@ -326,8 +326,6 @@ struct ArchiveDataRec
     unsigned long long totalWh;
 };
 #pragma pack(pop)
-
-typedef unsigned char BYTE;
 
 enum LriDef
 {

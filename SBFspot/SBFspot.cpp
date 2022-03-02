@@ -94,7 +94,7 @@ void freemem(InverterData *inverters[])
         }
 }
 
-E_SBFSPOT getPacket(unsigned char senderaddr[6], int wait4Command)
+E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
 {
     if (DEBUG_NORMAL) printf("getPacket(%d)\n", wait4Command);
     int index = 0;
@@ -250,7 +250,7 @@ int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial)
     return -1;
 }
 
-int getInverterIndexByAddress(InverterData* const inverters[], unsigned char bt_addr[6])
+int getInverterIndexByAddress(InverterData* const inverters[], uint8_t bt_addr[6])
 {
     for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
     {
@@ -474,7 +474,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
     }
 
     //Convert BT_Address '00:00:00:00:00:00' to BTAddress[6]
-    //scanf reads %02X as int, but we need unsigned char
+    //scanf reads %02X as int, but we need uint8_t
     unsigned int tmp[6];
     sscanf(BTAddress, "%02X:%02X:%02X:%02X:%02X:%02X", &tmp[5], &tmp[4], &tmp[3], &tmp[2], &tmp[1], &tmp[0]);
 
@@ -488,17 +488,17 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 
         // Copy previously converted BT address
         for (int i=0; i<6; i++)
-            inverters[0]->BTAddress[i] = (unsigned char)tmp[i];
+            inverters[0]->BTAddress[i] = (uint8_t)tmp[i];
 
         // Call 2.0.6 init function
         return initialiseSMAConnection(inverters[0]);
     }
 
     for (int i=0; i<6; i++)
-        RootDeviceAddress[i] = (unsigned char)tmp[i];
+        RootDeviceAddress[i] = (uint8_t)tmp[i];
 
     //Init Inverter
-    unsigned char version[6] = {1,0,0,0,0,0};
+    uint8_t version[6] = {1,0,0,0,0,0};
     writePacketHeader(pcktBuf, 0x0201, version);
     writeByte(pcktBuf, 'v');
     writeByte(pcktBuf, 'e');
@@ -519,7 +519,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
         return E_FWVERSION;
 
     //Search devices
-    unsigned char NetID = pcktBuf[22];
+    uint8_t NetID = pcktBuf[22];
     if (VERBOSE_NORMAL) printf("SMA netID=%02X\n", NetID);
 
     writePacketHeader(pcktBuf, 0x02, RootDeviceAddress);
@@ -579,7 +579,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
             else if (DEBUG_HIGHEST) printf("MAX_INVERTERS limit (%d) reached.\n", MAX_INVERTERS);
 
         }
-        else if (DEBUG_NORMAL) printf(memcmp((unsigned char *)pcktBuf+ptr, LocalBTAddress, sizeof(LocalBTAddress)) == 0 ? "Local BT Address\n" : "Another device?\n");
+        else if (DEBUG_NORMAL) printf(memcmp((uint8_t *)pcktBuf+ptr, LocalBTAddress, sizeof(LocalBTAddress)) == 0 ? "Local BT Address\n" : "Another device?\n");
     }
 
     /***********************************************************************
@@ -693,7 +693,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
                     else if (DEBUG_HIGHEST) printf("MAX_INVERTERS limit (%d) reached.\n", MAX_INVERTERS);
 
                 }
-                else if (DEBUG_NORMAL) printf(memcmp((unsigned char *)pcktBuf+ptr, LocalBTAddress, sizeof(LocalBTAddress)) == 0 ? "Local BT Address\n" : "Another device?\n");
+                else if (DEBUG_NORMAL) printf(memcmp((uint8_t *)pcktBuf+ptr, LocalBTAddress, sizeof(LocalBTAddress)) == 0 ? "Local BT Address\n" : "Another device?\n");
             }
         }
 
@@ -812,7 +812,7 @@ E_SBFSPOT initialiseSMAConnection(InverterData* const invData)
 E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, const char *password)
 {
 #define MAX_PWLENGTH 12
-    unsigned char pw[MAX_PWLENGTH] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint8_t pw[MAX_PWLENGTH] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     if (DEBUG_NORMAL) puts("logonSMAInverter()");
 
@@ -2078,7 +2078,7 @@ void ShowConfig(Config *cfg)
     std::cout << "\nEnd of Config\n" << std::endl;
 }
 
-int isCrcValid(unsigned char lb, unsigned char hb)
+int isCrcValid(uint8_t lb, uint8_t hb)
 {
     if (ConnType == CT_BLUETOOTH)
     {
@@ -2111,7 +2111,7 @@ void CalcMissingSpot(InverterData *invData)
 * isValidSender() compares 6-byte senderaddress with our inverter BT address
 * If senderaddress = addr_unknown (FF:FF:FF:FF:FF:FF) then any address is valid
 */
-int isValidSender(unsigned char senderaddr[6], unsigned char address[6])
+int isValidSender(uint8_t senderaddr[6], uint8_t address[6])
 {
     for (int i = 0; i < 6; i++)
         if ((senderaddr[i] != address[i]) && (senderaddr[i] != 0xFF))
@@ -2172,11 +2172,11 @@ const std::string version_tostring(int32_t version)
 {
     char ver[16];
 
-    unsigned char Vtype = version & 0xFF;
+    uint8_t Vtype = version & 0xFF;
     Vtype = Vtype > 5 ? '?' : "NEABRS"[Vtype]; //NOREV-EXPERIMENTAL-ALPHA-BETA-RELEASE-SPECIAL
-    unsigned char Vbuild = (version >> 8) & 0xFF;
-    unsigned char Vminor = (version >> 16) & 0xFF;
-    unsigned char Vmajor = (version >> 24) & 0xFF;
+    uint8_t Vbuild = (version >> 8) & 0xFF;
+    uint8_t Vminor = (version >> 16) & 0xFF;
+    uint8_t Vmajor = (version >> 24) & 0xFF;
 
     //Vmajor and Vminor = 0x12 should be printed as '12' and not '18' (BCD)
     snprintf(ver, sizeof(ver), "%c%c.%c%c.%02d.%c", '0' + (Vmajor >> 4), '0' + (Vmajor & 0x0F), '0' + (Vminor >> 4), '0' + (Vminor & 0x0F), Vbuild, Vtype);
@@ -2240,7 +2240,7 @@ void debug_text(const char *txt, const char *val, const time_t dt)
     }
 }
 
-std::vector <uint32_t> getattribute(BYTE *pcktbuf)
+std::vector <uint32_t> getattribute(uint8_t *pcktbuf)
 {
     const int recordsize = 40;
     uint32_t tag, attribute;
@@ -2450,11 +2450,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                             
                             for (int ii = 41; ii < packetposition - 3; ii += recordsize)
                             {
-                                BYTE *recptr = pcktBuf + ii;
+                                uint8_t *recptr = pcktBuf + ii;
                                 uint32_t code = ((uint32_t)get_long(recptr));
                                 LriDef lri = (LriDef)(code & 0x00FFFF00);
                                 uint32_t cls = code & 0xFF;
-                                unsigned char dataType = code >> 24;
+                                uint8_t dataType = code >> 24;
                                 time_t datetime = (time_t)get_long(recptr + 4);
 
                                 // fix: We can't rely on dataType because it can be both 0x00 or 0x40 for DWORDs

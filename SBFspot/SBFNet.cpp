@@ -1,34 +1,34 @@
 /************************************************************************************************
-	SBFspot - Yet another tool to read power production of SMA solar inverters
-	(c)2012-2022, SBF
+    SBFspot - Yet another tool to read power production of SMA solar inverters
+    (c)2012-2022, SBF
 
-	Latest version found at https://github.com/SBFspot/SBFspot
+    Latest version found at https://github.com/SBFspot/SBFspot
 
-	License: Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
-	http://creativecommons.org/licenses/by-nc-sa/3.0/
+    License: Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
+    http://creativecommons.org/licenses/by-nc-sa/3.0/
 
-	You are free:
-		to Share - to copy, distribute and transmit the work
-		to Remix - to adapt the work
-	Under the following conditions:
-	Attribution:
-		You must attribute the work in the manner specified by the author or licensor
-		(but not in any way that suggests that they endorse you or your use of the work).
-	Noncommercial:
-		You may not use this work for commercial purposes.
-	Share Alike:
-		If you alter, transform, or build upon this work, you may distribute the resulting work
-		only under the same or similar license to this one.
+    You are free:
+        to Share - to copy, distribute and transmit the work
+        to Remix - to adapt the work
+    Under the following conditions:
+    Attribution:
+        You must attribute the work in the manner specified by the author or licensor
+        (but not in any way that suggests that they endorse you or your use of the work).
+    Noncommercial:
+        You may not use this work for commercial purposes.
+    Share Alike:
+        If you alter, transform, or build upon this work, you may distribute the resulting work
+        only under the same or similar license to this one.
 
 DISCLAIMER:
-	A user of SBFspot software acknowledges that he or she is receiving this
-	software on an "as is" basis and the user is not relying on the accuracy
-	or functionality of the software for any purpose. The user further
-	acknowledges that any use of this software will be at his own risk
-	and the copyright owner accepts no responsibility whatsoever arising from
-	the use or application of the software.
+    A user of SBFspot software acknowledges that he or she is receiving this
+    software on an "as is" basis and the user is not relying on the accuracy
+    or functionality of the software for any purpose. The user further
+    acknowledges that any use of this software will be at his own risk
+    and the copyright owner accepts no responsibility whatsoever arising from
+    the use or application of the software.
 
-	SMA is a registered trademark of SMA Solar Technology AG
+    SMA is a registered trademark of SMA Solar Technology AG
 
 ************************************************************************************************/
 
@@ -38,13 +38,11 @@ DISCLAIMER:
 #include <stdio.h>
 #include <string.h>
 
-typedef unsigned char BYTE;
-
-unsigned char  RootDeviceAddress[6]= {0, 0, 0, 0, 0, 0};	//Hold byte array with BT address of primary inverter
-unsigned char  LocalBTAddress[6] = {0, 0, 0, 0, 0, 0};		//Hold byte array with BT address of local adapter
-unsigned char  addr_broadcast[6] = {0, 0, 0, 0, 0, 0};
-unsigned char  addr_unknown[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
-unsigned short AppSUSyID = 125;
+uint8_t  RootDeviceAddress[6]= {0, 0, 0, 0, 0, 0};    //Hold byte array with BT address of primary inverter
+uint8_t  LocalBTAddress[6] = {0, 0, 0, 0, 0, 0};      //Hold byte array with BT address of local adapter
+uint8_t  addr_broadcast[6] = {0, 0, 0, 0, 0, 0};
+uint8_t  addr_unknown[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+const unsigned short AppSUSyID = 125;
 unsigned long  AppSerial;
 const unsigned short anySUSyID = 0xFFFF;
 const unsigned long anySerial = 0xFFFFFFFF;
@@ -56,7 +54,7 @@ int FCSChecksum = 0xffff;
 
 unsigned short pcktID = 1;
 
-BYTE pcktBuf[maxpcktBufsize];
+uint8_t pcktBuf[maxpcktBufsize];
 
 const unsigned short fcstab[256] =
 {
@@ -78,21 +76,21 @@ const unsigned short fcstab[256] =
     0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330, 0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
 };
 
-void writeLong(BYTE *btbuffer, unsigned long v)
+void writeLong(uint8_t *btbuffer, const uint32_t v)
 {
-    writeByte(btbuffer,(unsigned char)((v >> 0) & 0xFF));
-    writeByte(btbuffer,(unsigned char)((v >> 8) & 0xFF));
-    writeByte(btbuffer,(unsigned char)((v >> 16) & 0xFF));
-    writeByte(btbuffer,(unsigned char)((v >> 24) & 0xFF));
+    writeByte(btbuffer,(uint8_t)((v >> 0) & 0xFF));
+    writeByte(btbuffer,(uint8_t)((v >> 8) & 0xFF));
+    writeByte(btbuffer,(uint8_t)((v >> 16) & 0xFF));
+    writeByte(btbuffer,(uint8_t)((v >> 24) & 0xFF));
 }
 
-void writeShort(BYTE *btbuffer, unsigned short v)
+void writeShort(uint8_t *btbuffer, const uint16_t v)
 {
-    writeByte(btbuffer,(unsigned char)((v >> 0) & 0xFF));
-    writeByte(btbuffer,(unsigned char)((v >> 8) & 0xFF));
+    writeByte(btbuffer,(uint8_t)((v >> 0) & 0xFF));
+    writeByte(btbuffer,(uint8_t)((v >> 8) & 0xFF));
 }
 
-void writeByte(unsigned char *btbuffer, unsigned char v)
+void writeByte(uint8_t *btbuffer, uint8_t v)
 {
     if (ConnType == CT_BLUETOOTH)
     {
@@ -112,7 +110,7 @@ void writeByte(unsigned char *btbuffer, unsigned char v)
         btbuffer[packetposition++] = v;
 }
 
-void writeArray(unsigned char *btbuffer, const unsigned char bytes[], int loopcount)
+void writeArray(uint8_t *btbuffer, const uint8_t bytes[], int loopcount)
 {
     for (int i = 0; i < loopcount; i++)
     {
@@ -120,14 +118,14 @@ void writeArray(unsigned char *btbuffer, const unsigned char bytes[], int loopco
     }
 }
 
-void writePacket(unsigned char *buf, unsigned char longwords, unsigned char ctrl, unsigned short ctrl2, unsigned short dstSUSyID, unsigned long dstSerial)
+void writePacket(uint8_t *buf, uint8_t longwords, uint8_t ctrl, unsigned short ctrl2, unsigned short dstSUSyID, unsigned long dstSerial)
 {
-	if (ConnType == CT_BLUETOOTH)
-	{
+    if (ConnType == CT_BLUETOOTH)
+    {
         buf[packetposition++] = 0x7E;   //Not included in checksum
         writeLong(buf, BTH_L2SIGNATURE);
-	}
-	else
+    }
+    else
         writeLong(buf, ETH_L2SIGNATURE);
 
     writeByte(buf, longwords);
@@ -143,22 +141,22 @@ void writePacket(unsigned char *buf, unsigned char longwords, unsigned char ctrl
     writeShort(buf, pcktID | 0x8000);
 }
 
-void writePacketTrailer(unsigned char *btbuffer)
+void writePacketTrailer(uint8_t *btbuffer)
 {
-   	if (ConnType == CT_BLUETOOTH)
-   	{
+    if (ConnType == CT_BLUETOOTH)
+    {
         FCSChecksum ^= 0xFFFF;
         btbuffer[packetposition++] = FCSChecksum & 0x00FF;
         btbuffer[packetposition++] = (FCSChecksum >> 8) & 0x00FF;
         btbuffer[packetposition++] = 0x7E;  //Trailing byte
-   	}
-   	else
+    }
+    else
         writeLong(btbuffer, 0);
 }
 
-void writePacketHeader(unsigned char *buf, const unsigned int control, const unsigned char *destaddress)
+void writePacketHeader(uint8_t *buf, const unsigned int control, const uint8_t *destaddress)
 {
-	packetposition = 0;
+    packetposition = 0;
 
     if (ConnType == CT_BLUETOOTH)
     {
@@ -176,8 +174,8 @@ void writePacketHeader(unsigned char *buf, const unsigned int control, const uns
         for(i = 0; i < 6; i++)
             buf[packetposition++] = destaddress[i];
 
-        buf[packetposition++] = (BYTE)(control & 0xFF);
-        buf[packetposition++] = (BYTE)(control >> 8);
+        buf[packetposition++] = (uint8_t)(control & 0xFF);
+        buf[packetposition++] = (uint8_t)(control >> 8);
 
         cmdcode = 0xFFFF;  //Just set to dummy value
     }
@@ -192,12 +190,12 @@ void writePacketHeader(unsigned char *buf, const unsigned int control, const uns
     }
 }
 
-void writePacketLength(unsigned char *buf)
+void writePacketLength(uint8_t *buf)
 {
     if (ConnType == CT_BLUETOOTH)
     {
-        buf[1] = packetposition & 0xFF;		    //Lo-Byte
-        buf[2] = (packetposition >> 8) & 0xFF;	//Hi-Byte
+        buf[1] = packetposition & 0xFF;         //Lo-Byte
+        buf[2] = (packetposition >> 8) & 0xFF;  //Hi-Byte
         buf[3] = buf[0] ^ buf[1] ^ buf[2];      //checksum
     }
     else
@@ -213,82 +211,81 @@ int validateChecksum()
 {
     FCSChecksum = 0xffff;
     //Skip over 0x7e at start and end of packet
-    int i;
-    for(i = 1; i <= packetposition - 4; i++)
+    for(int i = 1; i <= packetposition - 4; i++)
     {
         FCSChecksum = (FCSChecksum >> 8) ^ fcstab[(FCSChecksum ^ pcktBuf[i]) & 0xff];
     }
 
     FCSChecksum ^= 0xffff;
 
-	if (get_short(pcktBuf + packetposition - 3) == (short)FCSChecksum)
+    if (get_short(pcktBuf + packetposition - 3) == (short)FCSChecksum)
         return true;
     else
     {
-		if (DEBUG_HIGH) printf("Invalid chk 0x%04X - Found 0x%02X%02X\n", FCSChecksum, pcktBuf[packetposition-2], pcktBuf[packetposition-3]);
-		return false;
+        if (DEBUG_HIGH) printf("Invalid chk 0x%04X - Found 0x%02X%02X\n", FCSChecksum, pcktBuf[packetposition-2], pcktBuf[packetposition-3]);
+            return false;
     }
 }
 
 int getBT_SignalStrength(InverterData *invData)
 {
-	writePacketHeader(pcktBuf, 0x03, invData->BTAddress);
+    writePacketHeader(pcktBuf, 0x03, invData->BTAddress);
     writeByte(pcktBuf,0x05);
     writeByte(pcktBuf,0x00);
     writePacketLength(pcktBuf);
     bthSend(pcktBuf);
 
-	getPacket(invData->BTAddress, 4);
+    getPacket(invData->BTAddress, 4);
 
-	invData->BT_Signal = (float)pcktBuf[22] * 100.0f / 255.0f;
+    invData->BT_Signal = (float)pcktBuf[22] * 100.0f / 255.0f;
     return 0;
 }
 
-int64_t get_longlong(BYTE *buf)
+int64_t get_longlong(uint8_t *buf)
 {
     register int64_t lnglng = 0;
 
-	lnglng += *(buf+7);
-	lnglng <<= 8;
-	lnglng += *(buf+6);
-	lnglng <<= 8;
-	lnglng += *(buf+5);
-	lnglng <<= 8;
-	lnglng += *(buf+4);
-	lnglng <<= 8;
-	lnglng += *(buf+3);
-	lnglng <<= 8;
-	lnglng += *(buf+2);
-	lnglng <<= 8;
-	lnglng += *(buf+1);
-	lnglng <<= 8;
-	lnglng += *(buf);
+    lnglng += *(buf+7);
+    lnglng <<= 8;
+    lnglng += *(buf+6);
+    lnglng <<= 8;
+    lnglng += *(buf+5);
+    lnglng <<= 8;
+    lnglng += *(buf+4);
+    lnglng <<= 8;
+    lnglng += *(buf+3);
+    lnglng <<= 8;
+    lnglng += *(buf+2);
+    lnglng <<= 8;
+    lnglng += *(buf+1);
+    lnglng <<= 8;
+    lnglng += *(buf);
 
     return lnglng;
 }
 
-int32_t get_long(BYTE *buf)
+int32_t get_long(uint8_t *buf)
 {
     register int32_t lng = 0;
 
-	lng += *(buf+3);
-	lng <<= 8;
-	lng += *(buf+2);
-	lng <<= 8;
-	lng += *(buf+1);
-	lng <<= 8;
-	lng += *(buf);
+    lng += *(buf+3);
+    lng <<= 8;
+    lng += *(buf+2);
+    lng <<= 8;
+    lng += *(buf+1);
+    lng <<= 8;
+    lng += *(buf);
 
     return lng;
 }
 
-short get_short(BYTE *buf)
+short get_short(uint8_t *buf)
 {
     register short shrt = 0;
 
-	shrt += *(buf+1);
-	shrt <<= 8;
-	shrt += *(buf);
+    shrt += *(buf+1);
+    shrt <<= 8;
+    shrt += *(buf);
 
     return shrt;
 }

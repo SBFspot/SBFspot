@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2022, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -121,10 +121,10 @@ int get_tzOffset(/*OUT*/int *isDST)
     // gmtime() and localtime() share the same static tm structure, so we have to make a copy
     // http://www.cplusplus.com/reference/ctime/localtime/
 
-    struct tm loctime;	//Local Time
+    struct tm loctime;  //Local Time
     memcpy(&loctime, localtime(&curtime), sizeof(loctime));
 
-    struct tm utctime;	//GMT time
+    struct tm utctime;  //GMT time
     memcpy(&utctime, gmtime(&curtime), sizeof(utctime));
 
     int tzOffset = (loctime.tm_hour - utctime.tm_hour) * 3600 + (loctime.tm_min - utctime.tm_min) * 60;
@@ -135,7 +135,7 @@ int get_tzOffset(/*OUT*/int *isDST)
     if((loctime.tm_year < utctime.tm_year) || (loctime.tm_mon < utctime.tm_mon) || (loctime.tm_mday < utctime.tm_mday))
         tzOffset -= 86400;
 
-    if (isDST)	// Valid pointer?
+    if (isDST)  // Valid pointer?
         *isDST = loctime.tm_isdst;
 
     return tzOffset;
@@ -198,7 +198,7 @@ void print_error(FILE *error_file, ERRORLEVEL error_level, const char *error_msg
     fflush(error_file);
 }
 
-void HexDump(unsigned char *buf, int count, int radix)
+void HexDump(uint8_t *buf, int count, int radix)
 {
     int i, j;
     printf("--------:");
