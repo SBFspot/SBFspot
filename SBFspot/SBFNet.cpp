@@ -76,7 +76,7 @@ const unsigned short fcstab[256] =
     0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330, 0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
 };
 
-void writeLong(uint8_t *btbuffer, const uint32_t v)
+void writeLong(uint8_t *btbuffer, uint32_t v)
 {
     writeByte(btbuffer,(uint8_t)((v >> 0) & 0xFF));
     writeByte(btbuffer,(uint8_t)((v >> 8) & 0xFF));
@@ -84,7 +84,7 @@ void writeLong(uint8_t *btbuffer, const uint32_t v)
     writeByte(btbuffer,(uint8_t)((v >> 24) & 0xFF));
 }
 
-void writeShort(uint8_t *btbuffer, const uint16_t v)
+void writeShort(uint8_t *btbuffer, uint16_t v)
 {
     writeByte(btbuffer,(uint8_t)((v >> 0) & 0xFF));
     writeByte(btbuffer,(uint8_t)((v >> 8) & 0xFF));

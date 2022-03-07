@@ -43,13 +43,13 @@ DISCLAIMER:
 #define ETH_L2SIGNATURE 0x65601000
 
 //Function prototypes
-void writeLong(uint8_t *btbuffer, const uint32_t v);
-void writeShort(uint8_t *btbuffer, const uint16_t v);
-void writeByte(uint8_t *btbuffer, const uint8_t v);
-void writeArray(uint8_t *btbuffer, const uint8_t bytes[], const int count);
+void writeLong(uint8_t *btbuffer, uint32_t v);
+void writeShort(uint8_t *btbuffer, uint16_t v);
+void writeByte(uint8_t *btbuffer, uint8_t v);
+void writeArray(uint8_t *btbuffer, const uint8_t bytes[], int count);
 void writePacket(uint8_t *buf, uint8_t longwords, uint8_t ctrl, unsigned short ctrl2, unsigned short dstSUSyID, unsigned long dstSerial);
 void writePacketTrailer(uint8_t *btbuffer);
-void writePacketHeader(uint8_t *btbuffer, const unsigned int control, const uint8_t *destaddress);
+void writePacketHeader(uint8_t *btbuffer, unsigned int control, const uint8_t *destaddress);
 void writePacketLength(uint8_t *buffer);
 int validateChecksum(void);
 short get_short(uint8_t *buf);
