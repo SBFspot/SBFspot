@@ -146,7 +146,7 @@ int bthSend(uint8_t *btbuffer)
     }
     else
     {
-        std::cerr << "send() returned an error: " << errno << std::endl;
+        std::cout << "send() returned an error: " << errno << std::endl;
     }
 
     return bytes_sent;
@@ -372,7 +372,7 @@ int bthSend(uint8_t *btbuffer)
     }
     else
     {
-        std::cerr << "send() returned an error: " << errno << std::endl;
+        std::cout << "send() returned an error: " << errno << std::endl;
     }
 
     return bytes_sent;
@@ -461,7 +461,7 @@ int bthRead(uint8_t *buf, unsigned int bufsize)
     }
     else
     {
-        std::cerr << "recv() returned an error: " << errno << std::endl;
+        std::cout << "recv() returned an error: " << errno << std::endl;
         return -1; // E_NODATA
     }
 

@@ -220,7 +220,6 @@ void HexDump(uint8_t *buf, int count, int radix)
     }
     printf("\n");
     fflush(stdout);
-    fflush(stderr);
 }
 
 char *FormatFloat(char *str, float value, int width, int precision, char decimalpoint)

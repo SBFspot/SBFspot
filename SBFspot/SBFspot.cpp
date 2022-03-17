@@ -371,8 +371,8 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> 
 
         if (devcount == 0)
         {
-            std::cerr << "ERROR: No devices responded to discovery query.\n";
-            std::cerr << "Try to set IP_Address in SBFspot.cfg!\n";
+            std::cout << "ERROR: No devices responded to discovery query.\n";
+            std::cout << "Try to set IP_Address in SBFspot.cfg!\n";
             return E_INIT;
         }
     }
@@ -413,8 +413,8 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> 
         }
         else
         {
-            std::cerr << "ERROR: Connection to inverter failed!\n";
-            std::cerr << "Is " << inverters[dev]->IPAddress << " a correct IP?" << std::endl;
+            std::cout << "ERROR: Connection to inverter failed!\n";
+            std::cout << "Is " << inverters[dev]->IPAddress << " a correct IP?" << std::endl;
             // Fix #412 skipping unresponsive inverter
             // Continue with next device instead of returning E_INIT and skipping the remaining devices
         }
@@ -1523,7 +1523,7 @@ int GetConfig(Config *cfg)
 
     if ((fp = fopen(cfg->ConfigFile.c_str(), "r")) == NULL)
     {
-        std::cerr << "Error! Could not open file " << cfg->ConfigFile << std::endl;
+        std::cout << "Error! Could not open file " << cfg->ConfigFile << std::endl;
         return -1;
     }
 
@@ -1569,7 +1569,7 @@ int GetConfig(Config *cfg)
                         }
                         catch (...)
                         {
-                            std::cerr << "Invalid value for '" << variable << "' " << cfg->ip_addresslist[i] << std::endl;
+                            std::cout << "Invalid value for '" << variable << "' " << cfg->ip_addresslist[i] << std::endl;
                             rc = -2;
                             break;
                         }
@@ -1613,7 +1613,7 @@ int GetConfig(Config *cfg)
                         cfg->calcMissingSpot = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1638,7 +1638,7 @@ int GetConfig(Config *cfg)
                     else if ((stricmp(value, "dot") == 0) || (stricmp(value, "point") == 0)) cfg->decimalpoint = '.'; // Fix Issue 84 - 'Point' is accepted for backward compatibility
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(comma|dot)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(comma|dot)");
                         rc = -2;
                     }
                 }
@@ -1648,7 +1648,7 @@ int GetConfig(Config *cfg)
                     else if (stricmp(value, "semicolon") == 0) cfg->delimiter = ';';
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(comma|semicolon)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(comma|semicolon)");
                         rc = -2;
                     }
                 }
@@ -1659,7 +1659,7 @@ int GetConfig(Config *cfg)
                         cfg->synchTime = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(0-30)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(0-30)");
                         rc = -2;
                     }
                 }
@@ -1670,7 +1670,7 @@ int GetConfig(Config *cfg)
                         cfg->synchTimeLow = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(1-120)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(1-120)");
                         rc = -2;
                     }
                 }
@@ -1681,7 +1681,7 @@ int GetConfig(Config *cfg)
                         cfg->synchTimeHigh = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(1200-3600)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(1200-3600)");
                         rc = -2;
                     }
                 }
@@ -1692,7 +1692,7 @@ int GetConfig(Config *cfg)
                         cfg->CSV_Export = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1703,7 +1703,7 @@ int GetConfig(Config *cfg)
                         cfg->CSV_ExtendedHeader = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1714,7 +1714,7 @@ int GetConfig(Config *cfg)
                         cfg->CSV_Header = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1725,7 +1725,7 @@ int GetConfig(Config *cfg)
                         cfg->CSV_SaveZeroPower = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1736,7 +1736,7 @@ int GetConfig(Config *cfg)
                         cfg->SunRSOffset = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(0-3600)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(0-3600)");
                         rc = -2;
                     }
                 }
@@ -1746,7 +1746,7 @@ int GetConfig(Config *cfg)
                     else if (stricmp(value, "Computer") == 0) cfg->SpotTimeSource = 1;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "Inverter|Computer");
+                        fprintf(stdout, CFG_InvalidValue, variable, "Inverter|Computer");
                         rc = -2;
                     }
                 }
@@ -1758,7 +1758,7 @@ int GetConfig(Config *cfg)
                         cfg->SpotWebboxHeader = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1769,7 +1769,7 @@ int GetConfig(Config *cfg)
                         cfg->MIS_Enabled = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1785,7 +1785,7 @@ int GetConfig(Config *cfg)
                         strcpy(cfg->locale, value);
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "de-DE|en-US|fr-FR|nl-NL|it-IT|es-ES");
+                        fprintf(stdout, CFG_InvalidValue, variable, "de-DE|en-US|fr-FR|nl-NL|it-IT|es-ES");
                         rc = -2;
                     }
                 }
@@ -1796,7 +1796,7 @@ int GetConfig(Config *cfg)
                         cfg->BT_ConnectRetries = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(1-15)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(1-15)");
                         rc = -2;
                     }
                 }
@@ -1843,7 +1843,7 @@ int GetConfig(Config *cfg)
                         }
                         catch (...)
                         {
-                            fprintf(stderr, CFG_InvalidValue, variable, "");
+                            fprintf(stdout, CFG_InvalidValue, variable, "");
                             rc = -2;
                             break;
                         }
@@ -1870,7 +1870,7 @@ int GetConfig(Config *cfg)
                     else if (stricmp(value, "none") == 0) cfg->mqtt_item_delimiter = "";
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(none|blank|comma|semicolon)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(none|blank|comma|semicolon)");
                         rc = -2;
                     }
                 }
@@ -1878,7 +1878,7 @@ int GetConfig(Config *cfg)
                 // Add more config keys here
 
                 else
-                    fprintf(stderr, "Warning: Ignoring keyword '%s'\n", variable);
+                    fprintf(stdout, "Warning: Ignoring keyword '%s'\n", variable);
             }
         }
     }
@@ -1896,13 +1896,13 @@ int GetConfig(Config *cfg)
 
     if (strlen(cfg->SMA_Password) == 0)
     {
-        fprintf(stderr, "Missing USER Password.\n");
+        fprintf(stdout, "Missing USER Password.\n");
         rc = -2;
     }
 
     if (cfg->decimalpoint == cfg->delimiter)
     {
-        fprintf(stderr, "'CSV_Delimiter' and 'DecimalPoint' must be different character.\n");
+        fprintf(stdout, "'CSV_Delimiter' and 'DecimalPoint' must be different character.\n");
         rc = -2;
     }
 
@@ -1916,7 +1916,7 @@ int GetConfig(Config *cfg)
 
     if (strlen(cfg->outputPath) == 0)
     {
-        fprintf(stderr, "Missing OutputPath.\n");
+        fprintf(stdout, "Missing OutputPath.\n");
         rc = -2;
     }
 
@@ -2979,7 +2979,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
 
     if (devcount >= MAX_INVERTERS)
     {
-        std::cerr << "ERROR: MAX_INVERTERS too low." << std::endl;
+        std::cout << "ERROR: MAX_INVERTERS too low." << std::endl;
         return E_BUFOVRFLW;
     }
 
@@ -3009,7 +3009,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
         int16_t errorcode = get_short(pcktBuf + 23);
         if (errorcode != 0)
         {
-            std::cerr << "Received errorcode=" << errorcode << std::endl;
+            std::cout << "Received errorcode=" << errorcode << std::endl;
             return (E_SBFSPOT)errorcode;
         }
 
@@ -3036,7 +3036,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
                         devList[devcount]->multigateID = multigateID;
                         if (++devcount >= MAX_INVERTERS)
                         {
-                            std::cerr << "ERROR: MAX_INVERTERS too low." << std::endl;
+                            std::cout << "ERROR: MAX_INVERTERS too low." << std::endl;
                             rc = E_BUFOVRFLW;
                             break;
                         }
