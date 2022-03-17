@@ -243,7 +243,6 @@ struct InverterData
     std::string SWVersion;  // "03.01.05.R"
     int DeviceStatus;
     int GridRelayStatus;
-    int flags;
     DayData dayData[288];
     bool hasDayData;
     MonthData monthData[31];

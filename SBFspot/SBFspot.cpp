@@ -2434,70 +2434,59 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     //This function gives us the time when the inverter was switched off
                                     devList[inv]->SleepTime = datetime;
                                     devList[inv]->TotalPac = value;
-                                    devList[inv]->flags |= type;
                                     debug_watt("SPOT_PACTOT", value, datetime);
                                     break;
 
                                 case GridMsWphsA: //SPOT_PAC1
                                     devList[inv]->Pac1 = value;
-                                    devList[inv]->flags |= type;
                                     debug_watt("SPOT_PAC1", value, datetime);
                                     break;
 
                                 case GridMsWphsB: //SPOT_PAC2
                                     devList[inv]->Pac2 = value;
-                                    devList[inv]->flags |= type;
                                     debug_watt("SPOT_PAC2", value, datetime);
                                     break;
 
                                 case GridMsWphsC: //SPOT_PAC3
                                     devList[inv]->Pac3 = value;
-                                    devList[inv]->flags |= type;
                                     debug_watt("SPOT_PAC3", value, datetime);
                                     break;
 
                                 case GridMsPhVphsA: //SPOT_UAC1
                                     devList[inv]->Uac1 = value;
-                                    devList[inv]->flags |= type;
                                     debug_volt("SPOT_UAC1", value, datetime);
                                     break;
 
                                 case GridMsPhVphsB: //SPOT_UAC2
                                     devList[inv]->Uac2 = value;
-                                    devList[inv]->flags |= type;
                                     debug_volt("SPOT_UAC2", value, datetime);
                                     break;
 
                                 case GridMsPhVphsC: //SPOT_UAC3
                                     devList[inv]->Uac3 = value;
-                                    devList[inv]->flags |= type;
                                     debug_volt("SPOT_UAC3", value, datetime);
                                     break;
 
                                 case GridMsAphsA_1: //SPOT_IAC1
                                 case GridMsAphsA:
                                     devList[inv]->Iac1 = value;
-                                    devList[inv]->flags |= type;
                                     debug_amp("SPOT_IAC1", value, datetime);
                                     break;
 
                                 case GridMsAphsB_1: //SPOT_IAC2
                                 case GridMsAphsB:
                                     devList[inv]->Iac2 = value;
-                                    devList[inv]->flags |= type;
                                     debug_amp("SPOT_IAC2", value, datetime);
                                     break;
 
                                 case GridMsAphsC_1: //SPOT_IAC3
                                 case GridMsAphsC:
                                     devList[inv]->Iac3 = value;
-                                    devList[inv]->flags |= type;
                                     debug_amp("SPOT_IAC3", value, datetime);
                                     break;
 
                                 case GridMsHz: //SPOT_FREQ
                                     devList[inv]->GridFreq = value;
-                                    devList[inv]->flags |= type;
                                     debug_hz("SPOT_FREQ", value, datetime);
                                     break;
 
@@ -2517,7 +2506,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                                     devList[inv]->calPdcTot += value;
 
-                                    devList[inv]->flags |= type;
                                     break;
                                 }
 
@@ -2535,7 +2523,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                                     debug_volt((std::string("SPOT_UDC") + std::to_string(cls)).c_str(), value, datetime);
 
-                                    devList[inv]->flags |= type;
                                     break;
                                 }
 
@@ -2553,7 +2540,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                                     debug_amp((std::string("SPOT_IDC") + std::to_string(cls)).c_str(), value, datetime);
 
-                                    devList[inv]->flags |= type;
                                     break;
                                 }
 
@@ -2561,7 +2547,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     //In case SPOT_ETODAY missing, this function gives us inverter time (eg: SUNNY TRIPOWER 6.0)
                                     devList[inv]->InverterDatetime = datetime;
                                     devList[inv]->ETotal = value64;
-                                    devList[inv]->flags |= type;
                                     debug_kwh("SPOT_ETOTAL", value64, datetime);
                                     break;
 
@@ -2569,19 +2554,16 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     //This function gives us the current inverter time
                                     devList[inv]->InverterDatetime = datetime;
                                     devList[inv]->EToday = value64;
-                                    devList[inv]->flags |= type;
                                     debug_kwh("SPOT_ETODAY", value64, datetime);
                                     break;
 
                                 case MeteringTotOpTms: //SPOT_OPERTM
                                     devList[inv]->OperationTime = value64;
-                                    devList[inv]->flags |= type;
                                     debug_hour("SPOT_OPERTM", value64, datetime);
                                     break;
 
                                 case MeteringTotFeedTms: //SPOT_FEEDTM
                                     devList[inv]->FeedInTime = value64;
-                                    devList[inv]->flags |= type;
                                     debug_hour("SPOT_FEEDTM", value64, datetime);
                                     break;
 
@@ -2589,13 +2571,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     //This function gives us the time when the inverter was switched on
                                     devList[inv]->WakeupTime = datetime;
                                     devList[inv]->DeviceName = std::string((char *)recptr + 8, strnlen((char *)recptr + 8, recordsize - 8)); // Fix #506
-                                    devList[inv]->flags |= type;
                                     debug_text("INV_NAME", devList[inv]->DeviceName.c_str(), datetime);
                                     break;
 
                                 case NameplatePkgRev: //INV_SWVER
                                     devList[inv]->SWVersion = version_tostring(get_long(recptr + 24));
-                                    devList[inv]->flags |= type;
                                     debug_text("INV_SWVER", devList[inv]->SWVersion.c_str(), datetime);
                                     break;
 
@@ -2611,7 +2591,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                             printf("Unknown Inverter Type. Report this issue at https://github.com/SBFspot/SBFspot/issues with following info:\n");
                                             printf("ID='%d' and Type=<Fill in the exact inverter model> (e.g. SB1300TL-10)\n", attr.front());
                                         }
-                                        devList[inv]->flags |= type;
                                         debug_text("INV_TYPE", devList[inv]->DeviceType.c_str(), datetime);
                                     }
                                     break;
@@ -2625,7 +2604,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                         devList[inv]->DevClass = (DEVICECLASS)attr.front();
                                         devList[inv]->DeviceClass = tagdefs.getDesc(devList[inv]->DevClass, "UNKNOWN CLASS");
 
-                                        devList[inv]->flags |= type;
                                         debug_text("INV_CLASS", devList[inv]->DeviceClass.c_str(), datetime);
                                     }
                                     break;
@@ -2637,7 +2615,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     if (attr.size() > 0)
                                     {
                                         devList[inv]->DeviceStatus = attr.front();
-                                        devList[inv]->flags |= type;
                                         debug_text("INV_STATUS", tagdefs.getDesc(devList[inv]->DeviceStatus, "?").c_str(), datetime);
                                     }
                                     break;
@@ -2649,7 +2626,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     if (attr.size() > 0)
                                     {
                                         devList[inv]->GridRelayStatus = attr.front();
-                                        devList[inv]->flags |= type;
                                         debug_text("INV_GRIDRELAY", tagdefs.getDesc(devList[inv]->GridRelayStatus, "?").c_str(), datetime);
                                     }
                                     break;
@@ -2657,42 +2633,34 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                                 case BatChaStt:
                                     devList[inv]->BatChaStt = value;
-                                    devList[inv]->flags |= type;
                                     break;
 
                                 case BatDiagCapacThrpCnt:
                                     devList[inv]->BatDiagCapacThrpCnt = value;
-                                    devList[inv]->flags |= type;
                                     break;
 
                                 case BatDiagTotAhIn:
                                     devList[inv]->BatDiagTotAhIn = value;
-                                    devList[inv]->flags |= type;
                                     break;
 
                                 case BatDiagTotAhOut:
                                     devList[inv]->BatDiagTotAhOut = value;
-                                    devList[inv]->flags |= type;
                                     break;
 
                                 case BatTmpVal:
                                     devList[inv]->BatTmpVal = value;
-                                    devList[inv]->flags |= type;
                                     break;
 
                                 case BatVol:
                                     devList[inv]->BatVol = value;
-                                    devList[inv]->flags |= type;
                                     break;
 
                                 case BatAmp:
                                     devList[inv]->BatAmp = value;
-                                    devList[inv]->flags |= type;
                                     break;
 
                                 case CoolsysTmpNom:
                                     devList[inv]->Temperature = value;
-                                    devList[inv]->flags |= type;
                                     break;
 
                                 case MeteringGridMsTotWOut:
@@ -2821,7 +2789,6 @@ void resetInverterData(InverterData *inv)
     inv->EToday = 0;
     inv->ETotal = 0;
     inv->FeedInTime = 0;
-    inv->flags = 0;
     inv->GridFreq = 0;
     inv->GridRelayStatus = 0;
     inv->Iac1 = 0;
