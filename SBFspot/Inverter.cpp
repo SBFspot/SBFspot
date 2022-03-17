@@ -629,7 +629,7 @@ int Inverter::logOn()
             if (rc == E_FWVERSION)
                 print_error(stdout, PROC_CRITICAL, "Incompatible FW version detected.\n");
             else
-                print_error(stdout, PROC_CRITICAL, "Failed to initialize communication with inverter.\n");
+                print_error(stdout, PROC_CRITICAL, "Failed to initialise communication with inverter.\n");
 
             bthClose();
             return rc;
@@ -649,16 +649,10 @@ int Inverter::logOn()
             return rc;
         }
 
-        if (m_config.ip_addresslist.size() > 1)
-            // New method for multiple inverters with fixed IP
-            rc = ethInitConnectionMulti(m_inverters, m_config.ip_addresslist);
-        else
-            // Old method for one inverter (fixed IP or broadcast)
-            rc = ethInitConnection(m_inverters, m_config.IP_Address);
-
+        rc = ethInitConnection(m_inverters, m_config.ip_addresslist);
         if (rc != E_OK)
         {
-            print_error(stdout, PROC_CRITICAL, "Failed to initialize Speedwire connection.");
+            print_error(stdout, PROC_CRITICAL, "Failed to initialise Speedwire connection.");
             ethClose();
             return rc;
         }

@@ -35,7 +35,7 @@ DISCLAIMER:
 #include "misc.h"
 #include "Ethernet.h"
 
-const char *IP_Broadcast = "239.12.255.254";
+const char *IP_Multicast = "239.12.255.254";
 
 int ethConnect(short port)
 {
@@ -65,13 +65,13 @@ int ethConnect(short port)
     addr_out.sin_addr.s_addr = htonl(INADDR_ANY);
     ret = bind(sock, (struct sockaddr*) &addr_out, sizeof(addr_out));
     // here is the destination IP
-    addr_out.sin_addr.s_addr = inet_addr(IP_Broadcast);
+    addr_out.sin_addr.s_addr = inet_addr(IP_Multicast);
 
-    // set options to receive broadcasted packets
+    // set options to receive multicast packets
     // leave this block and you have normal UDP communication (after the inverter scan)
     struct ip_mreq mreq;
 
-    mreq.imr_multiaddr.s_addr = inet_addr(IP_Broadcast);
+    mreq.imr_multiaddr.s_addr = inet_addr(IP_Multicast);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
     ret = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char*)&mreq, sizeof(mreq));
     uint8_t loop = 0;
@@ -82,7 +82,7 @@ int ethConnect(short port)
         printf ("setsockopt IP_ADD_MEMBERSHIP failed\n");
         return -1;
     }
-    // end of setting broadcast options
+    // end of setting multicast options
 
     return 0; //OK
 }
@@ -105,10 +105,10 @@ int ethRead(uint8_t *buf, unsigned int bufsize)
         FD_SET(sock, &readfds);
 
         int rc = select(sock + 1, &readfds, NULL, NULL, &tv);
-        if (DEBUG_HIGHEST) printf("select() returned %d\n", rc);
-        if (rc == -1)
+        if (DEBUG_HIGHEST)
         {
-            if (DEBUG_HIGHEST) printf("errno = %d\n", errno);
+            //printf("select() returned %d\n", rc);
+            if (rc == -1) printf("errno = %d\n", errno);
         }
 
         if (FD_ISSET(sock, &readfds))

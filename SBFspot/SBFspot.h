@@ -77,8 +77,7 @@ DISCLAIMER:
 
 //Function prototypes
 E_SBFSPOT initialiseSMAConnection(InverterData *invData);
-E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address);
-E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::string> IPaddresslist);
+E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> IPaddresslist);
 void CalcMissingSpot(InverterData *invData);
 int DaysInMonth(int month, int year);
 int getBT_SignalStrength(InverterData *invData);
@@ -123,7 +122,7 @@ extern const unsigned short anySUSyID;
 extern const unsigned long anySerial;
 extern const uint32_t MAX_INVERTERS;
 
-extern const char *IP_Broadcast;
+extern const char *IP_Multicast;
 extern const char *IP_Inverter;
 
 extern TagDefs tagdefs;

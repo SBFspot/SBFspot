@@ -325,113 +325,73 @@ E_SBFSPOT ethGetPacket(void)
     return rc;
 }
 
-E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
+E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> IPaddresslist)
 {
     if (VERBOSE_NORMAL)
     {
-        puts("Initializing...");
+        puts("Initialising...");
         printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
     }
 
     E_SBFSPOT rc = E_OK;
 
-    if (strlen(IP_Address) < 8) // len less than 0.0.0.0 or len of no string ==> use broadcast to detect inverters
+    uint32_t devcount = 0;
+
+    if ((IPaddresslist.size() == 1) && (IPaddresslist.front() == "0.0.0.0"))
     {
-        // Start with UDP broadcast to check for SMA devices on the LAN
+        // Start with UDP multicast to check for SMA devices on the LAN
+        // SMA devices announce their presence in response to the discovery request packet
         writeLong(pcktBuf, 0x00414D53);  //Start of SMA header
         writeLong(pcktBuf, 0xA0020400);  //Unknown
         writeLong(pcktBuf, 0xFFFFFFFF);  //Unknown
         writeLong(pcktBuf, 0x20000000);  //Unknown
         writeLong(pcktBuf, 0x00000000);  //Unknown
 
-        ethSend(pcktBuf, IP_Broadcast);
+        ethSend(pcktBuf, IP_Multicast);
 
-        //SMA inverter announces its presence in response to the discovery request packet
-        int bytesRead = ethRead(CommBuf, sizeof(CommBuf));
-
-        // if bytesRead < 0, a timeout has occurred
-        // if bytesRead == 0, no data was received
-        if (bytesRead <= 0)
+        int bytesRead = 0;
+        while ((bytesRead = ethRead(CommBuf, sizeof(CommBuf))) > 0)
         {
-            std::cerr << "ERROR: No inverter responded to identification broadcast.\n";
+            if (DEBUG_HIGHEST) HexDump(CommBuf, bytesRead, 10);
+
+            if (memcmp(CommBuf, "SMA", 3) == 0)
+            {
+                inverters[devcount] = new InverterData;
+                resetInverterData(inverters[devcount]);
+
+                // Store received IP address as readable text into InverterData struct
+                // IP address is found at pos 38 in the buffer
+                sprintf(inverters[devcount]->IPAddress, "%d.%d.%d.%d", CommBuf[38], CommBuf[39], CommBuf[40], CommBuf[41]);
+                if (VERBOSE_NORMAL) printf("Valid response from SMA device %s\n", inverters[devcount]->IPAddress);
+
+                if (++devcount >= MAX_INVERTERS)
+                    break;
+            }
+        }
+
+        if (devcount == 0)
+        {
+            std::cerr << "ERROR: No devices responded to discovery query.\n";
             std::cerr << "Try to set IP_Address in SBFspot.cfg!\n";
             return E_INIT;
         }
-
-        if (DEBUG_HIGHEST) HexDump(CommBuf, bytesRead, 10);
-    }
-
-    int devcount = 0;
-    //for_each inverter found
-    //{
-        inverters[devcount] = new InverterData;
-        resetInverterData(inverters[devcount]);
-        // Store received IP address as readable text to InverterData struct
-        // IP address is found at pos 38 in the buffer
-        // Don't know yet for multiple inverter plants
-        // Len bigger than 0.0.0.0 or len of no string ==> use IP_Adress from config
-        if (strlen(IP_Address) > 7) // Fix CP181
-        {
-            memccpy(inverters[devcount]->IPAddress, IP_Address, 0, sizeof(inverters[devcount]->IPAddress));
-            if (quiet == 0) printf("Inverter IP address: %s from SBFspot.cfg\n", inverters[devcount]->IPAddress);
-        }
-        else // use IP from broadcast-detection of inverter
-        {
-            sprintf(inverters[devcount]->IPAddress, "%d.%d.%d.%d", CommBuf[38], CommBuf[39], CommBuf[40], CommBuf[41]);
-            if (quiet == 0) printf("Inverter IP address: %s found via broadcastidentification\n", inverters[devcount]->IPAddress);
-        }
-        devcount++;
-    //}
-
-
-    writePacketHeader(pcktBuf, 0, NULL);
-    writePacket(pcktBuf, 0x09, 0xA0, 0, anySUSyID, anySerial);
-    writeLong(pcktBuf, 0x00000200);
-    writeLong(pcktBuf, 0);
-    writeLong(pcktBuf, 0);
-    writeLong(pcktBuf, 0);
-    writePacketLength(pcktBuf);
-
-    //Send packet to first inverter
-    ethSend(pcktBuf, inverters[0]->IPAddress);
-
-    if ((rc = ethGetPacket()) == E_OK)
-    {
-        ethPacket *pckt = (ethPacket *)pcktBuf;
-        inverters[0]->SUSyID = btohs(pckt->Source.SUSyID);
-        inverters[0]->Serial = btohl(pckt->Source.Serial);
     }
     else
     {
-        std::cerr << "ERROR: Connection to inverter failed!\n";
-        std::cerr << "Is " << inverters[0]->IPAddress << " the correct IP?\n";
-        std::cerr << "Please check IP_Address in SBFspot.cfg!\n";
-        return E_INIT;
+        for (const auto &ip : IPaddresslist)
+        {
+            inverters[devcount] = new InverterData;
+            resetInverterData(inverters[devcount]);
+            memccpy(inverters[devcount]->IPAddress, ip.c_str(), 0, sizeof(inverters[devcount]->IPAddress));
+            if (VERBOSE_NORMAL) printf("Device IP address: %s from config\n", inverters[devcount]->IPAddress);
+
+            if (++devcount >= MAX_INVERTERS)
+                break;
+        }
     }
 
-    logoffSMAInverter(inverters[0]);
-
-    return rc;
-}
-
-// Initialise multiple ethernet connected inverters
-E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::string> IPaddresslist)
-{
-    if (VERBOSE_NORMAL)
+    for (uint32_t dev = 0; dev < devcount; dev++)
     {
-        puts("Initializing...");
-        printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
-    }
-
-    E_SBFSPOT rc = E_OK;
-
-    for (unsigned int devcount = 0; devcount < IPaddresslist.size(); devcount++)
-    {
-        inverters[devcount] = new InverterData;
-        resetInverterData(inverters[devcount]);
-        strcpy(inverters[devcount]->IPAddress, IPaddresslist[devcount].c_str());
-        if (quiet == 0) printf("Inverter IP address: %s from SBFspot.cfg\n", inverters[devcount]->IPAddress);
-
         writePacketHeader(pcktBuf, 0, NULL);
         writePacket(pcktBuf, 0x09, 0xA0, 0, anySUSyID, anySerial);
         writeLong(pcktBuf, 0x00000200);
@@ -440,25 +400,23 @@ E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::str
         writeLong(pcktBuf, 0);
         writePacketLength(pcktBuf);
 
-        ethSend(pcktBuf, inverters[devcount]->IPAddress);
+        ethSend(pcktBuf, inverters[dev]->IPAddress);
 
         if ((rc = ethGetPacket()) == E_OK)
         {
             ethPacket *pckt = (ethPacket *)pcktBuf;
-            inverters[devcount]->SUSyID = btohs(pckt->Source.SUSyID);
-            inverters[devcount]->Serial = btohl(pckt->Source.Serial);
-            if (VERBOSE_NORMAL) printf("Inverter replied: %s SUSyID: %d - Serial: %lu\n", inverters[devcount]->IPAddress, inverters[devcount]->SUSyID, inverters[devcount]->Serial);
+            inverters[dev]->SUSyID = btohs(pckt->Source.SUSyID);
+            inverters[dev]->Serial = btohl(pckt->Source.Serial);
+            if (VERBOSE_NORMAL) printf("Inverter replied: %s -> %d:%lu\n", inverters[dev]->IPAddress, inverters[dev]->SUSyID, inverters[dev]->Serial);
 
-            logoffSMAInverter(inverters[devcount]);
+            logoffSMAInverter(inverters[dev]);
         }
         else
         {
-            std::cerr << "ERROR: Connection to inverter failed!" << std::endl;
-            std::cerr << "Is " << inverters[devcount]->IPAddress << " the correct IP?" << std::endl;
-            std::cerr << "Please check IP_Address in SBFspot.cfg!" << std::endl;
+            std::cerr << "ERROR: Connection to inverter failed!\n";
+            std::cerr << "Is " << inverters[dev]->IPAddress << " a correct IP?" << std::endl;
             // Fix #412 skipping unresponsive inverter
             // Continue with next device instead of returning E_INIT and skipping the remaining devices
-            // return E_INIT;
         }
     }
 
@@ -469,7 +427,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 {
     if (VERBOSE_NORMAL)
     {
-        puts("Initializing...");
+        puts("Initialising...");
         printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
     }
 
@@ -645,7 +603,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
         {
             if ((VERBOSE_NORMAL) && (NetID > 1))
                 puts ("In case of single inverter system set MIS_Enabled=0 in config file.");
-            return E_INIT;    // Something went wrong... Failed to initialize
+            return E_INIT;    // Something went wrong... Failed to initialise
         }
 
         if (0x1001 == PacketType)
