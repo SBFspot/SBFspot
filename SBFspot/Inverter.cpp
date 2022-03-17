@@ -240,7 +240,8 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, InverterTemperature)) != 0)
+    rc = getInverterData(m_inverters, InverterTemperature);
+    if ((rc != E_OK) && (rc != E_LRINOTAVAIL))
         std::cout << "getInverterTemperature returned an error: " << rc << std::endl;
     else
     {
