@@ -2223,8 +2223,6 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
     unsigned long first;
     unsigned long last;
 
-    MPPTlist::iterator it;
-
     switch (type)
     {
     case EnergyProduction:
@@ -2504,7 +2502,8 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
                                     break;
 
                                 case DcMsWatt: //SPOT_PDC1 / SPOT_PDC2
-                                    it = devList[inv]->mpp.find((uint8_t)cls);
+                                {
+                                    auto it = devList[inv]->mpp.find((uint8_t)cls);
                                     if (it != devList[inv]->mpp.end())
                                         it->second.Pdc(value);
                                     else
@@ -2520,9 +2519,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                                     devList[inv]->flags |= type;
                                     break;
+                                }
 
                                 case DcMsVol: //SPOT_UDC1 / SPOT_UDC2
-                                    it = devList[inv]->mpp.find((uint8_t)cls);
+                                {
+                                    auto it = devList[inv]->mpp.find((uint8_t)cls);
                                     if (it != devList[inv]->mpp.end())
                                         it->second.Udc(value);
                                     else
@@ -2536,9 +2537,11 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                                     devList[inv]->flags |= type;
                                     break;
+                                }
 
                                 case DcMsAmp: //SPOT_IDC1 / SPOT_IDC2
-                                    it = devList[inv]->mpp.find((uint8_t)cls);
+                                {
+                                    auto it = devList[inv]->mpp.find((uint8_t)cls);
                                     if (it != devList[inv]->mpp.end())
                                         it->second.Idc(value);
                                     else
@@ -2552,6 +2555,7 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
 
                                     devList[inv]->flags |= type;
                                     break;
+                                }
 
                                 case MeteringTotWhOut: //SPOT_ETOTAL
                                     //In case SPOT_ETODAY missing, this function gives us inverter time (eg: SUNNY TRIPOWER 6.0)
