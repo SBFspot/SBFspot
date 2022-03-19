@@ -646,14 +646,14 @@ int Inverter::logOn()
         rc = ethConnect(m_config.IP_Port);
         if (rc != 0)
         {
-            print_error(stdout, PROC_CRITICAL, "Failed to set up socket connection.");
+            print_error(stdout, PROC_CRITICAL, "Failed to set up socket connection.\n");
             return rc;
         }
 
         rc = ethInitConnection(m_inverters, m_config.ip_addresslist);
         if (rc != E_OK)
         {
-            print_error(stdout, PROC_CRITICAL, "Failed to initialise Speedwire connection.");
+            print_error(stdout, PROC_CRITICAL, "Failed to initialise Speedwire connection.\n");
             ethClose();
             return rc;
         }

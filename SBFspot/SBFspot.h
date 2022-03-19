@@ -55,6 +55,9 @@ DISCLAIMER:
 
 #define NA              "N/A"
 
+// Number of retries when timout occurs
+#define MAX_RETRY       2
+
 //User Group
 #define	UG_USER         0x07L
 #define UG_INSTALLER    0x0AL
