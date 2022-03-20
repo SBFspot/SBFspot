@@ -55,11 +55,11 @@ DISCLAIMER:
 
 #define NA              "N/A"
 
-// Number of retries when timout occurs
-#define MAX_RETRY       2
+// Number of retries when timeout occurs
+#define MAX_RETRY       3
 
 //User Group
-#define	UG_USER         0x07L
+#define UG_USER         0x07L
 #define UG_INSTALLER    0x0AL
 
 //Wellknown SUSyID's

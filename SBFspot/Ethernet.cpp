@@ -79,7 +79,7 @@ int ethConnect(short port)
 
     if (ret < 0)
     {
-        printf ("setsockopt IP_ADD_MEMBERSHIP failed\n");
+        printf("setsockopt IP_ADD_MEMBERSHIP failed\n");
         return -1;
     }
     // end of setting multicast options
@@ -90,7 +90,6 @@ int ethConnect(short port)
 int ethRead(uint8_t *buf, unsigned int bufsize)
 {
     int bytes_read;
-    short timeout = 5;
     socklen_t addr_in_len = sizeof(addr_in);
 
     fd_set readfds;
@@ -98,8 +97,8 @@ int ethRead(uint8_t *buf, unsigned int bufsize)
     do
     {
         struct timeval tv;
-        tv.tv_sec = timeout;     //set timeout of reading
-        tv.tv_usec = 0;
+        tv.tv_sec = 2;  // set timeout of reading (seconds)
+        tv.tv_usec = 0; // microseconds
 
         FD_ZERO(&readfds);
         FD_SET(sock, &readfds);
@@ -107,7 +106,6 @@ int ethRead(uint8_t *buf, unsigned int bufsize)
         int rc = select(sock + 1, &readfds, NULL, NULL, &tv);
         if (DEBUG_HIGHEST)
         {
-            //printf("select() returned %d\n", rc);
             if (rc == -1) printf("errno = %d\n", errno);
         }
 
