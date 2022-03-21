@@ -228,28 +228,6 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
     return rc;
 }
 
-int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial)
-{
-    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-    {
-        if ((inverters[inv]->SUSyID == SUSyID) && inverters[inv]->Serial == Serial)
-            return inv;
-    }
-
-    return -1;
-}
-
-int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial)
-{
-    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-    {
-        if (inverters[inv]->Serial == Serial)
-            return inv;
-    }
-
-    return -1;
-}
-
 int getInverterIndexByAddress(InverterData* const inverters[], uint8_t bt_addr[6])
 {
     for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
