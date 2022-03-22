@@ -243,7 +243,6 @@ struct InverterData
     std::string SWVersion;  // "03.01.05.R"
     int DeviceStatus;
     int GridRelayStatus;
-    int flags;
     DayData dayData[288];
     bool hasDayData;
     MonthData monthData[31];
@@ -402,7 +401,7 @@ enum E_SBFSPOT
     E_CHKSUM        = -3,   // Invalid Checksum
     E_BUFOVRFLW     = -4,   // Buffer overflow
     E_ARCHNODATA    = -5,   // No archived data found for given timespan
-    E_INIT          = -6,   // Unable to initialize
+    E_INIT          = -6,   // Unable to initialise
     E_INVPASSW      = -7,   // Invalid password
     E_RETRY         = -8,   // Retry the last action
     E_EOF           = -9,   // End of data

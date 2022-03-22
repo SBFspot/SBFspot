@@ -82,6 +82,9 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
     {
         if ((inverters[inv]->DevClass != CommunicationProduct) && (inverters[inv]->SUSyID != SID_MULTIGATE))
         {
+            uint32_t retries = MAX_RETRY;
+
+        retry:
             do
             {
                 pcktID++;
@@ -116,6 +119,12 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                         rc = getPacket(inverters[inv]->BTAddress, 1);
                     else
                         rc = ethGetPacket();
+
+                    if ((rc == E_NODATA) && (--retries > 0))
+                    {
+                        if (DEBUG_NORMAL) puts("Retrying...");
+                        goto retry;
+                    }
 
                     if (rc != E_OK) return rc;
 
@@ -276,6 +285,9 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
     {
         if ((inverters[inv]->DevClass != CommunicationProduct) && (inverters[inv]->SUSyID != SID_MULTIGATE))
         {
+            uint32_t retries = MAX_RETRY;
+
+        retry:
             do
             {
                 pcktID++;
@@ -307,6 +319,12 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
                         rc = getPacket(inverters[inv]->BTAddress, 1);
                     else
                         rc = ethGetPacket();
+
+                    if ((rc == E_NODATA) && (--retries > 0))
+                    {
+                        if (DEBUG_NORMAL) puts("Retrying...");
+                        goto retry;
+                    }
 
                     if (rc != E_OK) return rc;
 
@@ -409,6 +427,9 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
 
     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
     {
+        uint32_t retries = MAX_RETRY;
+
+    retry:
         do
         {
             pcktID++;
@@ -435,6 +456,12 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
                     rc = getPacket(inverters[inv]->BTAddress, 1);
                 else
                     rc = ethGetPacket();
+
+                if ((rc == E_NODATA) && (--retries > 0))
+                {
+                    if (DEBUG_NORMAL) puts("Retrying...");
+                    goto retry;
+                }
 
                 if (rc != E_OK) return rc;
 

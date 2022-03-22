@@ -82,11 +82,11 @@ private:
     }
     void print_error(std::string msg)
     {
-        std::cerr << "Error: " << msg << std::endl;
+        std::cout << "Error: " << msg << std::endl;
     }
     void print_error(std::string msg, unsigned int line, std::string fpath)
     {
-        std::cerr << "Error: " << msg << " on line " << line << " [" << fpath << "]\n";
+        std::cout << "Error: " << msg << " at line " << line << " [" << fpath << "]\n";
     }
     void addTag(unsigned int tagID, std::string tag, unsigned int lri, std::string desc)
     {

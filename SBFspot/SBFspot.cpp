@@ -228,28 +228,6 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
     return rc;
 }
 
-int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial)
-{
-    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-    {
-        if ((inverters[inv]->SUSyID == SUSyID) && inverters[inv]->Serial == Serial)
-            return inv;
-    }
-
-    return -1;
-}
-
-int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial)
-{
-    for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
-    {
-        if (inverters[inv]->Serial == Serial)
-            return inv;
-    }
-
-    return -1;
-}
-
 int getInverterIndexByAddress(InverterData* const inverters[], uint8_t bt_addr[6])
 {
     for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
@@ -325,113 +303,73 @@ E_SBFSPOT ethGetPacket(void)
     return rc;
 }
 
-E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address)
+E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> IPaddresslist)
 {
     if (VERBOSE_NORMAL)
     {
-        puts("Initializing...");
+        puts("Initialising...");
         printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
     }
 
     E_SBFSPOT rc = E_OK;
 
-    if (strlen(IP_Address) < 8) // len less than 0.0.0.0 or len of no string ==> use broadcast to detect inverters
+    uint32_t devcount = 0;
+
+    if ((IPaddresslist.size() == 1) && (IPaddresslist.front() == "0.0.0.0"))
     {
-        // Start with UDP broadcast to check for SMA devices on the LAN
+        // Start with UDP multicast to check for SMA devices on the LAN
+        // SMA devices announce their presence in response to the discovery request packet
         writeLong(pcktBuf, 0x00414D53);  //Start of SMA header
         writeLong(pcktBuf, 0xA0020400);  //Unknown
         writeLong(pcktBuf, 0xFFFFFFFF);  //Unknown
         writeLong(pcktBuf, 0x20000000);  //Unknown
         writeLong(pcktBuf, 0x00000000);  //Unknown
 
-        ethSend(pcktBuf, IP_Broadcast);
+        ethSend(pcktBuf, IP_Multicast);
 
-        //SMA inverter announces its presence in response to the discovery request packet
-        int bytesRead = ethRead(CommBuf, sizeof(CommBuf));
-
-        // if bytesRead < 0, a timeout has occurred
-        // if bytesRead == 0, no data was received
-        if (bytesRead <= 0)
+        int bytesRead = 0;
+        while ((bytesRead = ethRead(CommBuf, sizeof(CommBuf))) > 0)
         {
-            std::cerr << "ERROR: No inverter responded to identification broadcast.\n";
-            std::cerr << "Try to set IP_Address in SBFspot.cfg!\n";
+            if (DEBUG_HIGHEST) HexDump(CommBuf, bytesRead, 10);
+
+            if (memcmp(CommBuf, "SMA", 3) == 0)
+            {
+                inverters[devcount] = new InverterData;
+                resetInverterData(inverters[devcount]);
+
+                // Store received IP address as readable text into InverterData struct
+                // IP address is found at pos 38 in the buffer
+                sprintf(inverters[devcount]->IPAddress, "%d.%d.%d.%d", CommBuf[38], CommBuf[39], CommBuf[40], CommBuf[41]);
+                if (VERBOSE_NORMAL) printf("Valid response from SMA device %s\n", inverters[devcount]->IPAddress);
+
+                if (++devcount >= MAX_INVERTERS)
+                    break;
+            }
+        }
+
+        if (devcount == 0)
+        {
+            std::cout << "ERROR: No devices responded to discovery query.\n";
+            std::cout << "Try to set IP_Address in config.\n";
             return E_INIT;
         }
-
-        if (DEBUG_HIGHEST) HexDump(CommBuf, bytesRead, 10);
-    }
-
-    int devcount = 0;
-    //for_each inverter found
-    //{
-        inverters[devcount] = new InverterData;
-        resetInverterData(inverters[devcount]);
-        // Store received IP address as readable text to InverterData struct
-        // IP address is found at pos 38 in the buffer
-        // Don't know yet for multiple inverter plants
-        // Len bigger than 0.0.0.0 or len of no string ==> use IP_Adress from config
-        if (strlen(IP_Address) > 7) // Fix CP181
-        {
-            memccpy(inverters[devcount]->IPAddress, IP_Address, 0, sizeof(inverters[devcount]->IPAddress));
-            if (quiet == 0) printf("Inverter IP address: %s from SBFspot.cfg\n", inverters[devcount]->IPAddress);
-        }
-        else // use IP from broadcast-detection of inverter
-        {
-            sprintf(inverters[devcount]->IPAddress, "%d.%d.%d.%d", CommBuf[38], CommBuf[39], CommBuf[40], CommBuf[41]);
-            if (quiet == 0) printf("Inverter IP address: %s found via broadcastidentification\n", inverters[devcount]->IPAddress);
-        }
-        devcount++;
-    //}
-
-
-    writePacketHeader(pcktBuf, 0, NULL);
-    writePacket(pcktBuf, 0x09, 0xA0, 0, anySUSyID, anySerial);
-    writeLong(pcktBuf, 0x00000200);
-    writeLong(pcktBuf, 0);
-    writeLong(pcktBuf, 0);
-    writeLong(pcktBuf, 0);
-    writePacketLength(pcktBuf);
-
-    //Send packet to first inverter
-    ethSend(pcktBuf, inverters[0]->IPAddress);
-
-    if ((rc = ethGetPacket()) == E_OK)
-    {
-        ethPacket *pckt = (ethPacket *)pcktBuf;
-        inverters[0]->SUSyID = btohs(pckt->Source.SUSyID);
-        inverters[0]->Serial = btohl(pckt->Source.Serial);
     }
     else
     {
-        std::cerr << "ERROR: Connection to inverter failed!\n";
-        std::cerr << "Is " << inverters[0]->IPAddress << " the correct IP?\n";
-        std::cerr << "Please check IP_Address in SBFspot.cfg!\n";
-        return E_INIT;
+        for (const auto &ip : IPaddresslist)
+        {
+            inverters[devcount] = new InverterData;
+            resetInverterData(inverters[devcount]);
+            memccpy(inverters[devcount]->IPAddress, ip.c_str(), 0, sizeof(inverters[devcount]->IPAddress));
+            if (VERBOSE_NORMAL) printf("Device IP address: %s from config\n", inverters[devcount]->IPAddress);
+
+            if (++devcount >= MAX_INVERTERS)
+                break;
+        }
     }
 
-    logoffSMAInverter(inverters[0]);
-
-    return rc;
-}
-
-// Initialise multiple ethernet connected inverters
-E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::string> IPaddresslist)
-{
-    if (VERBOSE_NORMAL)
+    for (uint32_t dev = 0; dev < devcount; dev++)
     {
-        puts("Initializing...");
-        printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
-    }
-
-    E_SBFSPOT rc = E_OK;
-
-    for (unsigned int devcount = 0; devcount < IPaddresslist.size(); devcount++)
-    {
-        inverters[devcount] = new InverterData;
-        resetInverterData(inverters[devcount]);
-        strcpy(inverters[devcount]->IPAddress, IPaddresslist[devcount].c_str());
-        if (quiet == 0) printf("Inverter IP address: %s from SBFspot.cfg\n", inverters[devcount]->IPAddress);
-
         writePacketHeader(pcktBuf, 0, NULL);
         writePacket(pcktBuf, 0x09, 0xA0, 0, anySUSyID, anySerial);
         writeLong(pcktBuf, 0x00000200);
@@ -440,25 +378,23 @@ E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::str
         writeLong(pcktBuf, 0);
         writePacketLength(pcktBuf);
 
-        ethSend(pcktBuf, inverters[devcount]->IPAddress);
+        ethSend(pcktBuf, inverters[dev]->IPAddress);
 
         if ((rc = ethGetPacket()) == E_OK)
         {
             ethPacket *pckt = (ethPacket *)pcktBuf;
-            inverters[devcount]->SUSyID = btohs(pckt->Source.SUSyID);
-            inverters[devcount]->Serial = btohl(pckt->Source.Serial);
-            if (VERBOSE_NORMAL) printf("Inverter replied: %s SUSyID: %d - Serial: %lu\n", inverters[devcount]->IPAddress, inverters[devcount]->SUSyID, inverters[devcount]->Serial);
+            inverters[dev]->SUSyID = btohs(pckt->Source.SUSyID);
+            inverters[dev]->Serial = btohl(pckt->Source.Serial);
+            if (VERBOSE_NORMAL) printf("Inverter replied: %s -> %d:%lu\n", inverters[dev]->IPAddress, inverters[dev]->SUSyID, inverters[dev]->Serial);
 
-            logoffSMAInverter(inverters[devcount]);
+            logoffSMAInverter(inverters[dev]);
         }
         else
         {
-            std::cerr << "ERROR: Connection to inverter failed!" << std::endl;
-            std::cerr << "Is " << inverters[devcount]->IPAddress << " the correct IP?" << std::endl;
-            std::cerr << "Please check IP_Address in SBFspot.cfg!" << std::endl;
+            std::cout << "ERROR: Connection to inverter failed!\n";
+            std::cout << "Is " << inverters[dev]->IPAddress << " a correct IP?" << std::endl;
             // Fix #412 skipping unresponsive inverter
             // Continue with next device instead of returning E_INIT and skipping the remaining devices
-            // return E_INIT;
         }
     }
 
@@ -469,7 +405,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 {
     if (VERBOSE_NORMAL)
     {
-        puts("Initializing...");
+        puts("Initialising...");
         printf("SUSyID: %d - SessionID: %lu\n", AppSUSyID, AppSerial);
     }
 
@@ -645,7 +581,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
         {
             if ((VERBOSE_NORMAL) && (NetID > 1))
                 puts ("In case of single inverter system set MIS_Enabled=0 in config file.");
-            return E_INIT;    // Something went wrong... Failed to initialize
+            return E_INIT;    // Something went wrong... Failed to initialise
         }
 
         if (0x1001 == PacketType)
@@ -1565,7 +1501,7 @@ int GetConfig(Config *cfg)
 
     if ((fp = fopen(cfg->ConfigFile.c_str(), "r")) == NULL)
     {
-        std::cerr << "Error! Could not open file " << cfg->ConfigFile << std::endl;
+        std::cout << "Error! Could not open file " << cfg->ConfigFile << std::endl;
         return -1;
     }
 
@@ -1611,7 +1547,7 @@ int GetConfig(Config *cfg)
                         }
                         catch (...)
                         {
-                            std::cerr << "Invalid value for '" << variable << "' " << cfg->ip_addresslist[i] << std::endl;
+                            std::cout << "Invalid value for '" << variable << "' " << cfg->ip_addresslist[i] << std::endl;
                             rc = -2;
                             break;
                         }
@@ -1655,7 +1591,7 @@ int GetConfig(Config *cfg)
                         cfg->calcMissingSpot = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1680,7 +1616,7 @@ int GetConfig(Config *cfg)
                     else if ((stricmp(value, "dot") == 0) || (stricmp(value, "point") == 0)) cfg->decimalpoint = '.'; // Fix Issue 84 - 'Point' is accepted for backward compatibility
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(comma|dot)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(comma|dot)");
                         rc = -2;
                     }
                 }
@@ -1690,7 +1626,7 @@ int GetConfig(Config *cfg)
                     else if (stricmp(value, "semicolon") == 0) cfg->delimiter = ';';
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(comma|semicolon)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(comma|semicolon)");
                         rc = -2;
                     }
                 }
@@ -1701,7 +1637,7 @@ int GetConfig(Config *cfg)
                         cfg->synchTime = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(0-30)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(0-30)");
                         rc = -2;
                     }
                 }
@@ -1712,7 +1648,7 @@ int GetConfig(Config *cfg)
                         cfg->synchTimeLow = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(1-120)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(1-120)");
                         rc = -2;
                     }
                 }
@@ -1723,7 +1659,7 @@ int GetConfig(Config *cfg)
                         cfg->synchTimeHigh = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(1200-3600)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(1200-3600)");
                         rc = -2;
                     }
                 }
@@ -1734,7 +1670,7 @@ int GetConfig(Config *cfg)
                         cfg->CSV_Export = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1745,7 +1681,7 @@ int GetConfig(Config *cfg)
                         cfg->CSV_ExtendedHeader = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1756,7 +1692,7 @@ int GetConfig(Config *cfg)
                         cfg->CSV_Header = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1767,7 +1703,7 @@ int GetConfig(Config *cfg)
                         cfg->CSV_SaveZeroPower = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1778,7 +1714,7 @@ int GetConfig(Config *cfg)
                         cfg->SunRSOffset = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(0-3600)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(0-3600)");
                         rc = -2;
                     }
                 }
@@ -1788,7 +1724,7 @@ int GetConfig(Config *cfg)
                     else if (stricmp(value, "Computer") == 0) cfg->SpotTimeSource = 1;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "Inverter|Computer");
+                        fprintf(stdout, CFG_InvalidValue, variable, "Inverter|Computer");
                         rc = -2;
                     }
                 }
@@ -1800,7 +1736,7 @@ int GetConfig(Config *cfg)
                         cfg->SpotWebboxHeader = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1811,7 +1747,7 @@ int GetConfig(Config *cfg)
                         cfg->MIS_Enabled = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
                         rc = -2;
                     }
                 }
@@ -1827,7 +1763,7 @@ int GetConfig(Config *cfg)
                         strcpy(cfg->locale, value);
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "de-DE|en-US|fr-FR|nl-NL|it-IT|es-ES");
+                        fprintf(stdout, CFG_InvalidValue, variable, "de-DE|en-US|fr-FR|nl-NL|it-IT|es-ES");
                         rc = -2;
                     }
                 }
@@ -1838,7 +1774,7 @@ int GetConfig(Config *cfg)
                         cfg->BT_ConnectRetries = (int)lValue;
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(1-15)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(1-15)");
                         rc = -2;
                     }
                 }
@@ -1885,7 +1821,7 @@ int GetConfig(Config *cfg)
                         }
                         catch (...)
                         {
-                            fprintf(stderr, CFG_InvalidValue, variable, "");
+                            fprintf(stdout, CFG_InvalidValue, variable, "");
                             rc = -2;
                             break;
                         }
@@ -1912,7 +1848,7 @@ int GetConfig(Config *cfg)
                     else if (stricmp(value, "none") == 0) cfg->mqtt_item_delimiter = "";
                     else
                     {
-                        fprintf(stderr, CFG_InvalidValue, variable, "(none|blank|comma|semicolon)");
+                        fprintf(stdout, CFG_InvalidValue, variable, "(none|blank|comma|semicolon)");
                         rc = -2;
                     }
                 }
@@ -1920,7 +1856,7 @@ int GetConfig(Config *cfg)
                 // Add more config keys here
 
                 else
-                    fprintf(stderr, "Warning: Ignoring keyword '%s'\n", variable);
+                    fprintf(stdout, "Warning: Ignoring keyword '%s'\n", variable);
             }
         }
     }
@@ -1938,13 +1874,13 @@ int GetConfig(Config *cfg)
 
     if (strlen(cfg->SMA_Password) == 0)
     {
-        fprintf(stderr, "Missing USER Password.\n");
+        fprintf(stdout, "Missing USER Password.\n");
         rc = -2;
     }
 
     if (cfg->decimalpoint == cfg->delimiter)
     {
-        fprintf(stderr, "'CSV_Delimiter' and 'DecimalPoint' must be different character.\n");
+        fprintf(stdout, "'CSV_Delimiter' and 'DecimalPoint' must be different character.\n");
         rc = -2;
     }
 
@@ -1958,7 +1894,7 @@ int GetConfig(Config *cfg)
 
     if (strlen(cfg->outputPath) == 0)
     {
-        fprintf(stderr, "Missing OutputPath.\n");
+        fprintf(stdout, "Missing OutputPath.\n");
         rc = -2;
     }
 
@@ -2258,14 +2194,440 @@ std::vector <uint32_t> getattribute(uint8_t *pcktbuf)
     return tags;
 }
 
+int getInverterData(InverterData *device, unsigned long command, unsigned long first, unsigned long last)
+{
+    int rc = E_OK;
+
+    do
+    {
+        pcktID++;
+        writePacketHeader(pcktBuf, 0x01, addr_unknown);
+        if (device->SUSyID == SID_SB240)
+            writePacket(pcktBuf, 0x09, 0xE0, 0, device->SUSyID, device->Serial);
+        else
+            writePacket(pcktBuf, 0x09, 0xA0, 0, device->SUSyID, device->Serial);
+        writeLong(pcktBuf, command);
+        writeLong(pcktBuf, first);
+        writeLong(pcktBuf, last);
+        writePacketTrailer(pcktBuf);
+        writePacketLength(pcktBuf);
+    } while (!isCrcValid(pcktBuf[packetposition - 3], pcktBuf[packetposition - 2]));
+
+    if (ConnType == CT_BLUETOOTH)
+    {
+        bthSend(pcktBuf);
+    }
+    else
+    {
+        ethSend(pcktBuf, device->IPAddress);
+    }
+
+    unsigned short pcktcount = 0;
+    int validPcktID = 0;
+    do
+    {
+        do
+        {
+            if (ConnType == CT_BLUETOOTH)
+                rc = getPacket(device->BTAddress, 1);
+            else
+                rc = ethGetPacket();
+
+            if (rc != E_OK) return rc;
+
+            if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
+                return E_CHKSUM;
+            else
+            {
+                uint16_t status = get_short(pcktBuf + 23);
+                if (status != 0)
+                {
+                    if (VERBOSE_NORMAL) printf("Packet status: %d\n", status);
+                    return status;
+                }
+                pcktcount = get_short(pcktBuf + 25);
+                unsigned short rcvpcktID = get_short(pcktBuf + 27) & 0x7FFF;
+                if (pcktID == rcvpcktID)
+                {
+                    if (((uint16_t)get_short(pcktBuf + 15) == device->SUSyID) && ((uint32_t)get_long(pcktBuf + 17) == device->Serial))
+                    {
+                        validPcktID = 1;
+                        int32_t value = 0;
+                        int64_t value64 = 0;
+                        uint32_t recordsize = 4 * ((uint32_t)pcktBuf[5] - 9) / ((uint32_t)get_long(pcktBuf + 37) - (uint32_t)get_long(pcktBuf + 33) + 1);
+
+                        for (int ii = 41; ii < packetposition - 3; ii += recordsize)
+                        {
+                            uint8_t *recptr = pcktBuf + ii;
+                            uint32_t code = ((uint32_t)get_long(recptr));
+                            LriDef lri = (LriDef)(code & 0x00FFFF00);
+                            uint32_t cls = code & 0xFF;
+                            uint8_t dataType = code >> 24;
+                            time_t datetime = (time_t)get_long(recptr + 4);
+
+                            // fix: We can't rely on dataType because it can be both 0x00 or 0x40 for DWORDs
+                            //if ((lri == MeteringDyWhOut) || (lri == MeteringTotWhOut) || (lri == MeteringTotFeedTms) || (lri == MeteringTotOpTms))  //QWORD
+                            if (recordsize == 16)
+                            {
+                                value64 = get_longlong(recptr + 8);
+                                if (is_NaN(value64) || is_NaN((uint64_t)value64))
+                                    value64 = 0;
+                            }
+                            else if ((dataType != DT_STRING) && (dataType != DT_STATUS))
+                            {
+                                value = get_long(recptr + 16);
+                                if (is_NaN(value) || is_NaN((uint32_t)value))
+                                    value = 0;
+                            }
+
+                            switch (lri)
+                            {
+                            case GridMsTotW: //SPOT_PACTOT
+                                //This function gives us the time when the inverter was switched off
+                                device->SleepTime = datetime;
+                                device->TotalPac = value;
+                                debug_watt("SPOT_PACTOT", value, datetime);
+                                break;
+
+                            case GridMsWphsA: //SPOT_PAC1
+                                device->Pac1 = value;
+                                debug_watt("SPOT_PAC1", value, datetime);
+                                break;
+
+                            case GridMsWphsB: //SPOT_PAC2
+                                device->Pac2 = value;
+                                debug_watt("SPOT_PAC2", value, datetime);
+                                break;
+
+                            case GridMsWphsC: //SPOT_PAC3
+                                device->Pac3 = value;
+                                debug_watt("SPOT_PAC3", value, datetime);
+                                break;
+
+                            case GridMsPhVphsA: //SPOT_UAC1
+                                device->Uac1 = value;
+                                debug_volt("SPOT_UAC1", value, datetime);
+                                break;
+
+                            case GridMsPhVphsB: //SPOT_UAC2
+                                device->Uac2 = value;
+                                debug_volt("SPOT_UAC2", value, datetime);
+                                break;
+
+                            case GridMsPhVphsC: //SPOT_UAC3
+                                device->Uac3 = value;
+                                debug_volt("SPOT_UAC3", value, datetime);
+                                break;
+
+                            case GridMsAphsA_1: //SPOT_IAC1
+                            case GridMsAphsA:
+                                device->Iac1 = value;
+                                debug_amp("SPOT_IAC1", value, datetime);
+                                break;
+
+                            case GridMsAphsB_1: //SPOT_IAC2
+                            case GridMsAphsB:
+                                device->Iac2 = value;
+                                debug_amp("SPOT_IAC2", value, datetime);
+                                break;
+
+                            case GridMsAphsC_1: //SPOT_IAC3
+                            case GridMsAphsC:
+                                device->Iac3 = value;
+                                debug_amp("SPOT_IAC3", value, datetime);
+                                break;
+
+                            case GridMsHz: //SPOT_FREQ
+                                device->GridFreq = value;
+                                debug_hz("SPOT_FREQ", value, datetime);
+                                break;
+
+                            case DcMsWatt: //SPOT_PDC1 / SPOT_PDC2
+                            {
+                                auto it = device->mpp.find((uint8_t)cls);
+                                if (it != device->mpp.end())
+                                    it->second.Pdc(value);
+                                else
+                                {
+                                    mppt new_mppt;
+                                    new_mppt.Pdc(value);
+                                    device->mpp.insert(std::make_pair(cls, new_mppt));
+                                }
+
+                                debug_watt((std::string("SPOT_PDC") + std::to_string(cls)).c_str(), value, datetime);
+
+                                device->calPdcTot += value;
+
+                                break;
+                            }
+
+                            case DcMsVol: //SPOT_UDC1 / SPOT_UDC2
+                            {
+                                auto it = device->mpp.find((uint8_t)cls);
+                                if (it != device->mpp.end())
+                                    it->second.Udc(value);
+                                else
+                                {
+                                    mppt new_mppt;
+                                    new_mppt.Udc(value);
+                                    device->mpp.insert(std::make_pair(cls, new_mppt));
+                                }
+
+                                debug_volt((std::string("SPOT_UDC") + std::to_string(cls)).c_str(), value, datetime);
+
+                                break;
+                            }
+
+                            case DcMsAmp: //SPOT_IDC1 / SPOT_IDC2
+                            {
+                                auto it = device->mpp.find((uint8_t)cls);
+                                if (it != device->mpp.end())
+                                    it->second.Idc(value);
+                                else
+                                {
+                                    mppt new_mppt;
+                                    new_mppt.Idc(value);
+                                    device->mpp.insert(std::make_pair(cls, new_mppt));
+                                }
+
+                                debug_amp((std::string("SPOT_IDC") + std::to_string(cls)).c_str(), value, datetime);
+
+                                break;
+                            }
+
+                            case MeteringTotWhOut: //SPOT_ETOTAL
+                                //In case SPOT_ETODAY missing, this function gives us inverter time (eg: SUNNY TRIPOWER 6.0)
+                                device->InverterDatetime = datetime;
+                                device->ETotal = value64;
+                                debug_kwh("SPOT_ETOTAL", value64, datetime);
+                                break;
+
+                            case MeteringDyWhOut: //SPOT_ETODAY
+                                //This function gives us the current inverter time
+                                device->InverterDatetime = datetime;
+                                device->EToday = value64;
+                                debug_kwh("SPOT_ETODAY", value64, datetime);
+                                break;
+
+                            case MeteringTotOpTms: //SPOT_OPERTM
+                                device->OperationTime = value64;
+                                debug_hour("SPOT_OPERTM", value64, datetime);
+                                break;
+
+                            case MeteringTotFeedTms: //SPOT_FEEDTM
+                                device->FeedInTime = value64;
+                                debug_hour("SPOT_FEEDTM", value64, datetime);
+                                break;
+
+                            case NameplateLocation: //INV_NAME
+                                //This function gives us the time when the inverter was switched on
+                                device->WakeupTime = datetime;
+                                device->DeviceName = std::string((char *)recptr + 8, strnlen((char *)recptr + 8, recordsize - 8)); // Fix #506
+                                debug_text("INV_NAME", device->DeviceName.c_str(), datetime);
+                                break;
+
+                            case NameplatePkgRev: //INV_SWVER
+                                device->SWVersion = version_tostring(get_long(recptr + 24));
+                                debug_text("INV_SWVER", device->SWVersion.c_str(), datetime);
+                                break;
+
+                            case NameplateModel: //INV_TYPE
+                            {
+                                auto attr = getattribute(recptr);
+                                if (attr.size() > 0)
+                                {
+                                    device->DeviceType = tagdefs.getDesc(attr.front());
+                                    if (device->DeviceType.empty())
+                                    {
+                                        device->DeviceType = "UNKNOWN TYPE";
+                                        printf("Unknown Inverter Type. Report this issue at https://github.com/SBFspot/SBFspot/issues with following info:\n");
+                                        printf("ID='%d' and Type=<Fill in the exact inverter model> (e.g. SB1300TL-10)\n", attr.front());
+                                    }
+                                    debug_text("INV_TYPE", device->DeviceType.c_str(), datetime);
+                                }
+                                break;
+                            }
+
+                            case NameplateMainModel: //INV_CLASS
+                            {
+                                auto attr = getattribute(recptr);
+                                if (attr.size() > 0)
+                                {
+                                    device->DevClass = (DEVICECLASS)attr.front();
+                                    device->DeviceClass = tagdefs.getDesc(device->DevClass, "UNKNOWN CLASS");
+
+                                    debug_text("INV_CLASS", device->DeviceClass.c_str(), datetime);
+                                }
+                                break;
+                            }
+
+                            case OperationHealth: //INV_STATUS:
+                            {
+                                auto attr = getattribute(recptr);
+                                if (attr.size() > 0)
+                                {
+                                    device->DeviceStatus = attr.front();
+                                    debug_text("INV_STATUS", tagdefs.getDesc(device->DeviceStatus, "?").c_str(), datetime);
+                                }
+                                break;
+                            }
+
+                            case OperationGriSwStt: //INV_GRIDRELAY
+                            {
+                                auto attr = getattribute(recptr);
+                                if (attr.size() > 0)
+                                {
+                                    device->GridRelayStatus = attr.front();
+                                    debug_text("INV_GRIDRELAY", tagdefs.getDesc(device->GridRelayStatus, "?").c_str(), datetime);
+                                }
+                                break;
+                            }
+
+                            case BatChaStt:
+                                device->BatChaStt = value;
+                                break;
+
+                            case BatDiagCapacThrpCnt:
+                                device->BatDiagCapacThrpCnt = value;
+                                break;
+
+                            case BatDiagTotAhIn:
+                                device->BatDiagTotAhIn = value;
+                                break;
+
+                            case BatDiagTotAhOut:
+                                device->BatDiagTotAhOut = value;
+                                break;
+
+                            case BatTmpVal:
+                                device->BatTmpVal = value;
+                                break;
+
+                            case BatVol:
+                                device->BatVol = value;
+                                break;
+
+                            case BatAmp:
+                                device->BatAmp = value;
+                                break;
+
+                            case CoolsysTmpNom:
+                                device->Temperature = value;
+                                break;
+
+                            case MeteringGridMsTotWOut:
+                                device->MeteringGridMsTotWOut = value;
+                                break;
+
+                            case MeteringGridMsTotWIn:
+                                device->MeteringGridMsTotWIn = value;
+                                break;
+
+                            default:
+                                switch (dataType)
+                                {
+                                case DT_ULONG:
+                                    if (recordsize == 16)
+                                    {
+                                        printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), u64_tostring(get_longlong(recptr + 8)).c_str());
+                                    }
+                                    else if (recordsize == 28)
+                                    {
+                                        printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                            u32_tostring(get_long(recptr + 8)).c_str(),
+                                            u32_tostring(get_long(recptr + 12)).c_str(),
+                                            u32_tostring(get_long(recptr + 16)).c_str(),
+                                            u32_tostring(get_long(recptr + 20)).c_str()
+                                        );
+                                    }
+                                    else if (recordsize == 40)
+                                    {
+                                        printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                            u32_tostring(get_long(recptr + 8)).c_str(),
+                                            u32_tostring(get_long(recptr + 12)).c_str(),
+                                            u32_tostring(get_long(recptr + 16)).c_str(),
+                                            u32_tostring(get_long(recptr + 20)).c_str(),
+                                            u32_tostring(get_long(recptr + 24)).c_str(),
+                                            u32_tostring(get_long(recptr + 28)).c_str()
+                                        );
+                                    }
+                                    else
+                                        printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                    break;
+
+                                case DT_STATUS:
+                                {
+                                    for (const auto &tag : getattribute(recptr))
+                                        printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(tag, "???").c_str());
+                                }
+                                break;
+
+                                case DT_STRING:
+                                {
+                                    char str[40];
+                                    strncpy(str, (char*)recptr + 8, recordsize - 8);
+                                    printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), str);
+                                }
+                                break;
+
+                                case DT_SLONG:
+                                    if (recordsize == 16)
+                                    {
+                                        printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), s64_tostring(get_longlong(recptr + 8)).c_str());
+                                    }
+                                    else if (recordsize == 28)
+                                    {
+                                        printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                            s32_tostring(get_long(recptr + 8)).c_str(),
+                                            s32_tostring(get_long(recptr + 12)).c_str(),
+                                            s32_tostring(get_long(recptr + 16)).c_str(),
+                                            s32_tostring(get_long(recptr + 20)).c_str()
+                                        );
+
+                                    }
+                                    else if (recordsize == 40)
+                                    {
+                                        printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                            s32_tostring(get_long(recptr + 8)).c_str(),
+                                            s32_tostring(get_long(recptr + 12)).c_str(),
+                                            s32_tostring(get_long(recptr + 16)).c_str(),
+                                            s32_tostring(get_long(recptr + 20)).c_str(),
+                                            s32_tostring(get_long(recptr + 24)).c_str(),
+                                            s32_tostring(get_long(recptr + 28)).c_str()
+                                        );
+                                    }
+                                    else
+                                        printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                    break;
+
+                                default:
+                                    printf("%08X %d %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                    break;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
+                    validPcktID = 0;
+                    pcktcount = 0;
+                }
+            }
+        } while (pcktcount > 0);
+    } while (validPcktID == 0);
+
+    return E_OK;
+}
+
 int getInverterData(InverterData *devList[], enum getInverterDataType type)
 {
     int rc = E_OK;
     unsigned long command;
     unsigned long first;
     unsigned long last;
-
-    MPPTlist::iterator it;
 
     switch (type)
     {
@@ -2387,458 +2749,21 @@ int getInverterData(InverterData *devList[], enum getInverterDataType type)
         return E_BADARG;
     };
 
-    for (uint32_t i = 0; devList[i] != NULL && i<MAX_INVERTERS; i++)
+    for (uint32_t i = 0; devList[i] != NULL && i < MAX_INVERTERS; i++)
     {
+        uint32_t retries = MAX_RETRY;
         do
         {
-            pcktID++;
-            writePacketHeader(pcktBuf, 0x01, addr_unknown);
-            if (devList[i]->SUSyID == SID_SB240)
-                writePacket(pcktBuf, 0x09, 0xE0, 0, devList[i]->SUSyID, devList[i]->Serial);
-            else
-                writePacket(pcktBuf, 0x09, 0xA0, 0, devList[i]->SUSyID, devList[i]->Serial);
-            writeLong(pcktBuf, command);
-            writeLong(pcktBuf, first);
-            writeLong(pcktBuf, last);
-            writePacketTrailer(pcktBuf);
-            writePacketLength(pcktBuf);
-        } while (!isCrcValid(pcktBuf[packetposition - 3], pcktBuf[packetposition - 2]));
-
-        if (ConnType == CT_BLUETOOTH)
-        {
-            bthSend(pcktBuf);
-        }
-        else
-        {
-            ethSend(pcktBuf, devList[i]->IPAddress);
-        }
-
-        unsigned short pcktcount = 0;
-        int validPcktID = 0;
-        do
-        {
-            do
+            if ((rc = getInverterData(devList[i], command, first, last)) == E_NODATA)
             {
-                if (ConnType == CT_BLUETOOTH)
-                    rc = getPacket(devList[i]->BTAddress, 1);
-                else
-                    rc = ethGetPacket();
-
-                if (rc != E_OK) return rc;
-
-                if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
-                    return E_CHKSUM;
-                else
-                {
-                    uint16_t status = get_short(pcktBuf + 23);
-                    if (status != 0)
-                    {
-                        if (VERBOSE_NORMAL) printf("Packet status: %d\n", status);
-                        return status;
-                    }
-                    pcktcount = get_short(pcktBuf + 25);
-                    unsigned short rcvpcktID = get_short(pcktBuf + 27) & 0x7FFF;
-                    if (pcktID == rcvpcktID)
-                    {
-                        int inv = getInverterIndexBySerial(devList, get_short(pcktBuf + 15), get_long(pcktBuf + 17));
-                        if (inv >= 0)
-                        {
-                            validPcktID = 1;
-                            int32_t value = 0;
-                            int64_t value64 = 0;
-                            uint32_t recordsize = 4 * ((uint32_t)pcktBuf[5] - 9) / ((uint32_t)get_long(pcktBuf + 37) - (uint32_t)get_long(pcktBuf + 33) + 1);
-                            
-                            for (int ii = 41; ii < packetposition - 3; ii += recordsize)
-                            {
-                                uint8_t *recptr = pcktBuf + ii;
-                                uint32_t code = ((uint32_t)get_long(recptr));
-                                LriDef lri = (LriDef)(code & 0x00FFFF00);
-                                uint32_t cls = code & 0xFF;
-                                uint8_t dataType = code >> 24;
-                                time_t datetime = (time_t)get_long(recptr + 4);
-
-                                // fix: We can't rely on dataType because it can be both 0x00 or 0x40 for DWORDs
-                                //if ((lri == MeteringDyWhOut) || (lri == MeteringTotWhOut) || (lri == MeteringTotFeedTms) || (lri == MeteringTotOpTms))  //QWORD
-                                if (recordsize == 16)
-                                {
-                                    value64 = get_longlong(recptr + 8);
-                                    if (is_NaN(value64) || is_NaN((uint64_t)value64))
-                                        value64 = 0;
-                                }
-                                else if ((dataType != DT_STRING) && (dataType != DT_STATUS))
-                                {
-                                    value = get_long(recptr + 16);
-                                    if (is_NaN(value) || is_NaN((uint32_t)value))
-                                        value = 0;
-                                }
-
-                                switch (lri)
-                                {
-                                case GridMsTotW: //SPOT_PACTOT
-                                    //This function gives us the time when the inverter was switched off
-                                    devList[inv]->SleepTime = datetime;
-                                    devList[inv]->TotalPac = value;
-                                    devList[inv]->flags |= type;
-                                    debug_watt("SPOT_PACTOT", value, datetime);
-                                    break;
-
-                                case GridMsWphsA: //SPOT_PAC1
-                                    devList[inv]->Pac1 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_watt("SPOT_PAC1", value, datetime);
-                                    break;
-
-                                case GridMsWphsB: //SPOT_PAC2
-                                    devList[inv]->Pac2 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_watt("SPOT_PAC2", value, datetime);
-                                    break;
-
-                                case GridMsWphsC: //SPOT_PAC3
-                                    devList[inv]->Pac3 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_watt("SPOT_PAC3", value, datetime);
-                                    break;
-
-                                case GridMsPhVphsA: //SPOT_UAC1
-                                    devList[inv]->Uac1 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_volt("SPOT_UAC1", value, datetime);
-                                    break;
-
-                                case GridMsPhVphsB: //SPOT_UAC2
-                                    devList[inv]->Uac2 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_volt("SPOT_UAC2", value, datetime);
-                                    break;
-
-                                case GridMsPhVphsC: //SPOT_UAC3
-                                    devList[inv]->Uac3 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_volt("SPOT_UAC3", value, datetime);
-                                    break;
-
-                                case GridMsAphsA_1: //SPOT_IAC1
-                                case GridMsAphsA:
-                                    devList[inv]->Iac1 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_amp("SPOT_IAC1", value, datetime);
-                                    break;
-
-                                case GridMsAphsB_1: //SPOT_IAC2
-                                case GridMsAphsB:
-                                    devList[inv]->Iac2 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_amp("SPOT_IAC2", value, datetime);
-                                    break;
-
-                                case GridMsAphsC_1: //SPOT_IAC3
-                                case GridMsAphsC:
-                                    devList[inv]->Iac3 = value;
-                                    devList[inv]->flags |= type;
-                                    debug_amp("SPOT_IAC3", value, datetime);
-                                    break;
-
-                                case GridMsHz: //SPOT_FREQ
-                                    devList[inv]->GridFreq = value;
-                                    devList[inv]->flags |= type;
-                                    debug_hz("SPOT_FREQ", value, datetime);
-                                    break;
-
-                                case DcMsWatt: //SPOT_PDC1 / SPOT_PDC2
-                                    it = devList[inv]->mpp.find((uint8_t)cls);
-                                    if (it != devList[inv]->mpp.end())
-                                        it->second.Pdc(value);
-                                    else
-                                    {
-                                        mppt new_mppt;
-                                        new_mppt.Pdc(value);
-                                        devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
-                                    }
-
-                                    debug_watt((std::string("SPOT_PDC") + std::to_string(cls)).c_str(), value, datetime);
-
-                                    devList[inv]->calPdcTot += value;
-
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case DcMsVol: //SPOT_UDC1 / SPOT_UDC2
-                                    it = devList[inv]->mpp.find((uint8_t)cls);
-                                    if (it != devList[inv]->mpp.end())
-                                        it->second.Udc(value);
-                                    else
-                                    {
-                                        mppt new_mppt;
-                                        new_mppt.Udc(value);
-                                        devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
-                                    }
-
-                                    debug_volt((std::string("SPOT_UDC") + std::to_string(cls)).c_str(), value, datetime);
-
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case DcMsAmp: //SPOT_IDC1 / SPOT_IDC2
-                                    it = devList[inv]->mpp.find((uint8_t)cls);
-                                    if (it != devList[inv]->mpp.end())
-                                        it->second.Idc(value);
-                                    else
-                                    {
-                                        mppt new_mppt;
-                                        new_mppt.Idc(value);
-                                        devList[inv]->mpp.insert(std::make_pair(cls, new_mppt));
-                                    }
-
-                                    debug_amp((std::string("SPOT_IDC") + std::to_string(cls)).c_str(), value, datetime);
-
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case MeteringTotWhOut: //SPOT_ETOTAL
-                                    //In case SPOT_ETODAY missing, this function gives us inverter time (eg: SUNNY TRIPOWER 6.0)
-                                    devList[inv]->InverterDatetime = datetime;
-                                    devList[inv]->ETotal = value64;
-                                    devList[inv]->flags |= type;
-                                    debug_kwh("SPOT_ETOTAL", value64, datetime);
-                                    break;
-
-                                case MeteringDyWhOut: //SPOT_ETODAY
-                                    //This function gives us the current inverter time
-                                    devList[inv]->InverterDatetime = datetime;
-                                    devList[inv]->EToday = value64;
-                                    devList[inv]->flags |= type;
-                                    debug_kwh("SPOT_ETODAY", value64, datetime);
-                                    break;
-
-                                case MeteringTotOpTms: //SPOT_OPERTM
-                                    devList[inv]->OperationTime = value64;
-                                    devList[inv]->flags |= type;
-                                    debug_hour("SPOT_OPERTM", value64, datetime);
-                                    break;
-
-                                case MeteringTotFeedTms: //SPOT_FEEDTM
-                                    devList[inv]->FeedInTime = value64;
-                                    devList[inv]->flags |= type;
-                                    debug_hour("SPOT_FEEDTM", value64, datetime);
-                                    break;
-
-                                case NameplateLocation: //INV_NAME
-                                    //This function gives us the time when the inverter was switched on
-                                    devList[inv]->WakeupTime = datetime;
-                                    devList[inv]->DeviceName = std::string((char *)recptr + 8, strnlen((char *)recptr + 8, recordsize - 8)); // Fix #506
-                                    devList[inv]->flags |= type;
-                                    debug_text("INV_NAME", devList[inv]->DeviceName.c_str(), datetime);
-                                    break;
-
-                                case NameplatePkgRev: //INV_SWVER
-                                    devList[inv]->SWVersion = version_tostring(get_long(recptr + 24));
-                                    devList[inv]->flags |= type;
-                                    debug_text("INV_SWVER", devList[inv]->SWVersion.c_str(), datetime);
-                                    break;
-
-                                case NameplateModel: //INV_TYPE
-                                {
-                                    auto attr = getattribute(recptr);
-                                    if (attr.size() > 0)
-                                    {
-                                        devList[inv]->DeviceType = tagdefs.getDesc(attr.front());
-                                        if (devList[inv]->DeviceType.empty())
-                                        {
-                                            devList[inv]->DeviceType = "UNKNOWN TYPE";
-                                            printf("Unknown Inverter Type. Report this issue at https://github.com/SBFspot/SBFspot/issues with following info:\n");
-                                            printf("ID='%d' and Type=<Fill in the exact inverter model> (e.g. SB1300TL-10)\n", attr.front());
-                                        }
-                                        devList[inv]->flags |= type;
-                                        debug_text("INV_TYPE", devList[inv]->DeviceType.c_str(), datetime);
-                                    }
-                                    break;
-                                }
-
-                                case NameplateMainModel: //INV_CLASS
-                                {
-                                    auto attr = getattribute(recptr);
-                                    if (attr.size() > 0)
-                                    {
-                                        devList[inv]->DevClass = (DEVICECLASS)attr.front();
-                                        devList[inv]->DeviceClass = tagdefs.getDesc(devList[inv]->DevClass, "UNKNOWN CLASS");
-
-                                        devList[inv]->flags |= type;
-                                        debug_text("INV_CLASS", devList[inv]->DeviceClass.c_str(), datetime);
-                                    }
-                                    break;
-                                }
-
-                                case OperationHealth: //INV_STATUS:
-                                {
-                                    auto attr = getattribute(recptr);
-                                    if (attr.size() > 0)
-                                    {
-                                        devList[inv]->DeviceStatus = attr.front();
-                                        devList[inv]->flags |= type;
-                                        debug_text("INV_STATUS", tagdefs.getDesc(devList[inv]->DeviceStatus, "?").c_str(), datetime);
-                                    }
-                                    break;
-                                }
-
-                                case OperationGriSwStt: //INV_GRIDRELAY
-                                {
-                                    auto attr = getattribute(recptr);
-                                    if (attr.size() > 0)
-                                    {
-                                        devList[inv]->GridRelayStatus = attr.front();
-                                        devList[inv]->flags |= type;
-                                        debug_text("INV_GRIDRELAY", tagdefs.getDesc(devList[inv]->GridRelayStatus, "?").c_str(), datetime);
-                                    }
-                                    break;
-                                }
-
-                                case BatChaStt:
-                                    devList[inv]->BatChaStt = value;
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case BatDiagCapacThrpCnt:
-                                    devList[inv]->BatDiagCapacThrpCnt = value;
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case BatDiagTotAhIn:
-                                    devList[inv]->BatDiagTotAhIn = value;
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case BatDiagTotAhOut:
-                                    devList[inv]->BatDiagTotAhOut = value;
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case BatTmpVal:
-                                    devList[inv]->BatTmpVal = value;
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case BatVol:
-                                    devList[inv]->BatVol = value;
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case BatAmp:
-                                    devList[inv]->BatAmp = value;
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case CoolsysTmpNom:
-                                    devList[inv]->Temperature = value;
-                                    devList[inv]->flags |= type;
-                                    break;
-
-                                case MeteringGridMsTotWOut:
-                                    devList[inv]->MeteringGridMsTotWOut = value;
-                                    break;
-
-                                case MeteringGridMsTotWIn:
-                                    devList[inv]->MeteringGridMsTotWIn = value;
-                                    break;
-
-                                default:
-                                    switch (dataType)
-                                    {
-                                    case DT_ULONG:
-                                        if (recordsize == 16)
-                                        {
-                                            printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), u64_tostring(get_longlong(recptr + 8)).c_str());
-                                        }
-                                        else if (recordsize == 28)
-                                        {
-                                            printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
-                                                u32_tostring(get_long(recptr + 8)).c_str(),
-                                                u32_tostring(get_long(recptr + 12)).c_str(),
-                                                u32_tostring(get_long(recptr + 16)).c_str(),
-                                                u32_tostring(get_long(recptr + 20)).c_str()
-                                            );
-                                        }
-                                        else if (recordsize == 40)
-                                        {
-                                            printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
-                                                u32_tostring(get_long(recptr + 8)).c_str(),
-                                                u32_tostring(get_long(recptr + 12)).c_str(),
-                                                u32_tostring(get_long(recptr + 16)).c_str(),
-                                                u32_tostring(get_long(recptr + 20)).c_str(),
-                                                u32_tostring(get_long(recptr + 24)).c_str(),
-                                                u32_tostring(get_long(recptr + 28)).c_str()
-                                            );
-                                        }
-                                        else
-                                            printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
-                                        break;
-
-                                    case DT_STATUS:
-                                        {
-                                            for (const auto &tag : getattribute(recptr))
-                                                printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(tag,"???").c_str());
-                                        }
-                                        break;
-
-                                    case DT_STRING:
-                                        {
-                                            char str[40];
-                                            strncpy(str, (char*)recptr + 8, recordsize - 8);
-                                            printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), str);
-                                        }
-                                        break;
-
-                                    case DT_SLONG:
-                                        if (recordsize == 16)
-                                        {
-                                            printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), s64_tostring(get_longlong(recptr + 8)).c_str());
-                                        }
-                                        else if (recordsize == 28)
-                                        {
-                                            printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
-                                                s32_tostring(get_long(recptr + 8)).c_str(),
-                                                s32_tostring(get_long(recptr + 12)).c_str(),
-                                                s32_tostring(get_long(recptr + 16)).c_str(),
-                                                s32_tostring(get_long(recptr + 20)).c_str()
-                                            );
-
-                                        }
-                                        else if (recordsize == 40)
-                                        {
-                                            printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
-                                                s32_tostring(get_long(recptr + 8)).c_str(),
-                                                s32_tostring(get_long(recptr + 12)).c_str(),
-                                                s32_tostring(get_long(recptr + 16)).c_str(),
-                                                s32_tostring(get_long(recptr + 20)).c_str(),
-                                                s32_tostring(get_long(recptr + 24)).c_str(),
-                                                s32_tostring(get_long(recptr + 28)).c_str()
-                                            );
-                                        }
-                                        else
-                                            printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
-                                        break;
-
-                                    default:
-                                        printf("%08X %d %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
-                                        break;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-                        validPcktID = 0;
-                        pcktcount = 0;
-                    }
-                }
-            } while (pcktcount > 0);
-        } while (validPcktID == 0);
+                if (DEBUG_NORMAL) puts("Retrying...");
+                retries--;
+            }
+            else retries = 0;
+        } while (retries > 0);
     }
 
-    return E_OK;
+    return rc;
 }
 
 void resetInverterData(InverterData *inv)
@@ -2859,7 +2784,6 @@ void resetInverterData(InverterData *inv)
     inv->EToday = 0;
     inv->ETotal = 0;
     inv->FeedInTime = 0;
-    inv->flags = 0;
     inv->GridFreq = 0;
     inv->GridRelayStatus = 0;
     inv->Iac1 = 0;
@@ -3021,7 +2945,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
 
     if (devcount >= MAX_INVERTERS)
     {
-        std::cerr << "ERROR: MAX_INVERTERS too low." << std::endl;
+        std::cout << "ERROR: MAX_INVERTERS too low." << std::endl;
         return E_BUFOVRFLW;
     }
 
@@ -3051,7 +2975,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
         int16_t errorcode = get_short(pcktBuf + 23);
         if (errorcode != 0)
         {
-            std::cerr << "Received errorcode=" << errorcode << std::endl;
+            std::cout << "Received errorcode=" << errorcode << std::endl;
             return (E_SBFSPOT)errorcode;
         }
 
@@ -3078,7 +3002,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
                         devList[devcount]->multigateID = multigateID;
                         if (++devcount >= MAX_INVERTERS)
                         {
-                            std::cerr << "ERROR: MAX_INVERTERS too low." << std::endl;
+                            std::cout << "ERROR: MAX_INVERTERS too low." << std::endl;
                             rc = E_BUFOVRFLW;
                             break;
                         }

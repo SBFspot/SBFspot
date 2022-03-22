@@ -19,7 +19,9 @@ V3.9.3
 
 V3.9.4
     Fail on incompatible firmware version (see https://forum.iobroker.net/topic/52761/sbfspot-funktioniert-nicht-communication-error)
-
+    Improved SPW device discovery
+    Handle returncode 21 (E_LRINOTAVAIL)
+    Handle returncode -1 (Implement retry comm)
 */
 
 /***

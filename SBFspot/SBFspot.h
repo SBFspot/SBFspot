@@ -55,8 +55,11 @@ DISCLAIMER:
 
 #define NA              "N/A"
 
+// Number of retries when timeout occurs
+#define MAX_RETRY       3
+
 //User Group
-#define	UG_USER         0x07L
+#define UG_USER         0x07L
 #define UG_INSTALLER    0x0AL
 
 //Wellknown SUSyID's
@@ -77,8 +80,7 @@ DISCLAIMER:
 
 //Function prototypes
 E_SBFSPOT initialiseSMAConnection(InverterData *invData);
-E_SBFSPOT ethInitConnection(InverterData *inverters[], const char *IP_Address);
-E_SBFSPOT ethInitConnectionMulti(InverterData *inverters[], std::vector<std::string> IPaddresslist);
+E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> IPaddresslist);
 void CalcMissingSpot(InverterData *invData);
 int DaysInMonth(int month, int year);
 int getBT_SignalStrength(InverterData *invData);
@@ -86,8 +88,6 @@ void freemem(InverterData *inverters[]);
 int GetConfig(Config *cfg);
 int getInverterData(InverterData *inverters[], enum getInverterDataType type);
 int getInverterIndexByAddress(InverterData* const inverters[], uint8_t bt_addr[6]);
-int getInverterIndexBySerial(InverterData *inverters[], unsigned short SUSyID, uint32_t Serial);
-int getInverterIndexBySerial(InverterData *inverters[], uint32_t Serial);
 E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command);
 void HexDump(uint8_t *buf, int count, int radix);
 E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], int MIS);
@@ -123,7 +123,7 @@ extern const unsigned short anySUSyID;
 extern const unsigned long anySerial;
 extern const uint32_t MAX_INVERTERS;
 
-extern const char *IP_Broadcast;
+extern const char *IP_Multicast;
 extern const char *IP_Inverter;
 
 extern TagDefs tagdefs;

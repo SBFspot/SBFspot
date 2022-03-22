@@ -81,16 +81,16 @@ int Inverter::process()
     // Most probably Speedwire devices get their time from the local IP network
     if ((m_config.ConnectionType == CT_BLUETOOTH) && (m_config.synchTime > 0 || m_config.s123 == S123_SYNC ))
         if ((rc = SetPlantTime(m_config.synchTime, m_config.synchTimeLow, m_config.synchTimeHigh)) != E_OK)
-            std::cerr << "SetPlantTime returned an error: " << rc << std::endl;
+            std::cout << "SetPlantTime returned an error: " << rc << std::endl;
 
     //if ((rc = getInverterData(m_inverters, sbftest)) != 0)
-    //    std::cerr << "getInverterData(sbftest) returned an error: " << rc << std::endl;
+    //    std::cout << "getInverterData(sbftest) returned an error: " << rc << std::endl;
 
     if ((rc = getInverterData(m_inverters, SoftwareVersion)) != 0)
-        std::cerr << "getSoftwareVersion returned an error: " << rc << std::endl;
+        std::cout << "getSoftwareVersion returned an error: " << rc << std::endl;
 
     if ((rc = getInverterData(m_inverters, TypeLabel)) != 0)
-        std::cerr << "getTypeLabel returned an error: " << rc << std::endl;
+        std::cout << "getTypeLabel returned an error: " << rc << std::endl;
     else
     {
         for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
@@ -172,7 +172,7 @@ int Inverter::process()
     if (hasBatteryDevice)
     {
         if ((rc = getInverterData(m_inverters, BatteryChargeStatus)) != 0)
-            std::cerr << "getBatteryChargeStatus returned an error: " << rc << std::endl;
+            std::cout << "getBatteryChargeStatus returned an error: " << rc << std::endl;
         else
         {
             for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
@@ -189,7 +189,7 @@ int Inverter::process()
         }
 
         if ((rc = getInverterData(m_inverters, BatteryInfo)) != 0)
-            std::cerr << "getBatteryInfo returned an error: " << rc << std::endl;
+            std::cout << "getBatteryInfo returned an error: " << rc << std::endl;
         else
         {
             for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
@@ -209,7 +209,7 @@ int Inverter::process()
     }
 
     if ((rc = getInverterData(m_inverters, MeteringGridMsTotW)) < 0)
-        std::cerr << "getMeteringGridInfo returned an error: " << rc << std::endl;
+        std::cout << "getMeteringGridInfo returned an error: " << rc << std::endl;
     else
     {
         if (rc == E_OK)
@@ -227,7 +227,7 @@ int Inverter::process()
     }
 
     if ((rc = getInverterData(m_inverters, DeviceStatus)) != 0)
-        std::cerr << "getDeviceStatus returned an error: " << rc << std::endl;
+        std::cout << "getDeviceStatus returned an error: " << rc << std::endl;
     else
     {
         for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
@@ -240,8 +240,9 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, InverterTemperature)) != 0)
-        std::cerr << "getInverterTemperature returned an error: " << rc << std::endl;
+    rc = getInverterData(m_inverters, InverterTemperature);
+    if ((rc != E_OK) && (rc != E_LRINOTAVAIL))
+        std::cout << "getInverterTemperature returned an error: " << rc << std::endl;
     else
     {
         for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
@@ -261,7 +262,7 @@ int Inverter::process()
     if (m_inverters[0]->DevClass == SolarInverter)
     {
         if ((rc = getInverterData(m_inverters, GridRelayStatus)) != 0)
-            std::cerr << "getGridRelayStatus returned an error: " << rc << std::endl;
+            std::cout << "getGridRelayStatus returned an error: " << rc << std::endl;
         else
         {
             for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
@@ -280,7 +281,7 @@ int Inverter::process()
 
     if ((rc = getInverterData(m_inverters, EnergyProduction)) != 0)
     {
-        std::cerr << "getEnergyProduction returned an error: " << rc << std::endl;
+        std::cout << "getEnergyProduction returned an error: " << rc << std::endl;
     }
 
     // Issue #290 Etoday and temperature are shown as ZERO from STP6.0 inverter
@@ -298,7 +299,7 @@ int Inverter::process()
                 if ((rc = ArchiveDayData(m_inverters, arch_time)) == E_OK)
                     archdata_available = true;
                 else if (rc != E_ARCHNODATA)
-                    std::cerr << "ArchiveDayData returned an error: " << rc << std::endl;
+                    std::cout << "ArchiveDayData returned an error: " << rc << std::endl;
             }
 
             if (archdata_available && m_inverters[inv]->dayData[0].totalWh != 0) // Fix #459
@@ -315,7 +316,7 @@ int Inverter::process()
     }
 
     if ((rc = getInverterData(m_inverters, OperationTime)) != 0)
-        std::cerr << "getOperationTime returned an error: " << rc << std::endl;
+        std::cout << "getOperationTime returned an error: " << rc << std::endl;
     else
     {
         for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
@@ -333,19 +334,19 @@ int Inverter::process()
     }
 
     if ((rc = getInverterData(m_inverters, SpotDCPower)) != 0)
-        std::cerr << "getSpotDCPower returned an error: " << rc << std::endl;
+        std::cout << "getSpotDCPower returned an error: " << rc << std::endl;
 
     if ((rc = getInverterData(m_inverters, SpotDCVoltage)) != 0)
-        std::cerr << "getSpotDCVoltage returned an error: " << rc << std::endl;
+        std::cout << "getSpotDCVoltage returned an error: " << rc << std::endl;
 
     if ((rc = getInverterData(m_inverters, SpotACPower)) != 0)
-        std::cerr << "getSpotACPower returned an error: " << rc << std::endl;
+        std::cout << "getSpotACPower returned an error: " << rc << std::endl;
 
     if ((rc = getInverterData(m_inverters, SpotACVoltage)) != 0)
-        std::cerr << "getSpotACVoltage returned an error: " << rc << std::endl;
+        std::cout << "getSpotACVoltage returned an error: " << rc << std::endl;
 
     if ((rc = getInverterData(m_inverters, SpotACTotalPower)) != 0)
-        std::cerr << "getSpotACTotalPower returned an error: " << rc << std::endl;
+        std::cout << "getSpotACTotalPower returned an error: " << rc << std::endl;
 
     for (uint32_t inv = 0; m_inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
     {
@@ -382,7 +383,7 @@ int Inverter::process()
     }
 
     if ((rc = getInverterData(m_inverters, SpotGridFrequency)) != 0)
-        std::cerr << "getSpotGridFrequency returned an error: " << rc << std::endl;
+        std::cout << "getSpotGridFrequency returned an error: " << rc << std::endl;
     else
     {
         for (uint32_t inv = 0; m_inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
@@ -441,7 +442,7 @@ int Inverter::process()
         if ((rc = ArchiveDayData(m_inverters, arch_time)) != E_OK)
         {
             if (rc != E_ARCHNODATA)
-                std::cerr << "ArchiveDayData returned an error: " << rc << std::endl;
+                std::cout << "ArchiveDayData returned an error: " << rc << std::endl;
         }
         else
         {
@@ -519,14 +520,14 @@ int Inverter::process()
         //Get user level events
         rc = ArchiveEventData(m_inverters, dt_utc, UG_USER);
         if (rc == E_EOF) break; // No more data (first event reached)
-        else if (rc != E_OK) std::cerr << "ArchiveEventData(user) returned an error: " << rc << std::endl;
+        else if (rc != E_OK) std::cout << "ArchiveEventData(user) returned an error: " << rc << std::endl;
 
         //When logged in as installer, get installer level events
         if (m_config.userGroup == UG_INSTALLER)
         {
             rc = ArchiveEventData(m_inverters, dt_utc, UG_INSTALLER);
             if (rc == E_EOF) break; // No more data (first event reached)
-            else if (rc != E_OK) std::cerr << "ArchiveEventData(installer) returned an error: " << rc << std::endl;
+            else if (rc != E_OK) std::cout << "ArchiveEventData(installer) returned an error: " << rc << std::endl;
         }
 
         //Move to previous month
@@ -629,7 +630,7 @@ int Inverter::logOn()
             if (rc == E_FWVERSION)
                 print_error(stdout, PROC_CRITICAL, "Incompatible FW version detected.\n");
             else
-                print_error(stdout, PROC_CRITICAL, "Failed to initialize communication with inverter.\n");
+                print_error(stdout, PROC_CRITICAL, "Failed to initialise communication with inverter.\n");
 
             bthClose();
             return rc;
@@ -645,20 +646,14 @@ int Inverter::logOn()
         rc = ethConnect(m_config.IP_Port);
         if (rc != 0)
         {
-            print_error(stdout, PROC_CRITICAL, "Failed to set up socket connection.");
+            print_error(stdout, PROC_CRITICAL, "Failed to set up socket connection.\n");
             return rc;
         }
 
-        if (m_config.ip_addresslist.size() > 1)
-            // New method for multiple inverters with fixed IP
-            rc = ethInitConnectionMulti(m_inverters, m_config.ip_addresslist);
-        else
-            // Old method for one inverter (fixed IP or broadcast)
-            rc = ethInitConnection(m_inverters, m_config.IP_Address);
-
+        rc = ethInitConnection(m_inverters, m_config.ip_addresslist);
         if (rc != E_OK)
         {
-            print_error(stdout, PROC_CRITICAL, "Failed to initialize Speedwire connection.");
+            print_error(stdout, PROC_CRITICAL, "Failed to initialise Speedwire connection.\n");
             ethClose();
             return rc;
         }

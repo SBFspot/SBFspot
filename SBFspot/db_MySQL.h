@@ -92,8 +92,8 @@ protected:
     std::string s_quoted(char *str) { return "'" + std::string(str) + "'"; }
     bool isverbose(int level) { return !quiet && (verbose >= level); }
     std::string status_text(int status);
-    void print_error(std::string msg) { std::cerr << timestamp() << "Error: " << msg << " : " << (m_dbHandle != NULL ? mysql_error(m_dbHandle) : "null") << std::endl; }
-    void print_error(std::string msg, std::string sql) { std::cerr << timestamp() << "Error: " << msg << " : " << (m_dbHandle != NULL ? mysql_error(m_dbHandle) : "null") << "\nExecuted Statement: " << sql << std::endl; }
+    void print_error(std::string msg) { std::cout << timestamp() << "Error: " << msg << " : " << (m_dbHandle != NULL ? mysql_error(m_dbHandle) : "null") << std::endl; }
+    void print_error(std::string msg, std::string sql) { std::cout << timestamp() << "Error: " << msg << " : " << (m_dbHandle != NULL ? mysql_error(m_dbHandle) : "null") << "\nExecuted Statement: " << sql << std::endl; }
     std::string strftime_t(const time_t utctime) { return static_cast<std::ostringstream &&>((std::ostringstream() << utctime)).str(); }
     std::string timestamp(void);
 };
