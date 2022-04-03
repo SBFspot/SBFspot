@@ -33,6 +33,7 @@ DISCLAIMER:
 ************************************************************************************************/
 
 #include "EventData.h"
+#include "nan.h"
 #include "TagDefs.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <sstream>
@@ -91,15 +92,44 @@ std::string EventData::EventDescription() const
 
     if (eventDescr.find("|") != std::string::npos)
     {
-        boost::replace_all(eventDescr, "|ln04|", quote(tagdefs.getDescForLRI(Parameter()).c_str()));
-        boost::replace_all(eventDescr, "|tn0|", tagdefs.getDesc(DT_Change()).c_str());
-        boost::replace_all(eventDescr, "|tn4|", tagdefs.getDesc(Parameter()).c_str());
-        boost::replace_all(eventDescr, "|tn8|", quote(tagdefs.getDesc(NewVal()).c_str()));
-        boost::replace_all(eventDescr, "|tnc|", quote(tagdefs.getDesc(OldVal()).c_str()));
-        // |s0|
+        if (eventDescr.find("|ln04|") != std::string::npos)
+            boost::replace_all(eventDescr, "|ln04|", quote(tagdefs.getDescForLRI(Parameter())));
+        if (eventDescr.find("|tn0|") != std::string::npos)
+            boost::replace_all(eventDescr, "|tn0|", tagdefs.getDesc(DT_Change()));
+        if (eventDescr.find("|tn4|") != std::string::npos)
+            boost::replace_all(eventDescr, "|tn4|", tagdefs.getDesc(Parameter()));
+        if (eventDescr.find("|tn8|") != std::string::npos)
+            boost::replace_all(eventDescr, "|tn8|", quote(tagdefs.getDesc(NewVal())));
+        if (eventDescr.find("|tnc|") != std::string::npos)
+            boost::replace_all(eventDescr, "|tnc|", quote(tagdefs.getDesc(OldVal())));
+        if (eventDescr.find("|s0|") != std::string::npos)
+            boost::replace_all(eventDescr, "|s0|", S0());
         // |d0|
         // |u0|
-        // |x0||x1||x2|...|x9|
+        if (eventDescr.find("|x") != std::string::npos)
+        {
+            for (size_t i = 0; i < sizeof(SMA_EVENTARGS); i++)
+            {
+                char idx[16];
+
+                // |x0||x1||x2|...|xf|
+                sprintf(idx, "|x%x|", i);
+                if (eventDescr.find(idx) != std::string::npos)
+                    boost::replace_all(eventDescr, idx, X(i));
+
+                // |xA||xB|...|xF|
+                if (i > 9)
+                {
+                    sprintf(idx, "|x%X|", i);
+                    if (eventDescr.find(idx) != std::string::npos)
+                        boost::replace_all(eventDescr, idx, X(i));
+                }
+            }
+        }
+
+        if (eventDescr.find("|") != std::string::npos)
+            std::cout << "Untranslated item found! " << eventDescr << std::endl;
+
     }
 
     return eventDescr;
@@ -129,3 +159,32 @@ std::string EventData::ToLocalTime(const time_t rawtime, const char *format) con
     return os.str();
 }
 
+std::string EventData::S0() const
+{
+    char str[17] = { 0 };
+    memcpy(str, m_EventArgs.str, 16);
+    return std::string(str);
+}
+
+std::string EventData::X(size_t idx) const
+{
+    char str[3] = { 0 };
+
+    if (idx < sizeof(SMA_EVENTARGS))
+        sprintf(str, "%02X", m_EventArgs.str[idx]);
+
+    return std::string(str);
+}
+
+std::string EventData::EventStrPara() const
+{
+    char str[9] = { 0 };
+
+    if ((m_EventCode == SMA_EVENTNUMBER::EvtSetStrParaOk) || (m_EventCode == SMA_EVENTNUMBER::EvtSetStrParaNok))
+    {
+        if (m_EventArgs.U32.Para3 != NaN_U32)
+            memcpy(str, m_EventArgs.str + 8, 8);
+    }
+
+    return std::string(str);
+}

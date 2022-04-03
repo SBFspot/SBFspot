@@ -42,8 +42,41 @@ DISCLAIMER:
 extern int quiet;
 extern int verbose;
 
-//SMA Structs must be aligned on byte boundaries
+// EventCodes
+enum SMA_EVENTNUMBER : uint16_t
+{
+    EvtSetSclParaOk     = 10100,
+    EvtSetSclParaNok    = 10101,
+    EvtSetSttParaOk     = 10102,
+    EvtSetSttParaNok    = 10103,
+    EvtSetStrParaOk     = 10104,
+    EvtSetStrParaNok    = 10105,
+    EvtUpdOk            = 10106,
+    EvtUpdNok           = 10107,
+    EvtOldTm            = 10108,
+    EvtNewTm            = 10109,
+    EvtComSttChg        = 10251,
+    EvtConnFail         = 10252,
+    EvtConnSpdChg       = 10253,
+    EvtDpxModChg        = 10254,
+    EvtNetwLodOk        = 10255,
+    EvtNetwId1          = 10256,
+};
+
+// Align structs on byte boundaries
 #pragma pack(push, 1)
+union SMA_EVENTARGS
+{
+    char str[16];
+    struct U32
+    {
+        uint32_t Para1;
+        uint32_t Para2;
+        uint32_t Para3;
+        uint32_t Para4;
+    } U32;
+};
+
 struct SMA_EVENTDATA
 {
     int32_t DateTime;
@@ -56,10 +89,7 @@ struct SMA_EVENTDATA
     uint32_t ulong1;
     uint32_t Tag;
     uint32_t Counter;
-    uint32_t DT_Change;
-    uint32_t Parameter;
-    uint32_t NewVal;
-    uint32_t OldVal;
+    SMA_EVENTARGS Args;
 };
 #pragma pack(pop)
 
@@ -75,29 +105,25 @@ private:
     uint32_t m_Group;
     uint32_t m_Tag;
     uint32_t m_Counter;
-    uint32_t m_DT_Change;
-    uint32_t m_Parameter;
-    uint32_t m_NewVal;
-    uint32_t m_OldVal;
     uint32_t m_UserGroup;
+    SMA_EVENTARGS m_EventArgs;
 
 public:
-    EventData(const uint32_t UserGroup, const SMA_EVENTDATA *ev):
-    // Use btohs and btohl byte swapping macros for big endian systems (MIPS,...)
-    m_DateTime(btohl(ev->DateTime)),
-    m_EntryID(btohs(ev->EntryID)),
-    m_SUSyID(btohs(ev->SUSyID)),
-    m_SerNo(btohl(ev->SerNo)),
-    m_EventCode(btohs(ev->EventCode)),
-    m_EventFlags(btohs(ev->EventFlags)),
-    m_Group(btohl(ev->Group)),
-    m_Tag(btohl(ev->Tag)),
-    m_Counter(btohl(ev->Counter)),
-    m_DT_Change(btohl(ev->DT_Change)),
-    m_Parameter(btohl(ev->Parameter)),
-    m_NewVal(btohl(ev->NewVal)),
-    m_OldVal(btohl(ev->OldVal)),
-    m_UserGroup(UserGroup) {}
+    EventData(const uint32_t UserGroup, const SMA_EVENTDATA *ev) :
+        // Use btohs / btohl byte swapping macros for big endian systems (MIPS,...)
+        m_DateTime(btohl(ev->DateTime)),
+        m_EntryID(btohs(ev->EntryID)),
+        m_SUSyID(btohs(ev->SUSyID)),
+        m_SerNo(btohl(ev->SerNo)),
+        m_EventCode(btohs(ev->EventCode)),
+        m_EventFlags(btohs(ev->EventFlags)),
+        m_Group(btohl(ev->Group)),
+        m_Tag(btohl(ev->Tag)),
+        m_Counter(btohl(ev->Counter)),
+        m_UserGroup(UserGroup)
+    {
+        memcpy(&m_EventArgs, &ev->Args, sizeof(SMA_EVENTARGS));
+    }
     time_t   DateTime() const { return m_DateTime; }
     uint16_t EntryID() const { return m_EntryID; }
     uint16_t SUSyID() const { return m_SUSyID; }
@@ -107,21 +133,24 @@ public:
     uint32_t Group() const { return GroupTagID(); }
     uint32_t Tag() const { return m_Tag; }
     uint32_t Counter() const { return m_Counter; }
-    uint32_t DT_Change() const { return m_DT_Change; }
-    uint32_t Parameter() const { return m_Parameter; }
-    uint32_t NewVal() const { return m_NewVal; }
-    uint32_t OldVal() const { return m_OldVal; }
+    uint32_t DT_Change() const { return btohl(m_EventArgs.U32.Para1); }
+    uint32_t Parameter() const { return btohl(m_EventArgs.U32.Para2); }
+    uint32_t NewVal() const { return btohl(m_EventArgs.U32.Para3); }
+    uint32_t OldVal() const { return btohl(m_EventArgs.U32.Para4); }
     uint32_t UserGroup() const { return m_UserGroup; }
     unsigned int UserGroupTagID() const;
     std::string EventType() const;
     std::string EventCategory() const;
-    unsigned int DataType() const { return m_Parameter >> 24; }
+    unsigned int DataType() const { return Parameter() >> 24; }
     friend bool SortEntryID_Asc(const EventData& ed1, const EventData& ed2) { return ed1.m_EntryID < ed2.m_EntryID; }
     friend bool SortEntryID_Desc(const EventData& ed1, const EventData& ed2) { return ed1.m_EntryID > ed2.m_EntryID; }
     std::string EventDescription() const;
     std::string quote(const std::string& str) const { return '"' + str + '"'; }
     std::string ToString() const;
     std::string ToString(const char *datetimeformat) const;
+    std::string S0() const;
+    std::string X(size_t idx) const;
+    std::string EventStrPara() const;
 
 private:
     unsigned int GroupTagID() const;

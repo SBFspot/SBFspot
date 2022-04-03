@@ -625,24 +625,24 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
 
                 switch (event.DataType())
                 {
-                case 0x08: // Status
+                case DT_STATUS:
                     fprintf(csv, "%s%c", tagdefs.getDesc(event.OldVal() & 0xFFFF).c_str(), cfg->delimiter);
                     fprintf(csv, "%s%c", tagdefs.getDesc(event.NewVal() & 0xFFFF).c_str(), cfg->delimiter);
                     break;
 
-                case 0x00: // Unsigned int
+                case DT_ULONG:
                     fprintf(csv, "%u%c", event.OldVal(), cfg->delimiter);
                     fprintf(csv, "%u%c", event.NewVal(), cfg->delimiter);
                     break;
 
-                case 0x40: // Signed int
+                case DT_SLONG:
                     fprintf(csv, "%d%c", event.OldVal(), cfg->delimiter);
                     fprintf(csv, "%d%c", event.NewVal(), cfg->delimiter);
                     break;
 
-                case 0x10: // String
-                    fprintf(csv, "%08X%c", event.OldVal(), cfg->delimiter);
-                    fprintf(csv, "%08X%c", event.NewVal(), cfg->delimiter);
+                case DT_STRING:
+                    fprintf(csv, "%s%c", event.EventStrPara().c_str(), cfg->delimiter);
+                    fprintf(csv, "%c", cfg->delimiter);
                     break;
 
                 default:

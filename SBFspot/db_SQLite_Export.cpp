@@ -281,10 +281,7 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
                     break;
 
                 case DT_STRING:
-                    oldval.width(8); oldval.fill('0');
-                    oldval << event.OldVal();
-                    newval.width(8); newval.fill('0');
-                    newval << event.NewVal();
+                    newval << event.EventStrPara();
                     break;
 
                 default:
@@ -292,21 +289,30 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
                     newval << event.NewVal();
                 }
 
-                sqlite3_bind_int(pStmt,  1, event.EntryID());
-                sqlite3_bind_int(pStmt,  2, event.DateTime());
+                sqlite3_bind_int(pStmt, 1, event.EntryID());
+                sqlite3_bind_int(pStmt, 2, event.DateTime());
                 // Fix #269
                 // To store unsigned int32 serial numbers, we're using sqlite3_bind_int64
                 // SQLite will store these uint32 in 4 bytes
-                sqlite3_bind_int64(pStmt,  3, event.SerNo());
-                sqlite3_bind_int(pStmt,  4, event.SUSyID());
-                sqlite3_bind_int(pStmt,  5, event.EventCode());
+                sqlite3_bind_int64(pStmt, 3, event.SerNo());
+                sqlite3_bind_int(pStmt, 4, event.SUSyID());
+                sqlite3_bind_int(pStmt, 5, event.EventCode());
                 sqlite3_bind_text(pStmt, 6, event.EventType().c_str(), event.EventType().size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt, 7, event.EventCategory().c_str(), event.EventCategory().size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt, 8, grp.c_str(), grp.size(), SQLITE_TRANSIENT);
                 sqlite3_bind_text(pStmt, 9, desc.c_str(), desc.size(), SQLITE_TRANSIENT);
-                sqlite3_bind_text(pStmt,10, oldval.str().c_str(), oldval.str().size(), SQLITE_TRANSIENT);
-                sqlite3_bind_text(pStmt,11, newval.str().c_str(), newval.str().size(), SQLITE_TRANSIENT);
-                sqlite3_bind_text(pStmt,12, usrgrp.c_str(), usrgrp.size(), SQLITE_TRANSIENT);
+                
+                if (oldval.str().empty())
+                    sqlite3_bind_null(pStmt, 10);
+                else
+                    sqlite3_bind_text(pStmt, 10, oldval.str().c_str(), oldval.str().size(), SQLITE_TRANSIENT);
+                
+                if (newval.str().empty())
+                    sqlite3_bind_null(pStmt, 11);
+                else
+                    sqlite3_bind_text(pStmt, 11, newval.str().c_str(), newval.str().size(), SQLITE_TRANSIENT);
+                
+                sqlite3_bind_text(pStmt, 12, usrgrp.c_str(), usrgrp.size(), SQLITE_TRANSIENT);
 
                 rc = sqlite3_step(pStmt);
                 if ((rc != SQLITE_DONE) && (rc != SQLITE_CONSTRAINT))

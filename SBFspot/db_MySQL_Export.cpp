@@ -289,6 +289,7 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
     int rc = SQL_OK;
 
     MYSQL_BIND values[12];
+    my_bool is_null = true;
 
     MYSQL_STMT *pStmt = mysql_stmt_init(m_dbHandle);
     if (!pStmt)
@@ -319,10 +320,7 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
                     break;
 
                 case DT_STRING:
-                    oldval.width(8); oldval.fill('0');
-                    oldval << event.OldVal();
-                    newval.width(8); newval.fill('0');
-                    newval << event.NewVal();
+                    newval << event.EventStrPara();
                     break;
 
                 default:
@@ -389,12 +387,16 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
                 values[9].buffer_type = MYSQL_TYPE_STRING;
                 values[9].buffer = (char *)OldValue.c_str();
                 values[9].buffer_length = OldValue.size();
+                if (OldValue.empty())
+                    values[9].is_null = &is_null;
 
                 // New Value
                 std::string NewValue = newval.str();
                 values[10].buffer_type = MYSQL_TYPE_STRING;
                 values[10].buffer = (char *)NewValue.c_str();
                 values[10].buffer_length = NewValue.size();
+                if (NewValue.empty())
+                    values[10].is_null = &is_null;
 
                 // User Group
                 values[11].buffer_type = MYSQL_TYPE_STRING;
@@ -424,6 +426,8 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
         else
             exec_query("ROLLBACK");
     }
+    else
+        print_error("[event_data]mysql_stmt_prepare() returned");
 
     return rc;
 }

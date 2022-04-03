@@ -1,4 +1,4 @@
-#define VERSION "3.9.4"
+#define VERSION "3.9.5"
 
 /*
 V3.9.1
@@ -22,6 +22,10 @@ V3.9.4
     Improved SPW device discovery
     Handle returncode 21 (E_LRINOTAVAIL)
     Handle returncode -1 (Implement retry comm)
+
+V3.9.5
+    Improved event decoding
+
 */
 
 /***
