@@ -105,11 +105,21 @@ int db_SQL_Base::exec_query(const std::string &qry)
 }
 
 // Execute multiple statements in one query (separated by ';')
-int db_SQL_Base::exec_query_multi(const std::string &qry)
+int db_SQL_Base::exec_query_multi(const std::string &qry, bool free_results)
 {
     mysql_set_server_option(m_dbHandle, MYSQL_OPTION_MULTI_STATEMENTS_ON);
     int result = mysql_real_query(m_dbHandle, qry.c_str(), qry.size());
     mysql_set_server_option(m_dbHandle, MYSQL_OPTION_MULTI_STATEMENTS_OFF);
+
+    if (free_results)
+    {
+        do
+        {
+            auto res = mysql_store_result(m_dbHandle);
+            mysql_free_result(res);
+        } while (!mysql_next_result(m_dbHandle));
+    }
+
     return result;
 }
 
