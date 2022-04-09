@@ -58,8 +58,8 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
     std::stringstream mqtt_message;
     std::string key;
     char value[80];
-    int prec = m_config.precision;
-    char dp = '.';
+    const int prec = m_config.precision;
+    const char dp = '.';
 
     for (const auto& inv : inverterData)
     {
@@ -79,95 +79,97 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
         mqtt_message.str("");
 
         for (const auto& item : items)
-            {
+        {
             bool add_to_msg = true;
-            time_t timestamp = time(NULL);
             key = item;
             memset(value, 0, sizeof(value));
             std::transform((key).begin(), (key).end(), (key).begin(), ::tolower);
-            if (key == "timestamp")
-                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, timestamp));
-            else if (key == "sunrise") {
-                std::tm *sunrise = std::localtime(&timestamp);
-                sunrise->tm_sec = 0;
-                sunrise->tm_hour = (int)m_config.sunrise;
-                sunrise->tm_min = (int)((m_config.sunrise - (int)m_config.sunrise) * 60);
-                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, std::mktime(sunrise)));
-            }
-            else if (key == "sunset") {
-                std::tm *sunset = std::localtime(&timestamp);
-                sunset->tm_sec = 0;
-                sunset->tm_hour = (int)m_config.sunset;
-                sunset->tm_min = (int)((m_config.sunset - (int)m_config.sunset) * 60);
-                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, std::mktime(sunset)));
-            }
-            else if (key == "invserial")        snprintf(value, sizeof(value) - 1, "%lu", inv.Serial);
-            else if (key == "invname")          snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName.c_str());
-            else if (key == "invclass")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass.c_str());
-            else if (key == "invtype")          snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceType.c_str());
-            else if (key == "invswver")         snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion.c_str());
-            else if (key == "invtime")          snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.InverterDatetime));
-            else if (key == "invstatus")        snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.DeviceStatus, "?").c_str());
-            else if (key == "invtemperature")   FormatFloat(value, is_NaN(inv.Temperature) ? 0.0f : (float)inv.Temperature / 100, 0, prec, dp);
-            else if (key == "invgridrelay")     snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.GridRelayStatus, "?").c_str());
-            else if (key == "pdc1")             FormatFloat(value, (float)inv.mpp.at(1).Pdc(), 0, prec, dp);
-            else if (key == "pdc2")             FormatFloat(value, (float)inv.mpp.at(2).Pdc(), 0, prec, dp);
-            else if (key == "pdctot")           FormatFloat(value, (float)inv.calPdcTot, 0, prec, dp);
-            else if (key == "idc1")             FormatFloat(value, (float)inv.mpp.at(1).Idc() / 1000, 0, prec, dp);
-            else if (key == "idc2")             FormatFloat(value, (float)inv.mpp.at(2).Idc() / 1000, 0, prec, dp);
-            else if (key == "udc1")             FormatFloat(value, (float)inv.mpp.at(1).Udc() / 100, 0, prec, dp);
-            else if (key == "udc2")             FormatFloat(value, (float)inv.mpp.at(2).Udc() / 100, 0, prec, dp);
-            else if (key == "etotal")           FormatDouble(value, (double)inv.ETotal / 1000, 0, prec, dp);
-            else if (key == "etoday")           FormatDouble(value, (double)inv.EToday / 1000, 0, prec, dp);
-            else if (key == "pactot")           FormatFloat(value, (float)inv.TotalPac, 0, prec, dp);
-            else if (key == "pac1")             FormatFloat(value, (float)inv.Pac1, 0, prec, dp);
-            else if (key == "pac2")             FormatFloat(value, (float)inv.Pac2, 0, prec, dp);
-            else if (key == "pac3")             FormatFloat(value, (float)inv.Pac3, 0, prec, dp);
-            else if (key == "uac1")             FormatFloat(value, (float)inv.Uac1 / 100, 0, prec, dp);
-            else if (key == "uac2")             FormatFloat(value, (float)inv.Uac2 / 100, 0, prec, dp);
-            else if (key == "uac3")             FormatFloat(value, (float)inv.Uac3 / 100, 0, prec, dp);
-            else if (key == "iac1")             FormatFloat(value, (float)inv.Iac1 / 1000, 0, prec, dp);
-            else if (key == "iac2")             FormatFloat(value, (float)inv.Iac2 / 1000, 0, prec, dp);
-            else if (key == "iac3")             FormatFloat(value, (float)inv.Iac3 / 1000, 0, prec, dp);
-            else if (key == "gridfreq")         FormatFloat(value, (float)inv.GridFreq / 100, 0, prec, dp);
-            else if (key == "opertm")           FormatDouble(value, (double)inv.OperationTime / 3600, 0, prec, dp);
-            else if (key == "feedtm")           FormatDouble(value, (double)inv.FeedInTime / 3600, 0, prec, dp);
-            else if (key == "btsignal")         FormatFloat(value, inv.BT_Signal, 0, prec, dp);
-            else if (key == "battmpval")        FormatFloat(value, ((float)inv.BatTmpVal) / 10, 0, prec, dp);
-            else if (key == "batvol")           FormatFloat(value, ((float)inv.BatVol) / 100, 0, prec, dp);
-            else if (key == "batamp")           FormatFloat(value, ((float)inv.BatAmp) / 1000, 0, prec, dp);
-            else if (key == "batchastt")        FormatFloat(value, ((float)inv.BatChaStt), 0, prec, dp);
-            else if (key == "invwakeuptm")      snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.WakeupTime));
-            else if (key == "invsleeptm")       snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.SleepTime));
-            else if (key == "meteringwin")      FormatFloat(value, (float)inv.MeteringGridMsTotWIn, 0, prec, dp);
-            else if (key == "meteringwout")     FormatFloat(value, (float)inv.MeteringGridMsTotWOut, 0, prec, dp);
-            else if (key == "meteringwtot")     FormatFloat(value, (float)(inv.MeteringGridMsTotWIn - inv.MeteringGridMsTotWOut), 0, prec, dp);
-            else if (key == "pdc")
+
+// suppress warning C4307: '*': integral constant overflow
+#if defined(_MSC_VER)
+#   pragma warning(push)
+#   pragma warning(disable: 4307)
+#endif
+
+            switch (djb::hash(key.c_str()))
+            {
+            case "timestamp"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, time(nullptr))); break;
+            case "sunrise"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunrise))); break;
+            case "sunset"_:         snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunset))); break;
+            case "invserial"_:      snprintf(value, sizeof(value) - 1, "%lu", inv.Serial); break;
+            case "invname"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName.c_str()); break;
+            case "invclass"_:       snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass.c_str()); break;
+            case "invtype"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceType.c_str()); break;
+            case "invswver"_:       snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion.c_str()); break;
+            case "invtime"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.InverterDatetime)); break;
+            case "invstatus"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.DeviceStatus, "?").c_str()); break;
+            case "invtemperature"_: FormatFloat(value, is_NaN(inv.Temperature) ? 0.0f : (float)inv.Temperature / 100, 0, prec, dp); break;
+            case "invgridrelay"_:   snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.GridRelayStatus, "?").c_str()); break;
+            case "pdc1"_:           FormatFloat(value, (float)inv.mpp.at(1).Pdc(), 0, prec, dp); break;
+            case "pdc2"_:           FormatFloat(value, (float)inv.mpp.at(2).Pdc(), 0, prec, dp); break;
+            case "pdctot"_:         FormatFloat(value, (float)inv.calPdcTot, 0, prec, dp); break;
+            case "idc1"_:           FormatFloat(value, (float)inv.mpp.at(1).Idc() / 1000, 0, prec, dp); break;
+            case "idc2"_:           FormatFloat(value, (float)inv.mpp.at(2).Idc() / 1000, 0, prec, dp); break;
+            case "udc1"_:           FormatFloat(value, (float)inv.mpp.at(1).Udc() / 100, 0, prec, dp); break;
+            case "udc2"_:           FormatFloat(value, (float)inv.mpp.at(2).Udc() / 100, 0, prec, dp); break;
+            case "etotal"_:         FormatDouble(value, (double)inv.ETotal / 1000, 0, prec, dp); break;
+            case "etoday"_:         FormatDouble(value, (double)inv.EToday / 1000, 0, prec, dp); break;
+            case "pactot"_:         FormatFloat(value, (float)inv.TotalPac, 0, prec, dp); break;
+            case "pac1"_:           FormatFloat(value, (float)inv.Pac1, 0, prec, dp); break;
+            case "pac2"_:           FormatFloat(value, (float)inv.Pac2, 0, prec, dp); break;
+            case "pac3"_:           FormatFloat(value, (float)inv.Pac3, 0, prec, dp); break;
+            case "uac1"_:           FormatFloat(value, (float)inv.Uac1 / 100, 0, prec, dp); break;
+            case "uac2"_:           FormatFloat(value, (float)inv.Uac2 / 100, 0, prec, dp); break;
+            case "uac3"_:           FormatFloat(value, (float)inv.Uac3 / 100, 0, prec, dp); break;
+            case "iac1"_:           FormatFloat(value, (float)inv.Iac1 / 1000, 0, prec, dp); break;
+            case "iac2"_:           FormatFloat(value, (float)inv.Iac2 / 1000, 0, prec, dp); break;
+            case "iac3"_:           FormatFloat(value, (float)inv.Iac3 / 1000, 0, prec, dp); break;
+            case "gridfreq"_:       FormatFloat(value, (float)inv.GridFreq / 100, 0, prec, dp); break;
+            case "opertm"_:         FormatDouble(value, (double)inv.OperationTime / 3600, 0, prec, dp); break;
+            case "feedtm"_:         FormatDouble(value, (double)inv.FeedInTime / 3600, 0, prec, dp); break;
+            case "btsignal"_:       FormatFloat(value, inv.BT_Signal, 0, prec, dp); break;
+            case "battmpval"_:      FormatFloat(value, ((float)inv.BatTmpVal) / 10, 0, prec, dp); break;
+            case "batvol"_:         FormatFloat(value, ((float)inv.BatVol) / 100, 0, prec, dp); break;
+            case "batamp"_:         FormatFloat(value, ((float)inv.BatAmp) / 1000, 0, prec, dp); break;
+            case "batchastt"_:      FormatFloat(value, ((float)inv.BatChaStt), 0, prec, dp); break;
+            case "invwakeuptm"_:    snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.WakeupTime)); break;
+            case "invsleeptm"_:     snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.SleepTime)); break;
+            case "meteringwin"_:    FormatFloat(value, (float)inv.MeteringGridMsTotWIn, 0, prec, dp); break;
+            case "meteringwout"_:   FormatFloat(value, (float)inv.MeteringGridMsTotWOut, 0, prec, dp); break;
+            case "meteringwtot"_:   FormatFloat(value, (float)(inv.MeteringGridMsTotWIn - inv.MeteringGridMsTotWOut), 0, prec, dp); break;
+            case "pdc"_:
                 for (const auto& dc : inv.mpp)
                 {
                     FormatFloat(value, (float)dc.second.Pdc(), 0, prec, dp);
                     mqtt_message << to_keyvalue(std::string("PDC") + std::to_string(dc.first), value);
                     add_to_msg = false;
                 }
-            else if (key == "idc")
+                break;
+            case "idc"_:
                 for (const auto& dc : inv.mpp)
                 {
                     FormatFloat(value, (float)dc.second.Idc() / 1000, 0, prec, dp);
                     mqtt_message << to_keyvalue(std::string("IDC") + std::to_string(dc.first), value);
                     add_to_msg = false;
                 }
-            else if (key == "udc")
+                break;
+            case "udc"_:
                 for (const auto& dc : inv.mpp)
                 {
                     FormatFloat(value, (float)dc.second.Udc() / 100, 0, prec, dp);
                     mqtt_message << to_keyvalue(std::string("UDC") + std::to_string(dc.first), value);
                     add_to_msg = false;
                 }
-            else // None of the above, so it's an unhandled item or a typo...
-            {
+                break;
+            default:
                 add_to_msg = false;
                 if (VERBOSE_NORMAL) std::cout << "MQTT: Don't know what to do with '" << item << "'" << std::endl;
+                break;
             }
+
+#if defined(_MSC_VER)
+#   pragma warning(pop)
+#endif
 
             if (add_to_msg)
                 mqtt_message << to_keyvalue(item, value);
@@ -203,4 +205,14 @@ std::string MqttExport::to_keyvalue(const std::string key, const std::string val
 #endif
 
     return key_value;
+}
+
+time_t MqttExport::to_time_t(float time_f)
+{
+    auto timestamp = time(nullptr);
+    auto localtm = std::localtime(&timestamp);
+    localtm->tm_sec = 0;
+    localtm->tm_hour = (int)time_f;
+    localtm->tm_min = (int)((time_f - (int)time_f) * 60);
+    return std::mktime(localtm);
 }
