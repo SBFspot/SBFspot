@@ -93,6 +93,8 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
 
             switch (djb::hash(key.c_str()))
             {
+            case "prgversion"_:     snprintf(value, sizeof(value) - 1, "\"%s\"", m_config.prgVersion); break;
+            case "plantname"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", m_config.plantname); break;
             case "timestamp"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, time(nullptr))); break;
             case "sunrise"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunrise))); break;
             case "sunset"_:         snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunset))); break;

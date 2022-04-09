@@ -99,7 +99,7 @@ struct Config
     int     CSV_SaveZeroPower;
     int     SunRSOffset;            // Offset to start before sunrise and end after sunset
     int     userGroup;              // USER|INSTALLER
-    char    prgVersion[16];
+    char    prgVersion[16];         // SBFspot Version
     int     SpotTimeSource;         // 0=Use inverter time; 1=Use PC time in Spot CSV
     int     SpotWebboxHeader;       // 0=Use standard Spot CSV hdr; 1=Webbox style hdr
     char    locale[6];              // default en-US

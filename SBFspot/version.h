@@ -25,7 +25,8 @@ V3.9.4
 
 V3.9.5
     Improved event decoding
-
+    Fix Events not written to database introduced in V3.9.0 (MySQL/MariaDB only)
+    Add SBFspotVersion and Plantname to mqtt stream
 */
 
 /***
