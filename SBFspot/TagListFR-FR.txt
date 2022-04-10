@@ -7,7 +7,7 @@
 #                                       |_|              
 #
 #  SBFspot - Yet another tool to read power production of SMA® solar inverters
-#  (c)2012-2021, SBF
+#  (c)2012-2022, SBF
 #
 #  DISCLAIMER:
 #  A user of SBFspot software acknowledges that he or she is receiving this
@@ -7652,7 +7652,7 @@
 12143=GridGuard.Cntry.AMaxOfs.CorTmms\0\Valeur de correction pour le temps de déclenchement de la surveillance de composante DC dans le courant AC
 12144=Inverter.GraCtlTmCor\0\Valeur de correction pour le gradient de puissance, par ex. WGraRecon, WGraConn, WCtlHzModCfg.WCtlHzCfg.HzStopWGra
 12145=Sys.ComDiag\0\Diagnostic de communication via LED
-12146=Operation.SIS.IsOn\0\Smart Inverter Screen allumé
+12146=Operation.SIS.IsOn\9057024\Smart Inverter Screen allumé
 12147=Portal.EnnexOS.EthWifi.UpldCyc\0\Intervalle téléchargement
 12148=Portal.EnnexOS.CelMdm.UpldCyc\0\Intervalle téléchargement
 12149=Portal.EnnexOS.AvValTyp\0\Type de valeur moyenne
