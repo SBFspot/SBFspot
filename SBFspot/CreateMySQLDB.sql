@@ -142,8 +142,8 @@ CREATE Table EventData (
 	Category varchar(32),
 	EventGroup varchar(32),
 	Tag varchar(200),
-	OldValue varchar(64),
-	NewValue varchar(64),
+	OldValue varchar(200),
+	NewValue varchar(200),
 	UserGroup varchar(10),
 	PRIMARY KEY (Serial, EntryID)
 );
