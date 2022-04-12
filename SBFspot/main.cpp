@@ -86,7 +86,7 @@ int main(int argc, char **argv)
             printf("sunset : %02d:%02d\n", (int)cfg.sunset, (int)((cfg.sunset - (int)cfg.sunset) * 60));
         }
 
-        if ((cfg.forceInq == 0) && (!cfg.isLight))
+        if ((!cfg.forceInq) && (!cfg.isLight))
         {
             if (quiet == 0) puts("Nothing to do... it's dark. Use -finq to force inquiry.");
             return 0;

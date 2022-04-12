@@ -125,7 +125,7 @@ struct Config
     int     archDays;               // -ad          Number of days back to get Archived DayData (0=disabled, 1=today, ...)
     int     archMonths;             // -am          Number of months back to get Archived MonthData (0=disabled, 1=this month, ...)
     int     archEventMonths;        // -ae          Number of months back to get Archived Events (0=disabled, 1=this month, ...)
-    int     forceInq;               // -finq        Inquire inverter also during the night
+    bool    forceInq;               // -finq        Inquire inverter also during the night
     int     quiet;                  // -q           Silent operation 
     int     nocsv;                  // -nocsv       Disables CSV export (Overrules CSV_Export in config)
     int     nospot;                 // -sp0         Disables Spot CSV export

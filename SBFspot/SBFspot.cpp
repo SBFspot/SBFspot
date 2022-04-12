@@ -1063,7 +1063,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     cfg->archDays = 1;          // today only
     cfg->archMonths = 1;        // this month only
     cfg->archEventMonths = 1;   // this month only
-    cfg->forceInq = 0;          // Inquire inverter also during the night
+    cfg->forceInq = false;      // Inquire inverter also during the night
     cfg->userGroup = UG_USER;
     cfg->quiet = 0;
     cfg->nocsv = 0;
@@ -1210,7 +1210,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
 
         //Set inquiryDark flag
         else if (stricmp(argv[i], "-finq") == 0)
-            cfg->forceInq = 1;
+            cfg->forceInq = true;
 
         //Set 123Solar command value (Undocumented - For 123Solar usage only)
         else if (strnicmp(argv[i], "-123s", 5) == 0)
@@ -1348,7 +1348,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
         if (cfg->verbose < 2)
             cfg->verbose = 2;
 
-        cfg->forceInq = 1;
+        cfg->forceInq = true;
     }
 
     //Disable verbose/debug modes when silent
