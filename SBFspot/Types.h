@@ -88,7 +88,7 @@ struct Config
     int     synchTime;              // 1=Synch inverter time with computer time (default=0)
     float   sunrise;
     float   sunset;
-    int     isLight;
+    bool    isLight;
     int     calcMissingSpot;        // 0-1
     char    DateTimeFormat[32];
     char    DateFormat[32];
