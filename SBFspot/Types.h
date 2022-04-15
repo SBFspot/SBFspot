@@ -89,21 +89,21 @@ struct Config
     float   sunrise;
     float   sunset;
     bool    isLight;
-    int     calcMissingSpot;        // 0-1
+    bool    calcMissingSpot;        // 0-1
     char    DateTimeFormat[32];
     char    DateFormat[32];
     char    TimeFormat[32];
-    int     CSV_Export;
-    int     CSV_Header;
-    int     CSV_ExtendedHeader;
-    int     CSV_SaveZeroPower;
+    bool    CSV_Export;
+    bool    CSV_Header;
+    bool    CSV_ExtendedHeader;
+    bool    CSV_SaveZeroPower;
     int     SunRSOffset;            // Offset to start before sunrise and end after sunset
     int     userGroup;              // USER|INSTALLER
     char    prgVersion[16];         // SBFspot Version
-    int     SpotTimeSource;         // 0=Use inverter time; 1=Use PC time in Spot CSV
-    int     SpotWebboxHeader;       // 0=Use standard Spot CSV hdr; 1=Webbox style hdr
+    bool    SpotTimeSource;         // 0=Use inverter time; 1=Use PC time in Spot CSV
+    bool    SpotWebboxHeader;       // 0=Use standard Spot CSV hdr; 1=Webbox style hdr
     char    locale[6];              // default en-US
-    int     MIS_Enabled;            // Multi Inverter Support
+    bool    MIS_Enabled;            // Multi Inverter Support
     std::string timezone;
     boost::local_time::time_zone_ptr tz;
     int     synchTimeLow;           // settime low limit
@@ -127,9 +127,9 @@ struct Config
     int     archEventMonths;        // -ae          Number of months back to get Archived Events (0=disabled, 1=this month, ...)
     bool    forceInq;               // -finq        Inquire inverter also during the night
     int     quiet;                  // -q           Silent operation 
-    int     nocsv;                  // -nocsv       Disables CSV export (Overrules CSV_Export in config)
-    int     nospot;                 // -sp0         Disables Spot CSV export
-    int     nosql;                  // -nosql       Disables SQL export
+    bool    nocsv;                  // -nocsv       Disables CSV export (Overrules CSV_Export in config)
+    bool    nospot;                 // -sp0         Disables Spot CSV export
+    bool    nosql;                  // -nosql       Disables SQL export
     int     loadlive;               // -loadlive    Force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
     time_t  startdate;              // -startdate   Start reading of historic data at the given date (YYYYMMDD)
     S123_COMMAND    s123;           // -123s        123Solar logger support(http://www.123solar.org/)

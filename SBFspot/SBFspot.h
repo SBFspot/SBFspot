@@ -80,6 +80,7 @@ DISCLAIMER:
 
 //Function prototypes
 E_SBFSPOT initialiseSMAConnection(InverterData *invData);
+E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], bool MIS);
 E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> IPaddresslist);
 void CalcMissingSpot(InverterData *invData);
 int DaysInMonth(int month, int year);
@@ -90,7 +91,6 @@ int getInverterData(InverterData *inverters[], enum getInverterDataType type);
 int getInverterIndexByAddress(InverterData* const inverters[], uint8_t bt_addr[6]);
 E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command);
 void HexDump(uint8_t *buf, int count, int radix);
-E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], int MIS);
 void InvalidArg(char *arg);
 int isCrcValid(uint8_t lb, uint8_t hb);
 int isValidSender(uint8_t senderaddr[6], uint8_t address[6]);

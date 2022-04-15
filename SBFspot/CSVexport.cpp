@@ -125,7 +125,7 @@ int ExportProperties(FILE *csv, const Config *cfg)
 int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
 {
     char msg[80 + MAX_PATH];
-    if (cfg->CSV_Export == 1)
+    if (cfg->CSV_Export)
     {
         if (inverters[0]->monthData[0].datetime <= 0)   //invalid date?
         {
@@ -153,7 +153,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
             }
             else
             {
-                if (cfg->CSV_ExtendedHeader == 1)
+                if (cfg->CSV_ExtendedHeader)
                 {
                     ExportProperties(csv, cfg);
 
@@ -173,7 +173,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
                         fprintf(csv, "%cCounter%cAnalog", cfg->delimiter, cfg->delimiter);
                     fputs("\n", csv);
                 }
-                if (cfg->CSV_Header == 1)
+                if (cfg->CSV_Header)
                 {
                     fprintf(csv, "%s", DateTimeFormatToDMY(cfg->DateFormat).c_str());
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
@@ -244,7 +244,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
     }
     else
     {
-        if (cfg->CSV_ExtendedHeader == 1)
+        if (cfg->CSV_ExtendedHeader)
         {
             ExportProperties(csv, cfg);
 
@@ -264,7 +264,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
                 fprintf(csv, "%cCounter%cAnalog", cfg->delimiter, cfg->delimiter);
             fputs("\n", csv);
         }
-        if (cfg->CSV_Header == 1)
+        if (cfg->CSV_Header)
         {
             fputs(DateTimeFormatToDMY(cfg->DateTimeFormat).c_str(), csv);
             for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
@@ -288,7 +288,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
 
         if (datetime > 0)
         {
-            if ((cfg->CSV_SaveZeroPower == 1) || (totalPower > 0))
+            if ((cfg->CSV_SaveZeroPower) || (totalPower > 0))
             {
                 fprintf(csv, "%s", strftime_t(cfg->DateTimeFormat, datetime));
                 for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
@@ -327,14 +327,14 @@ int WriteStandardHeader(FILE *csv, const Config *cfg, DEVICECLASS devclass, cons
         stdhdr += "|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PdcTot|PacTot|Efficiency|EToday|ETotal|Frequency|OperatingTime|FeedInTime|BT_Signal|Condition|GridRelay|Temperature\n";
     }
 
-    if (cfg->CSV_ExtendedHeader == 1)
+    if (cfg->CSV_ExtendedHeader)
     {
         ExportProperties(csv, cfg);
         std::replace(exthdr.begin(), exthdr.end(), '|', cfg->delimiter);
         fputs(exthdr.c_str(), csv);
     }
 
-    if (cfg->CSV_Header == 1)
+    if (cfg->CSV_Header)
     {
         fputs(DateTimeFormatToDMY(cfg->DateTimeFormat).c_str(), csv);
         std::replace(stdhdr.begin(), stdhdr.end(), '|', cfg->delimiter);
@@ -370,7 +370,7 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverter
         hdr3 += "|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|Watt|%|kWh|kWh|Hz|Hours|Hours|%|||degC";
     }
 
-    if (cfg->CSV_ExtendedHeader == 1)
+    if (cfg->CSV_ExtendedHeader)
     {
         ExportProperties(csv, cfg);
 
@@ -403,7 +403,7 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverter
         fputs("\n", csv);
     }
 
-    if (cfg->CSV_Header == 1)
+    if (cfg->CSV_Header)
     {
         fputs("TimeStamp", csv);
         
@@ -414,7 +414,7 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverter
     }
 
 
-    if (cfg->CSV_ExtendedHeader == 1)
+    if (cfg->CSV_ExtendedHeader)
     {
         std::replace(hdr2.begin(), hdr2.end(), '|', cfg->delimiter);
 
@@ -442,7 +442,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
     FILE *csv;
 
     // Take time from computer instead of inverter
-    time_t spottime = cfg->SpotTimeSource == 0 ? inverters[0]->InverterDatetime : time(NULL);
+    time_t spottime = cfg->SpotTimeSource ? time(nullptr) : inverters[0]->InverterDatetime;
 
     //Expand date specifiers in config::outputPath
     std::stringstream csvpath;
@@ -473,23 +473,23 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
         if (fStat.st_size == 0)
 #endif
         {
-            if (cfg->SpotWebboxHeader == 0)
-                WriteStandardHeader(csv, cfg, SolarInverter, maxmppt);
-            else
+            if (cfg->SpotWebboxHeader)
                 WriteWebboxHeader(csv, cfg, inverters, maxmppt);
+            else
+                WriteStandardHeader(csv, cfg, SolarInverter, maxmppt);
         }
 
         char FormattedFloat[32];
         const char *strout = "%c%s";
 
-        if (cfg->SpotWebboxHeader == 1)
+        if (cfg->SpotWebboxHeader)
             fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
 
         for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
             if (inverters[inv]->DevClass == SolarInverter)
             {
-                if (cfg->SpotWebboxHeader == 0)
+                if (!cfg->SpotWebboxHeader)
                 {
                     fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
                     fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName.c_str());
@@ -546,10 +546,10 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
                     fprintf(csv, strout, cfg->delimiter, NA);
                 else
                     fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, (float)inverters[inv]->Temperature / 100, 0, cfg->precision, cfg->decimalpoint));
-                if (cfg->SpotWebboxHeader == 0)
+                if (!cfg->SpotWebboxHeader)
                     fputs("\n", csv);
             }
-            if (cfg->SpotWebboxHeader == 1)
+            if (cfg->SpotWebboxHeader)
                 fputs("\n", csv);
         }
         fclose(csv);
@@ -591,11 +591,11 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
         if (fStat.st_size == 0)
 #endif
         {
-            if (cfg->CSV_ExtendedHeader == 1)
+            if (cfg->CSV_ExtendedHeader)
             {
                 ExportProperties(csv, cfg);
             }
-            if (cfg->CSV_Header == 1)
+            if (cfg->CSV_Header)
             {
                 std::string Header("DeviceType|DeviceLocation|SusyId|SerNo|TimeStamp|EntryId|EventCode|EventType|Category|Group|Tag|OldValue|NewValue|UserGroup\n");
                 std::replace(Header.begin(), Header.end(), '|', cfg->delimiter);
@@ -695,23 +695,23 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
         if (fStat.st_size == 0)
 #endif
         {
-            if (cfg->SpotWebboxHeader == 0)
-                WriteStandardHeader(csv, cfg, BatteryInverter, 0);
-            else
+            if (cfg->SpotWebboxHeader)
                 WriteWebboxHeader(csv, cfg, inverters, 0);
+            else
+                WriteStandardHeader(csv, cfg, BatteryInverter, 0);
         }
 
         char FormattedFloat[32];
         const char *strout = "%c%s";
 
-        if (cfg->SpotWebboxHeader == 1)
+        if (cfg->SpotWebboxHeader)
             fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
 
         for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
             if (inverters[inv]->DevClass == BatteryInverter)
             {
-                if (cfg->SpotWebboxHeader == 0)
+                if (!cfg->SpotWebboxHeader)
                 {
                     fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
                     fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName);
@@ -741,10 +741,10 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
                 fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->BatAmp) / 1000, 0, cfg->precision, cfg->decimalpoint));
                 fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->MeteringGridMsTotWOut), 0, cfg->precision, cfg->decimalpoint));
                 fprintf(csv, strout, cfg->delimiter, FormatFloat(FormattedFloat, ((float)inverters[inv]->MeteringGridMsTotWIn), 0, cfg->precision, cfg->decimalpoint));
-                if (cfg->SpotWebboxHeader == 0)
+                if (!cfg->SpotWebboxHeader)
                     fputs("\n", csv);
             }
-            if (cfg->SpotWebboxHeader == 1)
+            if (cfg->SpotWebboxHeader)
                 fputs("\n", csv);
         }
         fclose(csv);
@@ -779,7 +779,7 @@ int ExportSpotDataTo123s(const Config *cfg, InverterData* const inverters[])
 
     //Select Between Computer & Inverter Time (As Per .cfg Setting)
     time_t spottime = invdata->InverterDatetime;
-    if (cfg->SpotTimeSource == 1) // Take time from computer instead of inverter
+    if (cfg->SpotTimeSource) // Take time from computer instead of inverter
         time(&spottime);
 
     //Send Spot Data Frame to 123Solar

@@ -401,7 +401,7 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> 
     return rc;
 }
 
-E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], int MIS)
+E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters[], bool MIS)
 {
     if (VERBOSE_NORMAL)
     {
@@ -416,7 +416,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
 
     // Multiple Inverter Support disabled
     // Connect to 1 and only 1 device (V2.0.6 compatibility mode)
-    if (MIS == 0)
+    if (!MIS)
     {
         // Allocate memory for inverter data struct
         inverters[0] = new InverterData;
@@ -522,7 +522,7 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
         This part is only needed if you have more than one inverter
         The purpose is to (re)build the network when we have found only 1
     ************************************************************************/
-    if(/*(MIS == 1) && */(devcount == 1) && (NetID > 1))
+    if((devcount == 1) && (NetID > 1))
     {
         // We need more handshake 03/04 commands to initialise network connection between inverters
         writePacketHeader(pcktBuf, 0x03, RootDeviceAddress);
@@ -1066,9 +1066,9 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     cfg->forceInq = false;      // Inquire inverter also during the night
     cfg->userGroup = UG_USER;
     cfg->quiet = 0;
-    cfg->nocsv = 0;
-    cfg->nospot = 0;
-    cfg->nosql = 0;
+    cfg->nocsv = false;
+    cfg->nospot = false;
+    cfg->nosql = false;
     // 123Solar Web Solar logger support(http://www.123solar.org/)
     // This is an undocumented feature and should only be used for 123solar
     cfg->s123 = S123_NOP;
@@ -1234,15 +1234,15 @@ int parseCmdline(int argc, char **argv, Config *cfg)
 
         //Set NoCSV flag (Disable CSV export - Overrules Config setting)
         else if (stricmp(argv[i], "-nocsv") == 0)
-            cfg->nocsv = 1;
+            cfg->nocsv = true;
 
         //Set NoSQL flag (Disable SQL export)
         else if (stricmp(argv[i], "-nosql") == 0)
-            cfg->nosql = 1;
+            cfg->nosql = true;
 
         //Set NoSpot flag (Disable Spot CSV export)
         else if (stricmp(argv[i], "-sp0") == 0)
-            cfg->nospot = 1;
+            cfg->nospot = true;
 
         else if (stricmp(argv[i], "-installer") == 0)
             cfg->userGroup = UG_INSTALLER;
@@ -1463,19 +1463,19 @@ int GetConfig(Config *cfg)
     cfg->BT_Timeout = 5;
     cfg->BT_ConnectRetries = 10;
 
-    cfg->calcMissingSpot = 0;
+    cfg->calcMissingSpot = false;
     strcpy(cfg->DateTimeFormat, "%d/%m/%Y %H:%M:%S");
     strcpy(cfg->DateFormat, "%d/%m/%Y");
     strcpy(cfg->TimeFormat, "%H:%M:%S");
     cfg->synchTime = 1;
-    cfg->CSV_Export = 1;
-    cfg->CSV_ExtendedHeader = 1;
-    cfg->CSV_Header = 1;
-    cfg->CSV_SaveZeroPower = 1;
+    cfg->CSV_Export = true;
+    cfg->CSV_ExtendedHeader = true;
+    cfg->CSV_Header = true;
+    cfg->CSV_SaveZeroPower = true;
     cfg->SunRSOffset = 900;
-    cfg->SpotTimeSource = 0;
-    cfg->SpotWebboxHeader = 0;
-    cfg->MIS_Enabled = 0;
+    cfg->SpotTimeSource = false;
+    cfg->SpotWebboxHeader = false;
+    cfg->MIS_Enabled = false;
     strcpy(cfg->locale, "en-US");
     cfg->synchTimeLow = 1;
     cfg->synchTimeHigh = 3600;
@@ -1588,7 +1588,7 @@ int GetConfig(Config *cfg)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
-                        cfg->calcMissingSpot = (int)lValue;
+                        cfg->calcMissingSpot = (lValue == 1);
                     else
                     {
                         fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
@@ -1667,7 +1667,7 @@ int GetConfig(Config *cfg)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
-                        cfg->CSV_Export = (int)lValue;
+                        cfg->CSV_Export = (lValue == 1);
                     else
                     {
                         fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
@@ -1678,7 +1678,7 @@ int GetConfig(Config *cfg)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
-                        cfg->CSV_ExtendedHeader = (int)lValue;
+                        cfg->CSV_ExtendedHeader = (lValue == 1);
                     else
                     {
                         fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
@@ -1689,7 +1689,7 @@ int GetConfig(Config *cfg)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
-                        cfg->CSV_Header = (int)lValue;
+                        cfg->CSV_Header = (lValue == 1);
                     else
                     {
                         fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
@@ -1700,7 +1700,7 @@ int GetConfig(Config *cfg)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
-                        cfg->CSV_SaveZeroPower = (int)lValue;
+                        cfg->CSV_SaveZeroPower = (lValue == 1);
                     else
                     {
                         fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
@@ -1720,8 +1720,8 @@ int GetConfig(Config *cfg)
                 }
                 else if(stricmp(variable, "CSV_Spot_TimeSource") == 0)
                 {
-                    if (stricmp(value, "Inverter") == 0) cfg->SpotTimeSource = 0;
-                    else if (stricmp(value, "Computer") == 0) cfg->SpotTimeSource = 1;
+                    if (stricmp(value, "Inverter") == 0) cfg->SpotTimeSource = false;
+                    else if (stricmp(value, "Computer") == 0) cfg->SpotTimeSource = true;
                     else
                     {
                         fprintf(stdout, CFG_InvalidValue, variable, "Inverter|Computer");
@@ -1733,7 +1733,7 @@ int GetConfig(Config *cfg)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
-                        cfg->SpotWebboxHeader = (int)lValue;
+                        cfg->SpotWebboxHeader = (lValue == 1);
                     else
                     {
                         fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
@@ -1744,7 +1744,7 @@ int GetConfig(Config *cfg)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
-                        cfg->MIS_Enabled = (int)lValue;
+                        cfg->MIS_Enabled = (lValue == 1);
                     else
                     {
                         fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
@@ -1885,12 +1885,11 @@ int GetConfig(Config *cfg)
     }
 
     //Overrule CSV_Export from config with Commandline setting -nocsv
-    if (cfg->nocsv == 1)
-        cfg->CSV_Export = 0;
+    cfg->CSV_Export = cfg->nocsv;
 
     //Silently enable CSV_Header when CSV_ExtendedHeader is enabled
-    if (cfg->CSV_ExtendedHeader == 1)
-        cfg->CSV_Header = 1;
+    if (cfg->CSV_ExtendedHeader)
+        cfg->CSV_Header = true;
 
     if (strlen(cfg->outputPath) == 0)
     {
@@ -1918,15 +1917,15 @@ int GetConfig(Config *cfg)
     {
         strncat(cfg->outputPath, "/LoadLive", sizeof(cfg->outputPath));
         strcpy(cfg->DateTimeFormat, "%H:%M");
-        cfg->CSV_Export = 1;
+        cfg->CSV_Export = true;
         cfg->decimalpoint = '.';
-        cfg->CSV_Header = 0;
-        cfg->CSV_ExtendedHeader = 0;
-        cfg->CSV_SaveZeroPower = 0;
+        cfg->CSV_Header = false;
+        cfg->CSV_ExtendedHeader = false;
+        cfg->CSV_SaveZeroPower = false;
         cfg->delimiter = ';';
         cfg->archEventMonths = 0;
         cfg->archMonths = 0;
-        cfg->nospot = 1;
+        cfg->nospot = true;
     }
 
     // If 1st day of the month and -am1 specified, force to -am2 to get last day of prev month

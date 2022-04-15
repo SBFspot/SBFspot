@@ -351,7 +351,7 @@ int Inverter::process()
     for (uint32_t inv = 0; m_inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
     {
         //Calculate missing AC/DC Spot Values
-        if (m_config.calcMissingSpot == 1)
+        if (m_config.calcMissingSpot)
             CalcMissingSpot(m_inverters[inv]);
 
         //m_inverters[inv]->calPdcTot = m_inverters[inv]->Pdc1 + m_inverters[inv]->Pdc2;
@@ -688,7 +688,7 @@ void Inverter::exportSpotData()
 {
     if (m_inverters[0]->DevClass == SolarInverter)
     {
-        if ((m_config.CSV_Export == 1) && (m_config.nospot == 0))
+        if ((m_config.CSV_Export) && (!m_config.nospot))
             ExportSpotDataToCSV(&m_config, m_inverters);
 
         if (m_config.s123 == S123_DATA)
@@ -699,7 +699,7 @@ void Inverter::exportSpotData()
             ExportStateDataTo123s(&m_config, m_inverters);
     }
 
-    if (hasBatteryDevice && (m_config.CSV_Export == 1) && (m_config.nospot == 0))
+    if (hasBatteryDevice && (m_config.CSV_Export) && (!m_config.nospot))
         ExportBatteryDataToCSV(&m_config, m_inverters);
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
@@ -730,7 +730,7 @@ void Inverter::exportSpotData()
 
 void Inverter::exportDayData()
 {
-    if (m_config.CSV_Export == 1)
+    if (m_config.CSV_Export)
         ExportDayDataToCSV(&m_config, m_inverters);
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
@@ -741,7 +741,7 @@ void Inverter::exportDayData()
 
 void Inverter::exportMonthData()
 {
-    if (m_config.CSV_Export == 1)
+    if (m_config.CSV_Export)
         ExportMonthDataToCSV(&m_config, m_inverters);
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
@@ -752,7 +752,7 @@ void Inverter::exportMonthData()
 
 void Inverter::exportEventData(const std::string& dt_range_csv)
 {
-    if ((m_config.CSV_Export == 1) && (m_config.archEventMonths > 0))
+    if ((m_config.CSV_Export) && (m_config.archEventMonths > 0))
         ExportEventsToCSV(&m_config, m_inverters, dt_range_csv);
 
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
