@@ -118,7 +118,7 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
             if (DEBUG_HIGHEST) HexDump(CommBuf, bib, 10);
 
             //Check if data is coming from the right inverter
-            if (isValidSender(senderaddr, pkHdr->SourceAddr) == 1)
+            if (isValidSender(senderaddr, pkHdr->SourceAddr))
             {
                 rc = E_OK;
                 if (DEBUG_NORMAL) printf("cmd=%d\n", btohs(pkHdr->command));
@@ -184,7 +184,7 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
         {
             if (DEBUG_HIGHEST) HexDump(CommBuf, bib, 10);
             //Check if data is coming from the right inverter
-            if (isValidSender(senderaddr, pkHdr->SourceAddr) == 1)
+            if (isValidSender(senderaddr, pkHdr->SourceAddr))
             {
                 rc = E_OK;
                 if (DEBUG_NORMAL) printf("cmd=%d\n", btohs(pkHdr->command));
@@ -2046,13 +2046,13 @@ void CalcMissingSpot(InverterData *invData)
 * isValidSender() compares 6-byte senderaddress with our inverter BT address
 * If senderaddress = addr_unknown (FF:FF:FF:FF:FF:FF) then any address is valid
 */
-int isValidSender(uint8_t senderaddr[6], uint8_t address[6])
+bool isValidSender(uint8_t senderaddr[6], uint8_t address[6])
 {
     for (int i = 0; i < 6; i++)
         if ((senderaddr[i] != address[i]) && (senderaddr[i] != 0xFF))
-            return 0;
+            return false;
 
-    return 1;
+    return true;
 }
 
 const std::string u64_tostring(const uint64_t u64)

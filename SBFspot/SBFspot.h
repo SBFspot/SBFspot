@@ -93,7 +93,7 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command);
 void HexDump(uint8_t *buf, int count, int radix);
 void InvalidArg(char *arg);
 int isCrcValid(uint8_t lb, uint8_t hb);
-int isValidSender(uint8_t senderaddr[6], uint8_t address[6]);
+bool isValidSender(uint8_t senderaddr[6], uint8_t address[6]);
 E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, const char *password);
 E_SBFSPOT logoffSMAInverter(InverterData* const inverter);
 E_SBFSPOT logoffMultigateDevices(InverterData* const inverters[]);
