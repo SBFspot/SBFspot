@@ -40,7 +40,7 @@ DISCLAIMER:
 #include <sstream>
 #include <iomanip>
 
-extern int quiet;
+extern bool quiet;
 extern int verbose;
 
 class db_SQL_Export : public db_SQL_Base

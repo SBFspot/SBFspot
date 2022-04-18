@@ -39,7 +39,7 @@ DISCLAIMER:
 
 #include <string>
 
-extern int quiet;
+extern bool quiet;
 extern int verbose;
 
 // EventCodes

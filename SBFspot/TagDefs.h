@@ -40,7 +40,7 @@ DISCLAIMER:
 #include <string>
 #include <iostream>
 
-extern int quiet;
+extern bool quiet;
 extern int verbose;
 
 class TagDefs

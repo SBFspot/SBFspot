@@ -126,15 +126,15 @@ struct Config
     int     archMonths;             // -am          Number of months back to get Archived MonthData (0=disabled, 1=this month, ...)
     int     archEventMonths;        // -ae          Number of months back to get Archived Events (0=disabled, 1=this month, ...)
     bool    forceInq;               // -finq        Inquire inverter also during the night
-    int     quiet;                  // -q           Silent operation 
+    bool    quiet;                  // -q           Silent operation 
     bool    nocsv;                  // -nocsv       Disables CSV export (Overrules CSV_Export in config)
     bool    nospot;                 // -sp0         Disables Spot CSV export
     bool    nosql;                  // -nosql       Disables SQL export
-    int     loadlive;               // -loadlive    Force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
+    bool    loadlive;               // -loadlive    Force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
     time_t  startdate;              // -startdate   Start reading of historic data at the given date (YYYYMMDD)
     S123_COMMAND    s123;           // -123s        123Solar logger support(http://www.123solar.org/)
-    int     settime;                // -settime     Set plant time
-    int     mqtt;                   // -mqtt        Publish spot data to mqtt broker
+    bool    settime;                // -settime     Set plant time
+    bool    mqtt;                   // -mqtt        Publish spot data to mqtt broker
 };
 
 struct MonthData

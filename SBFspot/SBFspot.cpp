@@ -76,7 +76,7 @@ int MAX_pcktBuf = 0;
 //Public vars
 int debug = 0;
 int verbose = 0;
-int quiet = 0;
+bool quiet = false;
 char DateTimeFormat[32];
 char DateFormat[32];
 CONNECTIONTYPE ConnType = CT_NONE;
@@ -1065,17 +1065,17 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     cfg->archEventMonths = 1;   // this month only
     cfg->forceInq = false;      // Inquire inverter also during the night
     cfg->userGroup = UG_USER;
-    cfg->quiet = 0;
+    cfg->quiet = false;
     cfg->nocsv = false;
     cfg->nospot = false;
     cfg->nosql = false;
     // 123Solar Web Solar logger support(http://www.123solar.org/)
     // This is an undocumented feature and should only be used for 123solar
     cfg->s123 = S123_NOP;
-    cfg->loadlive = 0;          //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
+    cfg->loadlive = false;      //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
     cfg->startdate = 0;
-    cfg->settime = 0;
-    cfg->mqtt = 0;
+    cfg->settime = false;
+    cfg->mqtt = false;
 
     bool help_requested = false;
 
@@ -1086,7 +1086,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
             *argv[i] = '-';
 
         if (stricmp(argv[i], "-q") == 0)
-            cfg->quiet = 1;
+            cfg->quiet = true;
 
         if (stricmp(argv[i], "-?") == 0)
             help_requested = true;
@@ -1108,7 +1108,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     char *pEnd = NULL;
     long lValue = 0;
 
-    if ((cfg->quiet == 0) && (!help_requested))
+    if (!cfg->quiet && !help_requested)
     {
         SayHello(0);
         printf("Commandline Args:");
@@ -1206,7 +1206,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
 
         //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
         else if ((stricmp(argv[i], "-liveload") == 0) || (stricmp(argv[i], "-loadlive") == 0))
-            cfg->loadlive = 1;
+            cfg->loadlive = true;
 
         //Set inquiryDark flag
         else if (stricmp(argv[i], "-finq") == 0)
@@ -1311,7 +1311,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
         }
 
         else if (stricmp(argv[i], "-settime") == 0)
-            cfg->settime = 1;
+            cfg->settime = true;
 
         //Scan for bluetooth devices
         else if (stricmp(argv[i], "-scan") == 0)
@@ -1325,7 +1325,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
         }
 
         else if (stricmp(argv[i], "-mqtt") == 0)
-            cfg->mqtt = 1;
+            cfg->mqtt = true;
 
         //Show Help
         else if (stricmp(argv[i], "-?") == 0)
@@ -1334,7 +1334,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
             return 1;    // Caller should terminate, no error
         }
 
-        else if (cfg->quiet == 0)
+        else if (!cfg->quiet)
         {
             InvalidArg(argv[i]);
             return -1;
@@ -1342,7 +1342,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
 
     }
 
-    if (cfg->settime == 1)
+    if (cfg->settime)
     {
         // Verbose output level should be at least = 2 (normal)
         if (cfg->verbose < 2)
@@ -1352,7 +1352,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     }
 
     //Disable verbose/debug modes when silent
-    if (cfg->quiet == 1)
+    if (cfg->quiet)
     {
         cfg->verbose = 0;
         cfg->debug = 0;
@@ -1913,7 +1913,7 @@ int GetConfig(Config *cfg)
     }
 
     //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
-    if (cfg->loadlive == 1)
+    if (cfg->loadlive)
     {
         strncat(cfg->outputPath, "/LoadLive", sizeof(cfg->outputPath));
         strcpy(cfg->DateTimeFormat, "%H:%M");
@@ -1999,7 +1999,7 @@ void ShowConfig(Config *cfg)
         "\nSQL_Password=<undisclosed>";
 #endif
 
-    if (cfg->mqtt == 1)
+    if (cfg->mqtt)
     {
         std::cout << "\nMQTT_Host=" << cfg->mqtt_host << \
             "\nMQTT_Port=" << cfg->mqtt_port << \

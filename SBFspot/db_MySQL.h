@@ -40,7 +40,7 @@ DISCLAIMER:
 #include "SBFspot.h"
 #include <mysql/mysql.h>
 
-extern int quiet;
+extern bool quiet;
 extern int verbose;
 
 #define SQL_NEXTSTATUSCHECK		"NextStatusCheck"

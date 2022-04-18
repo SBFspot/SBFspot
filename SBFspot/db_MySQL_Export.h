@@ -39,7 +39,7 @@ DISCLAIMER:
 #include "db_MySQL.h"
 #include <sstream>
 
-extern int quiet;
+extern bool quiet;
 extern int verbose;
 
 class db_SQL_Export : public db_SQL_Base

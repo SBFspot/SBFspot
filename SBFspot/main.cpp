@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     quiet = cfg.quiet;
     ConnType = cfg.ConnectionType;
 
-    if ((ConnType != CT_BLUETOOTH) && (cfg.settime == 1))
+    if ((ConnType != CT_BLUETOOTH) && cfg.settime)
     {
         std::cout << "-settime is only supported for Bluetooth devices" << std::endl;
         return 0;
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 
         if ((!cfg.forceInq) && (!cfg.isLight))
         {
-            if (quiet == 0) puts("Nothing to do... it's dark. Use -finq to force inquiry.");
+            if (!quiet) puts("Nothing to do... it's dark. Use -finq to force inquiry.");
             return 0;
         }
     }

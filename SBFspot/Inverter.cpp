@@ -66,7 +66,7 @@ int Inverter::process()
     if (VERBOSE_NORMAL) puts("Logon OK");
 
     // If SBFspot is executed with -settime argument
-    if (m_config.settime == 1)
+    if (m_config.settime)
     {
         rc = SetPlantTime(0, 0, 0);	// Set time ignoring limits
         logoffSMAInverter(m_inverters[0]);
@@ -717,7 +717,7 @@ void Inverter::exportSpotData()
     /*******
     * MQTT *
     ********/
-    if (m_config.mqtt == 1) // MQTT enabled
+    if (m_config.mqtt) // MQTT enabled
     {
         MqttExport mqtt(m_config);
         auto rc = mqtt.exportInverterData(toStdVector(m_inverters));

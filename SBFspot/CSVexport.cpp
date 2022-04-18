@@ -129,7 +129,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
     {
         if (inverters[0]->monthData[0].datetime <= 0)   //invalid date?
         {
-            if (!quiet) puts("ExportMonthDataToCSV: There is no data to export!"); //First day of the month?
+            if (!cfg->quiet) puts("ExportMonthDataToCSV: There is no data to export!"); //First day of the month?
         }
         else
         {
@@ -144,7 +144,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
 
             if ((csv = fopen(csvpath.str().c_str(), "w+")) == NULL)
             {
-                if (cfg->quiet == 0)
+                if (!cfg->quiet)
                 {
                     snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
                     print_error(stdout, PROC_ERROR, msg);
@@ -235,7 +235,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
 
     if ((csv = fopen(csvpath.str().c_str(), "w+")) == NULL)
     {
-        if (cfg->quiet == 0)
+        if (!cfg->quiet)
         {
             snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
             print_error(stdout, PROC_ERROR, msg);
@@ -453,7 +453,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
 
     if ((csv = fopen(csvpath.str().c_str(), "a+")) == NULL)
     {
-        if (cfg->quiet == 0)
+        if (!cfg->quiet)
         {
             snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
             print_error(stdout, PROC_ERROR, msg);
@@ -573,7 +573,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
 
     if ((csv = fopen(csvpath.str().c_str(), "w+")) == NULL)
     {
-        if (cfg->quiet == 0)
+        if (!cfg->quiet)
         {
             snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
             print_error(stdout, PROC_ERROR, msg);
@@ -677,7 +677,7 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
 
     if ((csv = fopen(csvpath.str().c_str(), "a+")) == NULL)
     {
-        if (cfg->quiet == 0)
+        if (!cfg->quiet)
         {
             snprintf(msg, sizeof(msg), "Unable to open output file %s\n", csvpath.str().c_str());
             print_error(stdout, PROC_ERROR, msg);

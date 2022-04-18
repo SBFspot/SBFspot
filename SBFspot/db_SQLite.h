@@ -40,7 +40,7 @@ DISCLAIMER:
 #include "SBFspot.h"
 #include <sqlite3.h>
 
-extern int quiet;
+extern bool quiet;
 extern int verbose;
 
 #define SQL_NEXTSTATUSCHECK     "NextStatusCheck"
