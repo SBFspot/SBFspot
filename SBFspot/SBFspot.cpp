@@ -2013,18 +2013,12 @@ void ShowConfig(Config *cfg)
     std::cout << "\nEnd of Config\n" << std::endl;
 }
 
-int isCrcValid(uint8_t lb, uint8_t hb)
+bool isCrcValid(uint8_t lb, uint8_t hb)
 {
-    if (ConnType == CT_BLUETOOTH)
-    {
-        if ((lb == 0x7E) || (hb == 0x7E) ||
-            (lb == 0x7D) || (hb == 0x7D))
-            return 0;
-        else
-            return 1;
-    }
+    if ((ConnType == CT_BLUETOOTH) && ((lb == 0x7E) || (hb == 0x7E) || (lb == 0x7D) || (hb == 0x7D)))
+        return false;
     else
-        return 1;   //Always true for ethernet
+        return true;   //Always true for ethernet
 }
 
 //Power Values are missing on some inverters

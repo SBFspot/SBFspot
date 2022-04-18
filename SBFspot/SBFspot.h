@@ -92,7 +92,7 @@ int getInverterIndexByAddress(InverterData* const inverters[], uint8_t bt_addr[6
 E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command);
 void HexDump(uint8_t *buf, int count, int radix);
 void InvalidArg(char *arg);
-int isCrcValid(uint8_t lb, uint8_t hb);
+bool isCrcValid(uint8_t lb, uint8_t hb);
 bool isValidSender(uint8_t senderaddr[6], uint8_t address[6]);
 E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, const char *password);
 E_SBFSPOT logoffSMAInverter(InverterData* const inverter);
