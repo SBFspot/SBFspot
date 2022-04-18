@@ -74,7 +74,7 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
     }
 
     int packetcount = 0;
-    int validPcktID = 0;
+    bool validPcktID = false;
 
     E_SBFSPOT hasData = E_ARCHNODATA;
 
@@ -136,9 +136,9 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                     else
                     {
                         unsigned short rcvpcktID = get_short(pcktBuf + 27) & 0x7FFF;
-                        if ((validPcktID == 1) || (pcktID == rcvpcktID))
+                        if (validPcktID || (pcktID == rcvpcktID))
                         {
-                            validPcktID = 1;
+                            validPcktID = true;
                             for (int x = 41; x < (packetposition - 3); x += recordsize)
                             {
                                 datetime_next = (time_t)get_long(pcktBuf + x);
@@ -198,12 +198,12 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                         else
                         {
                             if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-                            validPcktID = 0;
+                            validPcktID = true;
                             packetcount = 0;
                         }
                     }
                 } while (packetcount > 0);
-            } while (validPcktID == 0);
+            } while (!validPcktID);
         }
     }
 
@@ -279,7 +279,7 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
     }
 
     int packetcount = 0;
-    int validPcktID = 0;
+    bool validPcktID = false;
 
     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
     {
@@ -335,9 +335,9 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
                     {
                         packetcount = pcktBuf[25];
                         unsigned short rcvpcktID = get_short(pcktBuf + 27) & 0x7FFF;
-                        if ((validPcktID == 1) || (pcktID == rcvpcktID))
+                        if (validPcktID || (pcktID == rcvpcktID))
                         {
-                            validPcktID = 1;
+                            validPcktID = true;
 
                             for (int x = 41; x < (packetposition - 3); x += recordsize)
                             {
@@ -370,12 +370,12 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
                         else
                         {
                             if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-                            validPcktID = 0;
+                            validPcktID = false;
                             packetcount = 0;
                         }
                     }
                 } while (packetcount > 0);
-            } while (validPcktID == 0);
+            } while (!validPcktID);
         }
     }
 
@@ -420,7 +420,7 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
     E_SBFSPOT rc = E_OK;
 
     unsigned short pcktcount = 0;
-    int validPcktID = 0;
+    bool validPcktID = false;
 
     time_t startTime = to_time_t(startDate);
     time_t endTime = startTime + 86400 * startDate.end_of_month().day();
@@ -472,9 +472,9 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
                 {
                     pcktcount = get_short(pcktBuf + 25);
                     unsigned short rcvpcktID = get_short(pcktBuf + 27) & 0x7FFF;
-                    if ((validPcktID == 1) || (pcktID == rcvpcktID))
+                    if (validPcktID || (pcktID == rcvpcktID))
                     {
-                        validPcktID = 1;
+                        validPcktID = true;
                         for (int x = 41; x < (packetposition - 3); x += sizeof(SMA_EVENTDATA))
                         {
                             SMA_EVENTDATA *pEventData = (SMA_EVENTDATA *)(pcktBuf + x);
@@ -493,12 +493,12 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
                     else
                     {
                         if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-                        validPcktID = 0;
+                        validPcktID = false;
                         pcktcount = 0;
                     }
                 }
             } while (pcktcount > 0);
-        } while ((validPcktID == 0) && (!FIRST_EVENT_FOUND));
+        } while (!validPcktID && !FIRST_EVENT_FOUND);
     }
 
     return rc;

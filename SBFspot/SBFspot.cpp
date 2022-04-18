@@ -761,7 +761,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
         pw[idx] = encChar;
 
     E_SBFSPOT rc = E_OK;
-    int validPcktID = 0;
+    bool validPcktID = false;
 
     time_t now;
 
@@ -786,7 +786,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
 
         bthSend(pcktBuf);
 
-        do    //while (validPcktID == 0);
+        do    //while (!validPcktID);
         {
             // In a multi inverter plant we get a reply from all inverters
             for (uint32_t i=0; inverters[i]!=NULL && i<MAX_INVERTERS; i++)
@@ -806,7 +806,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
                         {
                             inverters[ii]->SUSyID = get_short(pcktBuf + 15);
                             inverters[ii]->Serial = get_long(pcktBuf + 17);
-                            validPcktID = 1;
+                            validPcktID = true;
                             unsigned short retcode = get_short(pcktBuf + 23);
                             switch (retcode)
                             {
@@ -824,7 +824,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
                 }
             }
         }
-        while (validPcktID == 0);
+        while (!validPcktID);
     }
     else    // CT_ETHERNET
     {
@@ -853,7 +853,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
 
             ethSend(pcktBuf, inverters[inv]->IPAddress);
 
-            validPcktID = 0;
+            validPcktID = false;
             do
             {
                 if ((rc = ethGetPacket()) == E_OK)
@@ -861,7 +861,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
                     ethPacket *pckt = (ethPacket *)pcktBuf;
                     if (pcktID == (btohs(pckt->PacketID) & 0x7FFF))   // Valid Packet ID
                     {
-                        validPcktID = 1;
+                        validPcktID = true;
                         unsigned short retcode = btohs(pckt->ErrorCode);
                         switch (retcode)
                         {
@@ -873,7 +873,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
                     else
                         if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, (btohs(pckt->PacketID) & 0x7FFF));
                 }
-            } while ((validPcktID == 0) && (rc == E_OK)); // Fix Issue 167
+            } while (!validPcktID && (rc == E_OK)); // Fix Issue 167
         }
     }
 
@@ -2222,7 +2222,7 @@ int getInverterData(InverterData *device, unsigned long command, unsigned long f
     }
 
     unsigned short pcktcount = 0;
-    int validPcktID = 0;
+    bool validPcktID = false;
     do
     {
         do
@@ -2250,7 +2250,7 @@ int getInverterData(InverterData *device, unsigned long command, unsigned long f
                 {
                     if (((uint16_t)get_short(pcktBuf + 15) == device->SUSyID) && ((uint32_t)get_long(pcktBuf + 17) == device->Serial))
                     {
-                        validPcktID = 1;
+                        validPcktID = true;
                         int32_t value = 0;
                         int64_t value64 = 0;
                         uint32_t recordsize = 4 * ((uint32_t)pcktBuf[5] - 9) / ((uint32_t)get_long(pcktBuf + 37) - (uint32_t)get_long(pcktBuf + 33) + 1);
@@ -2611,12 +2611,12 @@ int getInverterData(InverterData *device, unsigned long command, unsigned long f
                 else
                 {
                     if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-                    validPcktID = 0;
+                    validPcktID = false;
                     pcktcount = 0;
                 }
             }
         } while (pcktcount > 0);
-    } while (validPcktID == 0);
+    } while (!validPcktID);
 
     return E_OK;
 }
@@ -2886,7 +2886,7 @@ E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &d
         ethSend(pcktBuf, inv->IPAddress);
     }
 
-    int validPcktID = 0;
+    bool validPcktID = false;
     do
     {
         if (ConnType == CT_BLUETOOTH)
@@ -2907,7 +2907,7 @@ E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &d
                 if (serial == inv->Serial)
                 {
                     rc = E_NODATA;
-                    validPcktID = 1;
+                    validPcktID = true;
                     for (int i = 41; i < packetposition - 3; i += recordsize)
                     {
                         data.LRI((uint32_t)get_long(pcktBuf + i));
@@ -2927,7 +2927,7 @@ E_SBFSPOT getDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &d
             }
             else if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
         }
-    } while (validPcktID == 0);
+    } while (!validPcktID);
 
     return rc;
 }
@@ -2964,7 +2964,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
     if (ethSend(pcktBuf, devList[multigateID]->IPAddress) == -1) // SOCKET_ERROR
         return E_NODATA;
 
-    int validPcktID = 0;
+    bool validPcktID = false;
     do
     {
         rc = ethGetPacket();
@@ -2987,7 +2987,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
             if (serial == devList[multigateID]->Serial)
             {
                 rc = E_NODATA;
-                validPcktID = 1;
+                validPcktID = true;
                 for (int i = 41; i < packetposition - 3; i += recordsize)
                 {
                     uint16_t devclass = get_short(pcktBuf + i + 4);
@@ -3013,7 +3013,7 @@ E_SBFSPOT getDeviceList(InverterData *devList[], int multigateID)
             else if (DEBUG_HIGHEST) printf("Serial Nr mismatch. Expected %lu, received %d\n", devList[multigateID]->Serial, serial);
         }
         else if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-    } while (validPcktID == 0);
+    } while (!validPcktID);
 
     return rc;
 }
