@@ -34,24 +34,12 @@ DISCLAIMER:
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include "hash.h"
-
-struct Config;
-struct InverterData;
-
-class MqttExport
+namespace djb   // Daniel J. Bernstein
 {
-public:
-    MqttExport(const Config& config);
-    ~MqttExport();
+    constexpr inline size_t hash(const char *str, size_t h = 0)
+    {
+        return str[h] == 0 ? 5381 : (hash(str, h + 1) * 33) ^ str[h];
+    }
+}
 
-    int exportInverterData(const std::vector<InverterData>& inverterData);
-
-private:
-    const Config& m_config;
-
-    std::string to_keyvalue(const std::string key, const std::string value) const;
-    time_t to_time_t(float time_f);
-};
+constexpr inline size_t operator "" _(const char *str, size_t) { return djb::hash(str); }

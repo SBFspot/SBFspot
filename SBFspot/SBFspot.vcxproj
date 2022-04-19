@@ -370,6 +370,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
     <ClInclude Include="db_update.h" />
     <ClInclude Include="Ethernet.h" />
     <ClInclude Include="EventData.h" />
+    <ClInclude Include="hash.h" />
     <ClInclude Include="Inverter.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="mppt.h" />
