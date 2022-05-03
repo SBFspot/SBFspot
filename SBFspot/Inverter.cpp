@@ -68,10 +68,10 @@ int Inverter::process()
     // If SBFspot is executed with -settime argument
     if (m_config.settime)
     {
-        rc = SetPlantTime(0, 0, 0);	// Set time ignoring limits
+        rc = SetPlantTime(0, 0, 0); // Set time ignoring limits
         logoffSMAInverter(m_inverters[0]);
         logOff();
-        bthClose();	// Close socket
+        bthClose(); // Close socket
 
         return rc;
     }
@@ -83,19 +83,19 @@ int Inverter::process()
         if ((rc = SetPlantTime(m_config.synchTime, m_config.synchTimeLow, m_config.synchTimeHigh)) != E_OK)
             std::cout << "SetPlantTime returned an error: " << rc << std::endl;
 
-    //if ((rc = getInverterData(m_inverters, sbftest)) != 0)
+    //if ((rc = getInverterData(m_inverters, sbftest)) != E_OK)
     //    std::cout << "getInverterData(sbftest) returned an error: " << rc << std::endl;
 
-    if ((rc = getInverterData(m_inverters, SoftwareVersion)) != 0)
+    if ((rc = getInverterData(m_inverters, SoftwareVersion)) != E_OK)
         std::cout << "getSoftwareVersion returned an error: " << rc << std::endl;
 
-    if ((rc = getInverterData(m_inverters, TypeLabel)) != 0)
+    if ((rc = getInverterData(m_inverters, TypeLabel)) != E_OK)
         std::cout << "getTypeLabel returned an error: " << rc << std::endl;
     else
     {
         for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
-            if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->SUSyID == 292))	//SB 3600-SE (Smart Energy)
+            if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->SUSyID == 292))   //SB 3600-SE (Smart Energy)
                 hasBatteryDevice = m_inverters[inv]->hasBattery = true;
             else
                 m_inverters[inv]->hasBattery = false;
@@ -107,7 +107,6 @@ int Inverter::process()
                 printf("Device Class:     %s%s\n", m_inverters[inv]->DeviceClass.c_str(), (m_inverters[inv]->SUSyID == 292) ? " (with battery)":"");
                 printf("Device Type:      %s\n", m_inverters[inv]->DeviceType.c_str());
                 printf("Software Version: %s\n", m_inverters[inv]->SWVersion.c_str());
-                printf("Serial number:    %lu\n", m_inverters[inv]->Serial);
             }
         }
     }
@@ -145,10 +144,10 @@ int Inverter::process()
                     return 1;
                 }
 
-                if ((rc = getInverterData(m_inverters, SoftwareVersion)) != 0)
+                if ((rc = getInverterData(m_inverters, SoftwareVersion)) != E_OK)
                     printf("getSoftwareVersion returned an error: %d\n", rc);
 
-                if ((rc = getInverterData(m_inverters, TypeLabel)) != 0)
+                if ((rc = getInverterData(m_inverters, TypeLabel)) != E_OK)
                     printf("getTypeLabel returned an error: %d\n", rc);
                 else
                 {
@@ -161,7 +160,6 @@ int Inverter::process()
                             printf("Device Class:     %s\n", m_inverters[ii]->DeviceClass.c_str());
                             printf("Device Type:      %s\n", m_inverters[ii]->DeviceType.c_str());
                             printf("Software Version: %s\n", m_inverters[ii]->SWVersion.c_str());
-                            printf("Serial number:    %lu\n", m_inverters[ii]->Serial);
                         }
                     }
                 }
@@ -171,7 +169,7 @@ int Inverter::process()
 
     if (hasBatteryDevice)
     {
-        if ((rc = getInverterData(m_inverters, BatteryChargeStatus)) != 0)
+        if ((rc = getInverterData(m_inverters, BatteryChargeStatus)) != E_OK)
             std::cout << "getBatteryChargeStatus returned an error: " << rc << std::endl;
         else
         {
@@ -188,7 +186,7 @@ int Inverter::process()
             }
         }
 
-        if ((rc = getInverterData(m_inverters, BatteryInfo)) != 0)
+        if ((rc = getInverterData(m_inverters, BatteryInfo)) != E_OK)
             std::cout << "getBatteryInfo returned an error: " << rc << std::endl;
         else
         {
@@ -208,7 +206,7 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, MeteringGridMsTotW)) < 0)
+    if ((rc = getInverterData(m_inverters, MeteringGridMsTotW)) < E_OK)
         std::cout << "getMeteringGridInfo returned an error: " << rc << std::endl;
     else
     {
@@ -226,7 +224,7 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, DeviceStatus)) != 0)
+    if ((rc = getInverterData(m_inverters, DeviceStatus)) != E_OK)
         std::cout << "getDeviceStatus returned an error: " << rc << std::endl;
     else
     {
@@ -261,7 +259,7 @@ int Inverter::process()
 
     if (m_inverters[0]->DevClass == SolarInverter)
     {
-        if ((rc = getInverterData(m_inverters, GridRelayStatus)) != 0)
+        if ((rc = getInverterData(m_inverters, GridRelayStatus)) != E_OK)
             std::cout << "getGridRelayStatus returned an error: " << rc << std::endl;
         else
         {
@@ -279,7 +277,7 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, EnergyProduction)) != 0)
+    if ((rc = getInverterData(m_inverters, EnergyProduction)) != E_OK)
     {
         std::cout << "getEnergyProduction returned an error: " << rc << std::endl;
     }
@@ -315,7 +313,7 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, OperationTime)) != 0)
+    if ((rc = getInverterData(m_inverters, OperationTime)) != E_OK)
         std::cout << "getOperationTime returned an error: " << rc << std::endl;
     else
     {
@@ -333,19 +331,19 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, SpotDCPower)) != 0)
+    if ((rc = getInverterData(m_inverters, SpotDCPower)) != E_OK)
         std::cout << "getSpotDCPower returned an error: " << rc << std::endl;
 
-    if ((rc = getInverterData(m_inverters, SpotDCVoltage)) != 0)
+    if ((rc = getInverterData(m_inverters, SpotDCVoltage)) != E_OK)
         std::cout << "getSpotDCVoltage returned an error: " << rc << std::endl;
 
-    if ((rc = getInverterData(m_inverters, SpotACPower)) != 0)
+    if ((rc = getInverterData(m_inverters, SpotACPower)) != E_OK)
         std::cout << "getSpotACPower returned an error: " << rc << std::endl;
 
-    if ((rc = getInverterData(m_inverters, SpotACVoltage)) != 0)
+    if ((rc = getInverterData(m_inverters, SpotACVoltage)) != E_OK)
         std::cout << "getSpotACVoltage returned an error: " << rc << std::endl;
 
-    if ((rc = getInverterData(m_inverters, SpotACTotalPower)) != 0)
+    if ((rc = getInverterData(m_inverters, SpotACTotalPower)) != E_OK)
         std::cout << "getSpotACTotalPower returned an error: " << rc << std::endl;
 
     for (uint32_t inv = 0; m_inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
@@ -382,7 +380,7 @@ int Inverter::process()
         }
     }
 
-    if ((rc = getInverterData(m_inverters, SpotGridFrequency)) != 0)
+    if ((rc = getInverterData(m_inverters, SpotGridFrequency)) != E_OK)
         std::cout << "getSpotGridFrequency returned an error: " << rc << std::endl;
     else
     {

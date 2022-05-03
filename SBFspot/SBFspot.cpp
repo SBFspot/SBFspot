@@ -2187,9 +2187,9 @@ std::vector <uint32_t> getattribute(uint8_t *pcktbuf)
     return tags;
 }
 
-int getInverterData(InverterData *device, unsigned long command, unsigned long first, unsigned long last)
+E_SBFSPOT getInverterData(InverterData *device, unsigned long command, unsigned long first, unsigned long last)
 {
-    int rc = E_OK;
+    device->status = E_OK;
 
     do
     {
@@ -2222,21 +2222,24 @@ int getInverterData(InverterData *device, unsigned long command, unsigned long f
         do
         {
             if (ConnType == CT_BLUETOOTH)
-                rc = getPacket(device->BTAddress, 1);
+                device->status = getPacket(device->BTAddress, 1);
             else
-                rc = ethGetPacket();
+                device->status = ethGetPacket();
 
-            if (rc != E_OK) return rc;
+            if (device->status != E_OK)
+                return device->status;
 
             if ((ConnType == CT_BLUETOOTH) && (!validateChecksum()))
-                return E_CHKSUM;
+            {
+                device->status = E_CHKSUM;
+                return device->status;
+            }
             else
             {
-                uint16_t status = get_short(pcktBuf + 23);
-                if (status != 0)
+                if ((device->status = (E_SBFSPOT)get_short(pcktBuf + 23)) != E_OK)
                 {
-                    if (VERBOSE_NORMAL) printf("Packet status: %d\n", status);
-                    return status;
+                    if (VERBOSE_NORMAL) printf("Packet status: %d\n", device->status);
+                    return device->status;
                 }
                 pcktcount = get_short(pcktBuf + 25);
                 unsigned short rcvpcktID = get_short(pcktBuf + 27) & 0x7FFF;
@@ -2612,12 +2615,12 @@ int getInverterData(InverterData *device, unsigned long command, unsigned long f
         } while (pcktcount > 0);
     } while (!validPcktID);
 
-    return E_OK;
+    return device->status;
 }
 
-int getInverterData(InverterData *devList[], enum getInverterDataType type)
+E_SBFSPOT getInverterData(InverterData *devList[], enum getInverterDataType type)
 {
-    int rc = E_OK;
+    E_SBFSPOT rc = E_OK;
     unsigned long command;
     unsigned long first;
     unsigned long last;

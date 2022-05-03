@@ -203,6 +203,25 @@ enum SMA_DATATYPE
     DT_SLONG = 64
 };
 
+enum E_SBFSPOT
+{
+    E_LRINOTAVAIL =  21,    // Requested LRI not available
+    E_OK =            0,    // No error
+    E_NODATA =       -1,    // Receive buffer empty
+    E_BADARG =       -2,    // Unknown command line argument
+    E_CHKSUM =       -3,    // Invalid Checksum
+    E_BUFOVRFLW =    -4,    // Buffer overflow
+    E_ARCHNODATA =   -5,    // No archived data found for given timespan
+    E_INIT =         -6,    // Unable to initialise
+    E_INVPASSW =     -7,    // Invalid password
+    E_RETRY =        -8,    // Retry the last action
+    E_EOF =          -9,    // End of data
+    E_PRIVILEGE =   -10,    // Privilege not held (need installer login)
+    E_LOGONFAILED = -11,    // *DEPRECATED*: Logon failed, other than Invalid Password (E_INVPASSW)
+    E_COMM =        -12,    // General communication error
+    E_FWVERSION =   -13     // Incompatible FW version
+};
+
 typedef std::map<uint8_t, mppt> MPPTlist;
 
 struct InverterData
@@ -264,7 +283,8 @@ struct InverterData
     int32_t MeteringGridMsTotWIn;       // Power grid reference (In)
     bool hasBattery;                    // Smart Energy device
     int logonStatus;
-    uint32_t multigateID; 
+    uint32_t multigateID;
+    E_SBFSPOT status;                   // Result of getInverterData()
 };
 
 //SMA Structs must be aligned on byte boundaries
@@ -392,21 +412,3 @@ enum LriDef
     GridMsPhVphsC2A6100             = 0x00464D00
 };
 
-enum E_SBFSPOT
-{
-    E_LRINOTAVAIL   =  21,  // Requested LRI not available
-    E_OK            =  0,   // No error
-    E_NODATA        = -1,   // Receive buffer empty
-    E_BADARG        = -2,   // Unknown command line argument
-    E_CHKSUM        = -3,   // Invalid Checksum
-    E_BUFOVRFLW     = -4,   // Buffer overflow
-    E_ARCHNODATA    = -5,   // No archived data found for given timespan
-    E_INIT          = -6,   // Unable to initialise
-    E_INVPASSW      = -7,   // Invalid password
-    E_RETRY         = -8,   // Retry the last action
-    E_EOF           = -9,   // End of data
-    E_PRIVILEGE     = -10,  // Privilege not held (need installer login)
-    E_LOGONFAILED   = -11,  // *DEPRECATED*: Logon failed, other than Invalid Password (E_INVPASSW)
-    E_COMM          = -12,  // General communication error
-    E_FWVERSION     = -13   // Incompatible FW version
-};

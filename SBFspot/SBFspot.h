@@ -87,7 +87,7 @@ int DaysInMonth(int month, int year);
 int getBT_SignalStrength(InverterData *invData);
 void freemem(InverterData *inverters[]);
 int GetConfig(Config *cfg);
-int getInverterData(InverterData *inverters[], enum getInverterDataType type);
+E_SBFSPOT getInverterData(InverterData *inverters[], enum getInverterDataType type);
 int getInverterIndexByAddress(InverterData* const inverters[], uint8_t bt_addr[6]);
 E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command);
 void HexDump(uint8_t *buf, int count, int radix);
