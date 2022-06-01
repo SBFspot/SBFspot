@@ -43,7 +43,7 @@ DISCLAIMER:
 #include <vector>
 #include <map>
 
-extern int quiet;
+extern bool quiet;
 extern int verbose;
 
 class PVOutput

@@ -46,7 +46,7 @@ DISCLAIMER:
 #include <vector>
 #include <string.h>
 
-int quiet;
+bool quiet;
 int verbose;
 
 bool bStopping = false;

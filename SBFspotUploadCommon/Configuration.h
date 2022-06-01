@@ -45,7 +45,7 @@ DISCLAIMER:
 #include <sstream>
 #include <fstream>
 
-extern int quiet;
+extern bool quiet;
 extern int verbose;
 
 typedef unsigned int SMASerial;
