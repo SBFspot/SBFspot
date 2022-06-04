@@ -29,7 +29,7 @@ using namespace std;
 using namespace boost;
 
 int verbose = 0;
-int quiet = 0;
+bool quiet = false;
 Configuration cfg;
 bool bStopping;
 
