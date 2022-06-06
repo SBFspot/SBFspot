@@ -289,7 +289,10 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
     int rc = SQL_OK;
 
     MYSQL_BIND values[12];
-    my_bool is_null = true;
+    // Fix #545
+    // error: 'my_bool' was not declared in this scope
+    // my_bool is_null = true;
+    char is_null = 1;
 
     MYSQL_STMT *pStmt = mysql_stmt_init(m_dbHandle);
     if (!pStmt)

@@ -108,7 +108,7 @@ std::string EventData::EventDescription() const
         // |u0|
         if (eventDescr.find("|x") != std::string::npos)
         {
-            for (size_t i = 0; i < sizeof(SMA_EVENTARGS); i++)
+            for (unsigned int i = 0; i < sizeof(SMA_EVENTARGS); i++)
             {
                 char idx[16];
 
