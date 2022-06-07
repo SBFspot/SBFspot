@@ -289,10 +289,6 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
     int rc = SQL_OK;
 
     MYSQL_BIND values[12];
-    // Fix #545
-    // error: 'my_bool' was not declared in this scope
-    // my_bool is_null = true;
-    char is_null = 1;
 
     MYSQL_STMT *pStmt = mysql_stmt_init(m_dbHandle);
     if (!pStmt)
@@ -387,19 +383,25 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
 
                 // Old Value
                 std::string OldValue = oldval.str();
-                values[9].buffer_type = MYSQL_TYPE_STRING;
-                values[9].buffer = (char *)OldValue.c_str();
-                values[9].buffer_length = OldValue.size();
                 if (OldValue.empty())
-                    values[9].is_null = &is_null;
+                    values[9].buffer_type = MYSQL_TYPE_NULL; // Fix #545/#548
+                else
+                {
+                    values[9].buffer_type = MYSQL_TYPE_STRING;
+                    values[9].buffer = (char *)OldValue.c_str();
+                    values[9].buffer_length = OldValue.size();
+                }
 
                 // New Value
                 std::string NewValue = newval.str();
-                values[10].buffer_type = MYSQL_TYPE_STRING;
-                values[10].buffer = (char *)NewValue.c_str();
-                values[10].buffer_length = NewValue.size();
                 if (NewValue.empty())
-                    values[10].is_null = &is_null;
+                    values[10].buffer_type = MYSQL_TYPE_NULL; // Fix #545/#548
+                else
+                {
+                    values[10].buffer_type = MYSQL_TYPE_STRING;
+                    values[10].buffer = (char *)NewValue.c_str();
+                    values[10].buffer_length = NewValue.size();
+                }
 
                 // User Group
                 values[11].buffer_type = MYSQL_TYPE_STRING;
