@@ -36,10 +36,6 @@ DISCLAIMER:
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::algorithm;
-
 PVOutput::PVOutput(unsigned int SID, std::string APIkey, unsigned int timeout)
 {
     m_SID = SID;
@@ -85,7 +81,7 @@ size_t PVOutput::writeCallback_impl(char *ptr, size_t size, size_t nmemb)
     return size * nmemb;
 }
 
-CURLcode PVOutput::downloadURL(string URL)
+CURLcode PVOutput::downloadURL(std::string URL)
 {
     m_curlres = CURLE_FAILED_INIT;
     m_http_status = HTTP_OK;
@@ -104,7 +100,7 @@ CURLcode PVOutput::downloadURL(string URL)
     return m_curlres;
 }
 
-CURLcode PVOutput::downloadURL(string URL, string data)
+CURLcode PVOutput::downloadURL(std::string URL, std::string data)
 {
     m_curlres = CURLE_FAILED_INIT;
     m_http_status = HTTP_OK;
@@ -128,7 +124,7 @@ CURLcode PVOutput::downloadURL(string URL, string data)
 
 CURLcode PVOutput::getSystemData(void)
 {
-    if (isverbose(2)) cout << "PVOutput::getSystemData()\n";
+    if (isverbose(2)) std::cout << "PVOutput::getSystemData()\n";
 
     m_curlres = CURLE_FAILED_INIT;
 
@@ -136,11 +132,11 @@ CURLcode PVOutput::getSystemData(void)
     {
         if ((m_curlres = downloadURL("http://pvoutput.org/service/r2/getsystem.jsp", "teams=1&donations=1&ext=1")) == CURLE_OK)
         {
-            vector<string> items;
+            std::vector<std::string> items;
             boost::split(items, m_buffer, boost::is_any_of(";"));
             if (items.size() == 5)
             {
-                vector<string> subitems;
+                std::vector<std::string> subitems;
 
                 // Main System data
                 boost::split(subitems, items[0], boost::is_any_of(","));
@@ -161,13 +157,13 @@ CURLcode PVOutput::getSystemData(void)
                         m_ArrayTilt = boost::lexical_cast<float>(subitems[10]);
                         m_Shade = subitems[11];
                         m_InstallDate = subitems[12];
-                        m_location = make_pair(boost::lexical_cast<double>(subitems[13]), boost::lexical_cast<double>(subitems[14]));
+                        m_location = std::make_pair(boost::lexical_cast<double>(subitems[13]), boost::lexical_cast<double>(subitems[14]));
                         m_StatusInterval = boost::lexical_cast<unsigned int>(subitems[15]);
                     }
                     catch (...)
                     {
                         //When we get here, it's mostly because of conversion error (boost::lexical_cast)
-                        if (isverbose(5)) cerr << "items[0]: " << items[0] << endl;
+                        if (isverbose(5)) std::cerr << "items[0]: " << items[0] << std::endl;
                         m_curlres = (CURLcode)-1;
                         return m_curlres;
                     }
@@ -177,14 +173,14 @@ CURLcode PVOutput::getSystemData(void)
                 boost::split(subitems, items[2], boost::is_any_of(","));
                 try
                 {
-                    for (vector<string>::iterator it = subitems.begin(); it != subitems.end(); ++it)
+                    for (std::vector<std::string>::iterator it = subitems.begin(); it != subitems.end(); ++it)
                     {
                         if (!it->empty()) m_Teams.push_back(boost::lexical_cast<unsigned int>(*it));
                     }
                 }
                 catch (...)
                 {
-                    if (isverbose(5)) cerr << "items[2]: " << items[2] << endl;
+                    if (isverbose(5)) std::cerr << "items[2]: " << items[2] << std::endl;
                     m_curlres = (CURLcode)-1;
                     return m_curlres;
                 }
@@ -196,7 +192,7 @@ CURLcode PVOutput::getSystemData(void)
                 }
                 catch (...)
                 {
-                    if (isverbose(5)) cerr << "items[3]: " << items[3] << endl;
+                    if (isverbose(5)) std::cerr << "items[3]: " << items[3] << std::endl;
                     m_curlres = (CURLcode)-1;
                     return m_curlres;
                 }
@@ -207,7 +203,7 @@ CURLcode PVOutput::getSystemData(void)
                 if (subitems.size() == 12)
                 {
                     int v = 7;
-                    for (vector<string>::iterator it = subitems.begin(); it != subitems.end(); ++it)
+                    for (std::vector<std::string>::iterator it = subitems.begin(); it != subitems.end(); ++it)
                     {
                         m_ExtData.insert(make_pair(v++, make_pair(*it, *(++it))));
                     }
@@ -215,7 +211,7 @@ CURLcode PVOutput::getSystemData(void)
             }
             else
             {
-                if (isverbose(5)) cerr << "Received Data: " << m_buffer << endl;
+                if (isverbose(5)) std::cerr << "Received Data: " << m_buffer << std::endl;
                 m_curlres = CURLE_URL_MALFORMAT;
             }
         }
@@ -227,7 +223,7 @@ CURLcode PVOutput::getSystemData(void)
 bool PVOutput::isTeamMember() const
 {
     const unsigned int SBFspot_TeamID = 613;
-    for (vector<unsigned int>::const_iterator it = m_Teams.begin(); it != m_Teams.end(); ++it)
+    for (std::vector<unsigned int>::const_iterator it = m_Teams.begin(); it != m_Teams.end(); ++it)
     {
         if (*it == SBFspot_TeamID) return true;
     }
@@ -237,13 +233,13 @@ bool PVOutput::isTeamMember() const
 
 CURLcode PVOutput::addBatchStatus(std::string data, std::string &response)
 {
-    if (isverbose(2)) cout << "PVOutput::addBatchStatus()\n";
+    if (isverbose(2)) std::cout << "PVOutput::addBatchStatus()\n";
 
     m_curlres = CURLE_FAILED_INIT;
 
     if (m_curl)
     {
-        stringstream postData;
+        std::stringstream postData;
         postData << "c1=1&data=" << data;
 
         if ((m_curlres = downloadURL("http://pvoutput.org/service/r2/addbatchstatus.jsp", postData.str())) == CURLE_OK)
