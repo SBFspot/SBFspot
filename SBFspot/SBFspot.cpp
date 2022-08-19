@@ -1886,7 +1886,7 @@ int GetConfig(Config *cfg)
 
     //Overrule CSV_Export from config with Commandline setting -nocsv
     if (cfg->nocsv)
-        cfg->CSV_Export = true;
+        cfg->CSV_Export = false; // Fix #549
 
     //Silently enable CSV_Header when CSV_ExtendedHeader is enabled
     if (cfg->CSV_ExtendedHeader)

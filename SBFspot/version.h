@@ -33,6 +33,7 @@ V3.9.5
 
 V3.9.6
     Fix #559 SBFspotUploadDaemon log to stdout?
+    Fix #549 After upgrade to v395, the CSV file is no longer written
 */
 
 /***
