@@ -1,4 +1,4 @@
-#define VERSION "3.9.5"
+#define VERSION "3.9.6"
 
 /*
 V3.9.1
@@ -30,6 +30,9 @@ V3.9.5
     Fix #527 Data too long for column 'OldValue'
     Various refactorings
     Fix #539 Garbage in battery CSV file
+
+V3.9.6
+    Fix #559 SBFspotUploadDaemon log to stdout?
 */
 
 /***

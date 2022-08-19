@@ -208,8 +208,11 @@ int Configuration::readSettings(std::string me, std::string filename)
     if (m_Status == CFG_OK)
     {
         // Perform some checks...
+        // Fix #559 SBFspotUploadDaemon log to stdout?
+#if defined(_WIN32)
         if (m_LogDir.empty()) { print_error("Missing 'LogDir'"); m_Status = CFG_ERROR; }
-        else if (m_PvoSIDs.size() == 0) { print_error("Missing 'PVoutput_SID'"); m_Status = CFG_ERROR; }
+#endif
+        if (m_PvoSIDs.size() == 0) { print_error("Missing 'PVoutput_SID'"); m_Status = CFG_ERROR; }
         else if (m_PvoAPIkey.empty()) { print_error("Missing 'PVoutput_Key'"); m_Status = CFG_ERROR; }
         else if (m_SqlDatabase.empty()) { print_error("Missing 'SQL_Database'"); m_Status = CFG_ERROR; }
     }

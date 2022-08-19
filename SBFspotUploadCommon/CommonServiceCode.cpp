@@ -175,6 +175,17 @@ std::string timestamp(void)
 int Log(std::string txt, ERRLEVEL level)
 {
     int rc = 0;
+
+// Fix #559 SBFspotUploadDaemon log to stdout?
+#if !defined(_WIN32)
+    if (level >= cfg.getLogLevel() && cfg.getLogDir().length() == 0)
+    {
+        // On linux systems when logdir is empty, log to console instead of file
+        std::clog << timestamp() << errlevelText[level] << ": " << txt << '\n';
+        return rc;
+    }
+#endif
+
     if (level >= cfg.getLogLevel())
     {
         char buff[32];
