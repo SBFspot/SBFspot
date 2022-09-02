@@ -36,8 +36,6 @@ DISCLAIMER:
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-
 std::string errlevelText[] = { "", "DEBUG", "INFO", "WARNING", "ERROR" };
 
 
@@ -53,7 +51,7 @@ int Configuration::readSettings(std::string me, std::string filename)
     // Get path of executable
     m_AppPath = me;
     size_t pos = m_AppPath.find_last_of("/\\");
-    if (pos != string::npos)
+    if (pos != std::string::npos)
         //SBFspot started from absolute or relative path
         m_AppPath.erase(++pos);
     else
@@ -75,7 +73,7 @@ int Configuration::readSettings(std::string me, std::string filename)
     }
 
     if (verbose >= 2)
-        cout << "Reading config '" << m_ConfigFile << "'\n";
+        std::cout << "Reading config '" << m_ConfigFile << "'\n";
 
     std::string line;
     unsigned int lineCnt = 0;
@@ -88,12 +86,12 @@ int Configuration::readSettings(std::string me, std::string filename)
         //Get rid of comments and empty lines
         boost::trim(line);
         size_t hashpos = line.find_first_of("#\r");
-        if (hashpos != string::npos) line.erase(hashpos);
+        if (hashpos != std::string::npos) line.erase(hashpos);
 
         if (line.size() > 0)
         {
             //Split line key=value
-            vector<std::string> lineparts;
+            std::vector<std::string> lineparts;
             boost::split(lineparts, line, boost::is_any_of("="));
             if (lineparts.size() != 2)
                 print_error("Syntax error", lineCnt, m_ConfigFile);
@@ -132,12 +130,12 @@ int Configuration::readSettings(std::string me, std::string filename)
 
                     else if (lineparts[0] == "pvoutput_sid")
                     {
-                        vector<std::string> systems;
+                        std::vector<std::string> systems;
                         boost::split(systems, lineparts[1], boost::is_any_of(","));
                         {
                             for (unsigned int i = 0; i < systems.size(); i++)
                             {
-                                vector<std::string> sys_serial;
+                                std::vector<std::string> sys_serial;
                                 boost::split(sys_serial, systems[i], boost::is_any_of(":"));
                                 if (sys_serial.size() != 2)
                                 {
@@ -191,7 +189,7 @@ int Configuration::readSettings(std::string me, std::string filename)
                     }
 #endif
                     else
-                        cerr << "WARNING: Ignoring '" << lineparts[0] << "'" << endl;
+                        std::cerr << "WARNING: Ignoring '" << lineparts[0] << "'" << std::endl;
                 } // try
                 catch (...)
                 {

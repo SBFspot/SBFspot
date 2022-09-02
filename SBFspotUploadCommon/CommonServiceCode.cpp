@@ -181,7 +181,7 @@ int Log(std::string txt, ERRLEVEL level)
     if (level >= cfg.getLogLevel() && cfg.getLogDir().length() == 0)
     {
         // On linux systems when logdir is empty, log to console instead of file
-        std::clog << timestamp() << errlevelText[level] << ": " << txt << '\n';
+        std::cout << errlevelText[level] << ": " << txt << std::endl;
         return rc;
     }
 #endif

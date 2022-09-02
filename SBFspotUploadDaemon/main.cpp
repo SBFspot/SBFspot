@@ -58,16 +58,15 @@ Configuration cfg;
 void handler(int signum)
 {
     bStopping = true;
-    syslog(LOG_INFO | LOG_USER, "Exit signal received.");
 }
 
 void pvo_upload(void)
 {
-    Log("Starting Daemon...", LOG_INFO_);
+    if (cfg.getLogDir().length() > 0) Log("Starting Daemon...", LOG_INFO_);
 
     CommonServiceCode();
 
-    Log("Stopping Daemon...", LOG_INFO_);
+    if (cfg.getLogDir().length() > 0) Log("Stopping Daemon...", LOG_INFO_);
 }
 
 int main(int argc, char *argv[])
@@ -102,10 +101,6 @@ int main(int argc, char *argv[])
 
     if (cfg.readSettings(argv[0], config_file) != Configuration::CFG_OK)
         return EXIT_FAILURE;
-
-    std::clog << "SBFspotUploadDaemon Version " << cfg.getVersion();
-    std::clog << "\nLoglevel=" << cfg.getLogLevel();
-    std::clog << "\nLogDir=" << cfg.getLogDir() << std::endl;
 
     Log("SBFspotUploadDaemon Version " + cfg.getVersion(), LOG_INFO_);
 
