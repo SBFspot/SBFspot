@@ -610,8 +610,7 @@ int Inverter::logOn()
                 rc = bthConnect(m_config.BT_Address, m_config.Local_BT_Address);
             }
             attempts++;
-        }
-        while ((attempts <= m_config.BT_ConnectRetries) && (rc != 0));
+        } while ((attempts <= m_config.BT_ConnectRetries) && (rc != 0));
 
 
         if (rc != 0)
@@ -638,7 +637,7 @@ int Inverter::logOn()
         if (VERBOSE_NORMAL) printf("BT Signal=%0.1f%%\n", m_inverters[0]->BT_Signal);
 
     }
-    else // CT_ETHERNET
+    else if (m_config.ConnectionType == CT_ETHERNET)
     {
         if (VERBOSE_NORMAL) printf("Connecting to Local Network...\n");
         rc = ethConnect(m_config.IP_Port);
@@ -655,6 +654,11 @@ int Inverter::logOn()
             ethClose();
             return rc;
         }
+    }
+    else // CT_NONE -> Quit
+    {
+        print_error(stdout, PROC_CRITICAL, "Connection type unknown.\n");
+        return E_BADARG;
     }
 
     rc = logonSMAInverter(m_inverters, m_config.userGroup, m_config.SMA_Password);

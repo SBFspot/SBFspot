@@ -1866,11 +1866,13 @@ int GetConfig(Config *cfg)
 
     if (strlen(cfg->BT_Address) > 0)
         cfg->ConnectionType = CT_BLUETOOTH;
-    else
+    else if (strlen(cfg->IP_Address) > 0)
     {
         cfg->ConnectionType = CT_ETHERNET;
         cfg->IP_Port = 9522;
     }
+    else
+        cfg->ConnectionType = CT_NONE;
 
     if (strlen(cfg->SMA_Password) == 0)
     {
@@ -1884,27 +1886,10 @@ int GetConfig(Config *cfg)
         rc = -2;
     }
 
-    //Overrule CSV_Export from config with Commandline setting -nocsv
-    if (cfg->nocsv)
-        cfg->CSV_Export = false; // Fix #549
-
-    //Silently enable CSV_Header when CSV_ExtendedHeader is enabled
-    if (cfg->CSV_ExtendedHeader)
-        cfg->CSV_Header = true;
-
     if (strlen(cfg->outputPath) == 0)
     {
         fprintf(stdout, "Missing OutputPath.\n");
         rc = -2;
-    }
-
-    //If OutputPathEvents is omitted, use OutputPath
-    if (strlen(cfg->outputPath_Events) == 0)
-        strcpy(cfg->outputPath_Events, cfg->outputPath);
-
-    if (strlen(cfg->plantname) == 0)
-    {
-        strncpy(cfg->plantname, "MyPlant", sizeof(cfg->plantname));
     }
 
     if (cfg->timezone.empty())
@@ -1913,32 +1898,50 @@ int GetConfig(Config *cfg)
         rc = -2;
     }
 
-    //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
-    if (cfg->loadlive)
+    if (rc == 0)
     {
-        strncat(cfg->outputPath, "/LoadLive", sizeof(cfg->outputPath));
-        strcpy(cfg->DateTimeFormat, "%H:%M");
-        cfg->CSV_Export = true;
-        cfg->decimalpoint = '.';
-        cfg->CSV_Header = false;
-        cfg->CSV_ExtendedHeader = false;
-        cfg->CSV_SaveZeroPower = false;
-        cfg->delimiter = ';';
-        cfg->archEventMonths = 0;
-        cfg->archMonths = 0;
-        cfg->nospot = true;
-    }
+        if (strlen(cfg->plantname) == 0)
+            strncpy(cfg->plantname, "MyPlant", sizeof(cfg->plantname));
 
-    // If 1st day of the month and -am1 specified, force to -am2 to get last day of prev month
-    if (cfg->archMonths == 1)
-    {
-        time_t now = time(NULL);
-        struct tm *tm_now = localtime(&now);
-        if (tm_now->tm_mday == 1)
-            cfg->archMonths++;
-    }
+        //Overrule CSV_Export from config with Commandline setting -nocsv
+        if (cfg->nocsv)
+            cfg->CSV_Export = false; // Fix #549
 
-    if (cfg->verbose > 2) ShowConfig(cfg);
+        //Silently enable CSV_Header when CSV_ExtendedHeader is enabled
+        if (cfg->CSV_ExtendedHeader)
+            cfg->CSV_Header = true;
+
+        //If OutputPathEvents is omitted, use OutputPath
+        if (strlen(cfg->outputPath_Events) == 0)
+            strcpy(cfg->outputPath_Events, cfg->outputPath);
+
+        //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
+        if (cfg->loadlive)
+        {
+            strncat(cfg->outputPath, "/LoadLive", sizeof(cfg->outputPath));
+            strcpy(cfg->DateTimeFormat, "%H:%M");
+            cfg->CSV_Export = true;
+            cfg->decimalpoint = '.';
+            cfg->CSV_Header = false;
+            cfg->CSV_ExtendedHeader = false;
+            cfg->CSV_SaveZeroPower = false;
+            cfg->delimiter = ';';
+            cfg->archEventMonths = 0;
+            cfg->archMonths = 0;
+            cfg->nospot = true;
+        }
+
+        // If 1st day of the month and -am1 specified, force to -am2 to get last day of prev month
+        if (cfg->archMonths == 1)
+        {
+            time_t now = time(NULL);
+            struct tm *tm_now = localtime(&now);
+            if (tm_now->tm_mday == 1)
+                cfg->archMonths++;
+        }
+
+        if (cfg->verbose > 2) ShowConfig(cfg);
+    }
 
     return rc;
 }
