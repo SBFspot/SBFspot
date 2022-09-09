@@ -1292,7 +1292,24 @@ int parseCmdline(int argc, char **argv, Config *cfg)
             }
         }
 
-        //look for alternative config file
+        // look for alternative config file (consistent with other args like -startdate and -password)
+        else if (strnicmp(argv[i], "-cfg:", 5) == 0)
+        {
+            if (strlen(argv[i]) == 5)
+            {
+                InvalidArg(argv[i]);
+                return -1;
+            }
+            else
+            {
+                //If -cfg: arg has no '\' it's only a filename and should be in the same folder as SBFspot executable
+                cfg->ConfigFile = argv[i] + 5;
+                if (cfg->ConfigFile.find_first_of("/\\") == std::string::npos)
+                    cfg->ConfigFile = cfg->AppPath + (argv[i] + 5);
+            }
+        }
+
+        // look for alternative config file (for backward compatibility)
         else if (strnicmp(argv[i], "-cfg", 4) == 0)
         {
             if (strlen(argv[i]) == 4)
@@ -1302,7 +1319,6 @@ int parseCmdline(int argc, char **argv, Config *cfg)
             }
             else
             {
-                //Fix Issue G90 (code.google.com)
                 //If -cfg arg has no '\' it's only a filename and should be in the same folder as SBFspot executable
                 cfg->ConfigFile = argv[i] + 4;
                 if (cfg->ConfigFile.find_first_of("/\\") == std::string::npos)
@@ -1395,7 +1411,7 @@ void SayHello(int ShowHelp)
         std::cout << "                     0=disabled, 1=current month (default), ...\n";
         std::cout << " -ae#                Set #months for archived events: 0-" << MAX_CFG_AE << "\n";
         std::cout << "                     0=disabled, 1=current month (default), ...\n";
-        std::cout << " -cfgX.Y             Set alternative config file to X.Y (multiple inverters)\n";
+        std::cout << " -cfg:filename.ext   Set alternative config file\n";
         std::cout << " -finq               Force Inquiry (Inquire inverter also during the night)\n";
         std::cout << " -q                  Quiet (No output)\n";
         std::cout << " -nocsv              Disables CSV export (Overrules CSV_Export in config)\n";
