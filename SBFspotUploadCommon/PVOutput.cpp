@@ -130,7 +130,7 @@ CURLcode PVOutput::getSystemData(void)
 
     if (m_curl)
     {
-        if ((m_curlres = downloadURL("http://pvoutput.org/service/r2/getsystem.jsp", "teams=1&donations=1&ext=1")) == CURLE_OK)
+        if ((m_curlres = downloadURL("https://pvoutput.org/service/r2/getsystem.jsp", "teams=1&donations=1&ext=1")) == CURLE_OK)
         {
             std::vector<std::string> items;
             boost::split(items, m_buffer, boost::is_any_of(";"));
@@ -242,7 +242,7 @@ CURLcode PVOutput::addBatchStatus(std::string data, std::string &response)
         std::stringstream postData;
         postData << "c1=1&data=" << data;
 
-        if ((m_curlres = downloadURL("http://pvoutput.org/service/r2/addbatchstatus.jsp", postData.str())) == CURLE_OK)
+        if ((m_curlres = downloadURL("https://pvoutput.org/service/r2/addbatchstatus.jsp", postData.str())) == CURLE_OK)
             response = m_buffer;
         else
             response = errtext();
