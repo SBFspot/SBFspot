@@ -3,6 +3,7 @@
 /*
 V3.9.7
     Fix #567 Segmentation fault when connection address is missing
+    Merge #599 Added https support for PVOutput uploads
 
 V3.9.6
     Fix #559 SBFspotUploadDaemon log to stdout?
