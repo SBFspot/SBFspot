@@ -5000,6 +5000,7 @@
 8002=DevClss2\0\Onduleur éolien
 8007=DevClss7\0\Batterie-onduleur
 8008=DevClss8\0\Station de recharge
+8009=DevClss9\0\Onduleur hybride
 8033=DevClss33\0\Consommateur
 8064=DevClss64\0\Technique sensorielle en général
 8065=DevClss65\0\Compteur électrique

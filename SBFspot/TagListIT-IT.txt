@@ -5000,6 +5000,7 @@
 8002=DevClss2\0\Inverter eolico
 8007=DevClss7\0\Inverter a batteria
 8008=DevClss8\0\Stazione di ricarica
+8009=DevClss9\0\Inverter ibrido
 8033=DevClss33\0\Utenza
 8064=DevClss64\0\Sensorica generale
 8065=DevClss65\0\Contatore corrente

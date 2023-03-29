@@ -5000,6 +5000,7 @@
 8002=DevClss2\0\Windomvormers
 8007=DevClss7\0\Accu-omvormer
 8008=DevClss8\0\Laadstation
+8009=DevClss9\0\Hybride omvormer
 8033=DevClss33\0\Verbruiker
 8064=DevClss64\0\Sensoren algemeen
 8065=DevClss65\0\Stroomteller
