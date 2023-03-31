@@ -1090,6 +1090,12 @@ int parseCmdline(int argc, char **argv, Config *cfg)
 
         if (stricmp(argv[i], "-?") == 0)
             help_requested = true;
+
+        if (stricmp(argv[i], "-version") == 0)
+        {
+            puts(VERSION);
+            return 1;
+        }
     }
 
     // Get path of executable
@@ -1423,6 +1429,7 @@ void SayHello(int ShowHelp)
         std::cout << " -startdate:YYYYMMDD Set start date for historic data retrieval\n";
         std::cout << " -settime            Sync inverter time with host time\n";
         std::cout << " -mqtt               Publish spot data to MQTT broker\n";
+        std::cout << " -version            Show SBFspot version number\n";
 
         std::cout << "\nLibraries used:\n";
 #if defined(USE_SQLITE)
