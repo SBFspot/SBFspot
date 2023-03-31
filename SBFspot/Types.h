@@ -188,9 +188,14 @@ enum DEVICECLASS
     SolarInverter = 8001,       // DevClss1
     WindTurbineInverter = 8002, // DevClss2
     BatteryInverter = 8007,     // DevClss7
+    ChargingStation = 8008,     // DevClss8
+    HybridInverter = 8009,      // DevClss9
     Consumer = 8033,            // DevClss33
     SensorSystem = 8064,        // DevClss64
     ElectricityMeter = 8065,    // DevClss65
+    GasMeter = 8066,            // DevClss66
+    GenericMeter = 8067,        // DevClss67
+    Tracker = 8096,             // DevClss96
     CommunicationProduct = 8128 // DevClss128
 };
 
