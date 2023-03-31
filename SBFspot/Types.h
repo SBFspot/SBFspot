@@ -286,7 +286,7 @@ struct InverterData
     int32_t Temperature;                // Inverter Temperature
     int32_t MeteringGridMsTotWOut;      // Power grid feed-in (Out)
     int32_t MeteringGridMsTotWIn;       // Power grid reference (In)
-    bool hasBattery;                    // Smart Energy device
+    bool hasBattery;                    // Battery, Hybrid or Smart Energy device
     int logonStatus;
     uint32_t multigateID;
     E_SBFSPOT status;                   // Result of getInverterData()

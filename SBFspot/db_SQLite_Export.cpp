@@ -354,7 +354,7 @@ int db_SQL_Export::exportBatteryData(InverterData *inverters[], time_t spottime)
         for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             InverterData* id = inverters[inv];
-            if ((id->DevClass == BatteryInverter) || (id->DevClass == HybridInverter) || (id->hasBattery))
+            if (id->hasBattery)
             {
                 if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatChaStt >> 8, id->BatChaStt)) != SQLITE_OK) break;
                 if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatTmpVal >> 8, id->BatTmpVal)) != SQLITE_OK) break;

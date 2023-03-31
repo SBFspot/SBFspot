@@ -304,12 +304,12 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
     return 0;
 }
 
-int WriteStandardHeader(FILE *csv, const Config *cfg, DEVICECLASS devclass, const size_t num_mppt)
+int WriteStandardHeader(FILE *csv, const Config *cfg, const size_t num_mppt)
 {
     std::string exthdr("|||");
     std::string stdhdr("|DeviceName|DeviceType|Serial");
 
-    if (devclass == BatteryInverter)
+    if (hasBatteryDevice)
     {
         exthdr += "|Watt|Watt|Watt|Amp|Amp|Amp|Volt|Volt|Volt|Watt|kWh|kWh|Hz|hours|hours|Status|%|degC|Volt|Amp|Watt|Watt\n";
         stdhdr += "|Pac1|Pac2|Pac3|Iac1|Iac2|Iac3|Uac1|Uac2|Uac3|PacTot|EToday|ETotal|Frequency|OperatingTime|FeedInTime|Condition|SOC|Tempbatt|Ubatt|Ibatt|TotWOut|TotWIn\n";
@@ -348,7 +348,7 @@ int WriteWebboxHeader(FILE *csv, const Config *cfg, InverterData* const inverter
 {
     std::string hdr1, hdr2, hdr3;
 
-    if (inverters[0]->DevClass == BatteryInverter)
+    if (hasBatteryDevice)
     {
         hdr1 = "|GridMs.W.phsA|GridMs.W.phsB|GridMs.W.phsC|GridMs.A.phsA|GridMs.A.phsB|GridMs.A.phsC|GridMs.PhV.phsA|GridMs.PhV.phsB|GridMs.PhV.phsC|GridMs.TotW|Metering.DykWh|Metering.TotWhOut|GridMs.Hz|Metering.TotOpTms|Metering.TotFeedTms|Operation.Health|Bat.ChaStt|Bat.TmpVal|Bat.Vol|Bat.Amp|Metering.GridMs.TotWOut|Metering.GridMs.TotWIn";
         hdr2 = "|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Analog|Counter|Counter|Analog|Counter|Counter|Status|Analog|Analog|Analog|Analog|Analog|Analog";
@@ -476,7 +476,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
             if (cfg->SpotWebboxHeader)
                 WriteWebboxHeader(csv, cfg, inverters, maxmppt);
             else
-                WriteStandardHeader(csv, cfg, SolarInverter, maxmppt);
+                WriteStandardHeader(csv, cfg, maxmppt);
         }
 
         char FormattedFloat[32];
@@ -698,7 +698,7 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
             if (cfg->SpotWebboxHeader)
                 WriteWebboxHeader(csv, cfg, inverters, 0);
             else
-                WriteStandardHeader(csv, cfg, BatteryInverter, 0);
+                WriteStandardHeader(csv, cfg, 0);
         }
 
         char FormattedFloat[32];
@@ -709,7 +709,7 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
 
         for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
-            if (inverters[inv]->DevClass == BatteryInverter)
+            if (inverters[inv]->hasBattery)
             {
                 if (!cfg->SpotWebboxHeader)
                 {

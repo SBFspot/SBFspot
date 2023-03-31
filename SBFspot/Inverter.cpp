@@ -95,10 +95,12 @@ int Inverter::process()
     {
         for (uint32_t inv=0; m_inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
-            if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->DevClass == HybridInverter) || (m_inverters[inv]->SUSyID == 292))   //SB 3600-SE (Smart Energy)
-                hasBatteryDevice = m_inverters[inv]->hasBattery = true;
-            else
-                m_inverters[inv]->hasBattery = false;
+            m_inverters[inv]->hasBattery = (m_inverters[inv]->DevClass == BatteryInverter) ||
+                (m_inverters[inv]->DevClass == HybridInverter) ||
+                (m_inverters[inv]->SUSyID == 292);   //SB 3600-SE (Smart Energy)
+
+            if (m_inverters[inv]->hasBattery)
+                hasBatteryDevice = true;
 
             if (VERBOSE_NORMAL)
             {
@@ -175,7 +177,7 @@ int Inverter::process()
         {
             for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
             {
-                if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->DevClass == HybridInverter) || (m_inverters[inv]->hasBattery))
+                if (m_inverters[inv]->hasBattery)
                 {
                     if (VERBOSE_NORMAL)
                     {
@@ -192,7 +194,7 @@ int Inverter::process()
         {
             for (uint32_t inv = 0; m_inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
             {
-                if ((m_inverters[inv]->DevClass == BatteryInverter) || (m_inverters[inv]->DevClass == HybridInverter) || (m_inverters[inv]->hasBattery))
+                if (m_inverters[inv]->hasBattery)
                 {
                     if (VERBOSE_NORMAL)
                     {
