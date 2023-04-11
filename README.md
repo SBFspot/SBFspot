@@ -16,10 +16,9 @@ Refer to the [Wiki](https://github.com/SBFspot/SBFspot/wiki) for documentation a
 
 ### **Special thanks to:**
 * S. Pittaway: Author of ["NANODE SMA PV MONITOR"](https://github.com/stuartpittaway/nanodesmapvmonitor) on which this project is based.
-* W. Simons : Early adopter, main tester and SMAdata2® Protocol analyzer
-* G. Schnuff : SMAdata2® Protocol analyzer
+* W. Simons : Early adopter, main tester and SMAdata2+® Protocol analyzer
+* G. Schnuff : SMAdata2+® Protocol analyzer
 * T. Frank: Speedwire® support
-* Snowmiss: User manual
 * All other users for their contribution - in any form - to the success of this project
 
 ### **Donations**
