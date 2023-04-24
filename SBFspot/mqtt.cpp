@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2023, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -163,6 +163,10 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
                     add_to_msg = false;
                 }
                 break;
+            case "null"_:   // empty string (MQTT stream to CSV)
+                mqtt_message << m_config.mqtt_item_delimiter;
+                add_to_msg = false;
+                break;
             default:
                 add_to_msg = false;
                 if (VERBOSE_NORMAL) std::cout << "MQTT: Don't know what to do with '" << item << "'" << std::endl;
@@ -181,13 +185,13 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
         boost::replace_first(mqtt_command_line, "{serial}", std::to_string(inv.Serial));
         boost::replace_first(mqtt_command_line, "{message}", mqtt_message.str().substr(1));
 
-        if (VERBOSE_NORMAL) std::cout << "MQTT: Publishing (" << m_config.mqtt_topic << ") " << mqtt_message.str().substr(1) << std::endl;
+        if (VERBOSE_NORMAL) std::cout << "MQTT: Publishing (" << m_config.mqtt_topic << ')' << m_config.mqtt_item_delimiter << mqtt_message.str().substr(1) << std::endl;
 
         int system_rc = ::system(mqtt_command_line.c_str());
 
         if (system_rc != 0) // Error
         {
-            std::cout << "MQTT: Failed te execute '" << m_config.mqtt_publish_exe << "' mosquitto client installed?" << std::endl;
+            std::cout << "MQTT: Failed to execute '" << m_config.mqtt_publish_exe << "' mosquitto client installed?" << std::endl;
             rc = system_rc;
         }
     }
@@ -203,7 +207,9 @@ std::string MqttExport::to_keyvalue(const std::string key, const std::string val
 
     boost::replace_all(key_value, "\"\"", "\"");
 #if defined(_WIN32)
-    boost::replace_all(key_value, "\"", "\"\"");
+    // When exporting MQTT stream to CSV, don't use double/double quotes
+    if (m_config.mqtt_topic != "CSV")   // Case sensitive!
+        boost::replace_all(key_value, "\"", "\"\"");
 #endif
 
     return key_value;

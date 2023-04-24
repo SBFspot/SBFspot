@@ -1,6 +1,9 @@
-#define VERSION "3.9.7"
+#define VERSION "3.9.8"
 
 /*
+V3.9.8
+    MQTT stream to Custom CSV
+
 V3.9.7
     Fix #567 Segmentation fault when connection address is missing
     Merge #599 Added https support for PVOutput uploads

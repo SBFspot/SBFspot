@@ -7,7 +7,7 @@
                                                    |_|
 
     SBFspot - Yet another tool to read power production of SMA solar/battery inverters
-    (c)2012-2022, SBF
+    (c)2012-2023, SBF
 
     Latest version can be found at https://github.com/SBFspot/SBFspot
 
@@ -16,7 +16,6 @@
     W. Simons  : Early adopter, main tester and SMAdata2 Protocol analyzer
     G. Schnuff : SMAdata2 Protocol analyzer
     T. Frank   : Speedwire support
-    Snowmiss   : User manual
     All other users for their contribution to the success of this project
 
     License: Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
@@ -1502,19 +1501,6 @@ int GetConfig(Config *cfg)
     strcpy(cfg->locale, "en-US");
     cfg->synchTimeLow = 1;
     cfg->synchTimeHigh = 3600;
-    // MQTT default values
-    cfg->mqtt_host = "localhost";
-    cfg->mqtt_port = ""; // mosquitto: 1883/8883 for TLS
-#if defined(_WIN32)
-    cfg->mqtt_publish_exe = "%ProgramFiles%\\mosquitto\\mosquitto_pub.exe";
-#else
-    cfg->mqtt_publish_exe = "/usr/bin/mosquitto_pub";
-#endif
-    cfg->mqtt_topic = "sbfspot";
-    cfg->mqtt_publish_args = "-h {host} -t {topic} -m \"{{message}}\"";
-    cfg->mqtt_publish_data = "Timestamp,SunRise,SunSet,InvSerial,InvName,InvStatus,EToday,ETotal,PACTot,UDC1,UDC2,IDC1,IDC2,PDC1,PDC2";
-    cfg->mqtt_item_format = "\"{key}\": {value}";
-
     cfg->sqlPort = 3306;
 
     const char *CFG_Boolean = "(0-1)";
