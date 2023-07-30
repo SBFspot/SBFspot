@@ -2,14 +2,17 @@
 
 Translation by Google: [[NL](https://translate.google.com/translate?act=url&depth=1&hl=nl&ie=UTF8&prev=_t&rurl=translate.google.com&sl=en&sp=nmt4&tl=nl&u=https://github.com/SBFspot/SBFspot)] - [[FR](https://translate.google.com/translate?act=url&depth=1&hl=nl&ie=UTF8&prev=_t&rurl=translate.google.com&sl=en&sp=nmt4&tl=fr&u=https://github.com/SBFspot/SBFspot)] - [[DE](https://translate.google.com/translate?act=url&depth=1&hl=nl&ie=UTF8&prev=_t&rurl=translate.google.com&sl=en&sp=nmt4&tl=de&u=https://github.com/SBFspot/SBFspot)] - [[ES](https://translate.google.com/translate?act=url&depth=1&hl=nl&ie=UTF8&prev=_t&rurl=translate.google.com&sl=en&sp=nmt4&tl=es&u=https://github.com/SBFspot/SBFspot)] - [[IT](https://translate.google.com/translate?act=url&depth=1&hl=nl&ie=UTF8&prev=_t&rurl=translate.google.com&sl=en&sp=nmt4&tl=it&u=https://github.com/SBFspot/SBFspot)]
 ### **Introduction**
-SBFspot, formerly known as SMAspot, is an open source project to get actual and archive data out of an SMA® inverter over Bluetooth or Ethernet (Speedwire®) It works on either Linux ([Raspberry Pi](http://www.raspberrypi.org)) and Windows.
+SBFspot, formerly known as [SMAspot](http://www.sma-spot.de/), is an open source project to get actual and archive data out of an SMA® inverter over Bluetooth or Ethernet (Speedwire®) It works on either Linux ([Raspberry Pi](http://www.raspberrypi.org)) and Windows.
 
 ### **What it does**
 SBFspot connects via Bluetooth or Ethernet to your SMA® solar/battery inverter and reads Archive Day/Month Power generation, user/installer events and the actual (spot) data. The collected data is stored in a SQL database (SQLite/MySQL/MariaDB) or SMA® compatible .csv files.
 A separate service/daemon uploads the collected data to [PVoutput.org](https://pvoutput.org)
 
 ### **Known bugs and limitations**
-For a list of known bugs, consult the [issues](https://github.com/SBFspot/SBFspot/issues). If you find a bug, please create an [issue](https://github.com/SBFspot/SBFspot/issues).
+For a list of known bugs, consult the [issues](https://github.com/SBFspot/SBFspot/issues). If you find a bug, please create an [issue](https://github.com/SBFspot/SBFspot/issues).    
+Don't create an issue for questions. Start a [discussion](https://github.com/SBFspot/SBFspot/discussions) instead.
+
+[SMA Tripower X inverters](https://www.sma.de/en/products/solarinverters/sunny-tripower-x) are not supported by SBFspot. See [this discussion](https://github.com/SBFspot/SBFspot/discussions/634)
 
 ### **Documentation**
 Refer to the [Wiki](https://github.com/SBFspot/SBFspot/wiki) for documentation and FAQ.
