@@ -185,12 +185,6 @@
     <None Include="SBFspot.cfg">
       <Filter>Support Files</Filter>
     </None>
-    <None Include="Update_340_SQLite.sql">
-      <Filter>Support Files</Filter>
-    </None>
-    <None Include="Update_340_MySQL.sql">
-      <Filter>Support Files</Filter>
-    </None>
     <None Include="CreateMySQLUser.sql">
       <Filter>Support Files</Filter>
     </None>
