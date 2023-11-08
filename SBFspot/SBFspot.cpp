@@ -447,6 +447,9 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
     if (getPacket(RootDeviceAddress, 0x02) != E_OK)
         return E_INIT;
 
+    uint8_t NetID = pcktBuf[22];
+    if (VERBOSE_NORMAL) printf("SMA netID=%02X\n", NetID);
+
     // Check protocol version
     // 3 => FW <  1.71 (NOK)
     // 4 => FW >= 1.71 (OK)
@@ -454,9 +457,6 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
         return E_FWVERSION;
 
     //Search devices
-    uint8_t NetID = pcktBuf[22];
-    if (VERBOSE_NORMAL) printf("SMA netID=%02X\n", NetID);
-
     writePacketHeader(pcktBuf, 0x02, RootDeviceAddress);
     writeLong(pcktBuf, 0x00700400);
     writeByte(pcktBuf, NetID);
@@ -694,6 +694,12 @@ E_SBFSPOT initialiseSMAConnection(InverterData* const invData)
 
     invData->NetID = pcktBuf[22];
     if (VERBOSE_NORMAL) printf("SMA netID=%02X\n", invData->NetID);
+
+    // Check protocol version
+    // 3 => FW <  1.71 (NOK)
+    // 4 => FW >= 1.71 (OK)
+    if (pcktBuf[19] < 4)
+        return E_FWVERSION;
 
     writePacketHeader(pcktBuf, 0x02, invData->BTAddress);
     writeLong(pcktBuf, 0x00700400);
@@ -1396,7 +1402,7 @@ void SayHello(int ShowHelp)
 #endif
     std::cout << "SBFspot V" << VERSION << "\n";
     std::cout << "Yet another tool to read power production of SMA solar inverters\n";
-    std::cout << "(c) 2012-2022, SBF (https://github.com/SBFspot/SBFspot)\n";
+    std::cout << "(c) 2012-2023, SBF (https://github.com/SBFspot/SBFspot)\n";
     std::cout << "Compiled for " << OS << " (" << BYTEORDER << ") " << sizeof(long) * 8 << " bit";
 #if defined(USE_SQLITE)
     std::cout << " with SQLite support\n";

@@ -3,6 +3,7 @@
 /*
 V3.9.8
     MQTT stream to Custom CSV
+    Fail on incompatible firmware version when MIS_ENABLED=0 (See #37 #535 #678)
 
 V3.9.7
     Fix #567 Segmentation fault when connection address is missing
