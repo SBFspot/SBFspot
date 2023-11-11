@@ -243,7 +243,7 @@ int getBT_SignalStrength(InverterData *invData)
 
 int64_t get_longlong(uint8_t *buf)
 {
-    register int64_t lnglng = 0;
+    int64_t lnglng = 0;
 
     lnglng += *(buf+7);
     lnglng <<= 8;
@@ -266,7 +266,7 @@ int64_t get_longlong(uint8_t *buf)
 
 int32_t get_long(uint8_t *buf)
 {
-    register int32_t lng = 0;
+    int32_t lng = 0;
 
     lng += *(buf+3);
     lng <<= 8;
@@ -281,7 +281,7 @@ int32_t get_long(uint8_t *buf)
 
 short get_short(uint8_t *buf)
 {
-    register short shrt = 0;
+    short shrt = 0;
 
     shrt += *(buf+1);
     shrt <<= 8;
