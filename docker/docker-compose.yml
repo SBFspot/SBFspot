@@ -2,15 +2,15 @@ version: '3'
 
 services:
     sbfspot:
-        image: nakla/sbfspot:latest
+        image: sbfspot/sbfspot:latest
         network_mode: host
         volumes:
             - ~/sbfspot/etc:/etc/sbfspot
             - ~/sbfspot/data:/var/sbfspot
         environment:
-            TZ: Europe/Berlin
+            TZ: Europe/Brussels
             ENABLE_SBFSPOT: 1
-            SBFSPOT_INTERVAL: 600
+            SBFSPOT_INTERVAL: 300
             ENABLE_SBFSPOT_UPLOAD: 0
             DB_STORAGE: sqlite
             CSV_STORAGE: 1

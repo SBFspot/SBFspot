@@ -1,10 +1,10 @@
 # sbfspot
 
-This Docker Image provides SBFspot, an open source project located at github ([SBFspot on github](https://github.com/SBFspot/SBFspot)).
+This SBFspot Docker Image is originally developed and maintained by [nakla](https://github.com/nakla/sbfspot)
 It includes:
 
-* SBFspot is used to read power generation data from SMA® solar/battery inverters and store it in a database, csv files or send it to an MQTT Broker.
-* SBFspotUploadDaemon can read the power data (only if stored in a mysql/mariadb/sqlite database) and transmit it to ([PVoutput.org](https://pvoutput.org/)).
+* SBFspot: used to read power generation data from SMA® solar/battery inverters and store it in a database, csv files or send it to an MQTT Broker.
+* SBFspotUploadDaemon: can read the power data (only if stored in a mysql/mariadb/sqlite database) and transmit it to ([PVoutput.org](https://pvoutput.org/)).
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ To run SBFspotUploadDaemon, you must provide a configuration file (SBFspotUpload
 ## Caveats
 
 If your Inverters communicate with Bluetooth, you have to start the SBFspot container in the host network (Option --network host, see usage examples below). Thereby every device including Bluetooth devices are mapped to the container.
-The bad about this is, that every host-device is also accessible in the container. If someone knows a workaround or besser solution for this, then please let me know.
+The bad about this is, that every host-device is also accessible in the container. If someone knows a workaround or better solution for this, then please let me know.
 
 # Volumes
 * /etc/sbfspot => directory for your configuration files
@@ -120,28 +120,28 @@ Initialize a new mysql Database
 
 ```
 docker run -e "DB_STORAGE=mysql" -e "INIT_DB=1" -e "DB_ROOT_USER=root" -e "DB_ROOT_PW=secret" 
-   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot nakla/sbfspot:latest
+   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot sbfspot/sbfspot:latest
 ```
 
 Start only SBFspot and store inverters data in a mariadb Database configured in SBFspot.conf
 
 ```
 docker run --network host -e "DB_STORAGE=mariadb" -e "ENABLE_SBFSPOT=1" -e "TZ=Europe/Berlin" 
-   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot nakla/sbfspot:latest
+   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot sbfspot/sbfspot:latest
 ```
 
 Start only SBFspot and store inverters data in csv files on the host in the directory /path/to/your/data/dir/on/host
 
 ```
 docker run --network host -e "CSV_STORAGE=1" -e "ENABLE_SBFSPOT=1" -e "TZ=Europe/Berlin" 
-   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot nakla/sbfspot:latest
+   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot sbfspot/sbfspot:latest
 ```
 
 Start SBFspot, store inverters data in a mysql Database and upload inverters Data to pvoutput.org
 
 ```
 docker run --network host -e "DB_STORAGE=mysql" -e "ENABLE_SBFSPOT=1" -e "ENABLE_SBFSPOT_UPLOAD=1" 
-   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot nakla/sbfspot:latest
+   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot sbfspot/sbfspot:latest
 
 ```
 
@@ -152,15 +152,15 @@ version: '3'
 
 services:
     sbfspot:
-        image: nakla/sbfspot:latest
+        image: sbfspot/sbfspot:latest
         network_mode: host
         volumes:
             - ~/sbfspot/etc:/etc/sbfspot
             - ~/sbfspot/data:/var/sbfspot
         environment:
-            TZ: Europe/Berlin
+            TZ: Europe/Brussels
             ENABLE_SBFSPOT: 1
-            SBFSPOT_INTERVAL: 600
+            SBFSPOT_INTERVAL: 300
             ENABLE_SBFSPOT_UPLOAD: 0
             DB_STORAGE: sqlite
             CSV_STORAGE: 1
@@ -172,20 +172,3 @@ services:
 
 ```
 
-# License
-
-[Attribution - NonCommercial - ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)](https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode)
-
-In short, you are free:
-
-* to Share => to copy, distribute and transmit the work
-* to Remix => to adapt the work Under the following conditions:
-* Attribution: You must attribute the work in the manner specified by the author or Licensor (but not in any way that suggests that they endorse you or your use of the work).
-* Noncommercial: You may not use this work for commercial purposes.
-* Share Alike: If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
-
-# Disclaimer
-
-A user of SBFspot software acknowledges that he or she is receiving this software on an "as is" basis and the user is not relying on the accuracy or functionality of the software for any purpose. The user further acknowledges that any use of this software will be at his own risk and the copyright owner accepts no responsibility whatsoever arising from the use or application of the software.
-
-SMA, Speedwire are registered trademarks of [SMA Solar Technology AG](http://www.sma.de/en/company/about-sma.html)
