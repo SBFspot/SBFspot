@@ -1,6 +1,6 @@
 # sbfspot
 
-This SBFspot Docker Image is originally developed and maintained by [nakla](https://github.com/nakla/sbfspot)
+This SBFspot Docker Image is originally developed and maintained by [nakla](https://github.com/nakla/sbfspot)  
 It includes:
 
 * SBFspot: used to read power generation data from SMA® solar/battery inverters and store it in a database, csv files or send it to an MQTT Broker.
