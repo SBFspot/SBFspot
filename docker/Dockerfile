@@ -9,6 +9,10 @@ RUN apk --no-cache add git make g++ boost-dev bluez-dev sqlite-dev mariadb-dev
 WORKDIR /tmp
 RUN git clone https://github.com/SBFspot/SBFspot.git
 
+# Checkout latest "official" version
+WORKDIR /tmp/SBFspot
+RUN git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
+
 WORKDIR /tmp/SBFspot/SBFspot
 RUN sed -i s-\#ifdef\ linux-\#ifdef\ linux\\n\#include\ \<sys\/select.h\>- Ethernet.h
 RUN sed -i s-\#ifdef\ linux-\#ifdef\ linux\\n\#include\ \<sys\/select.h\>- bluetooth.h
