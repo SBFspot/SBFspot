@@ -1,0 +1,8 @@
+# This file overrides the core.autocrlf setting for all repository contributors.
+# This ensures consistent behavior for all users, regardless of their Git settings and environment.
+
+# See https://docs.github.com/en/get-started/getting-started-with-git/configuring-git-to-handle-line-endings
+
+# Files that will always have LF line endings on checkout.
+*.sh text eol=lf
+
