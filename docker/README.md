@@ -33,12 +33,10 @@ The mapped host volumes should be read- and writeable for user with ID 5000 or g
 * **1** => enable SBFspotUploadDaemon to upload your production data to PVoutput
 
 ### SBFSPOT_INTERVAL
-* **seconds** => define an interval at which SBFspot should poll your inverter(s) - default 600
+* **seconds** => define an interval at which SBFspot should poll your inverter(s) - default 300
 
 ### TZ
-* **timezone** e.g. Europe/Berlin => Provide your local timezone
-
-List of all time zones can be found on [wikipedias tz database site](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), column "TZ database name". 
+* **timezone** e.g. Europe/Brussels => Provide your local timezone - by default, timezone is taken from SBFspot.cfg
 
 ### DB_STORAGE
 If you want to upload your production data to PVoutput, you have to store them in a database. Otherwise, it is optional. Read the paragraph "Database initialization" to setup your DB.
@@ -48,13 +46,13 @@ If you want to upload your production data to PVoutput, you have to store them i
 * **mariadb** => use a mariadb database
 
 ### CSV_STORAGE
-If you want to store your production data in CSV files, chose this option. You can additionally store your data in a Database and/or publish them through MQTT.
+If you want to store your production data in CSV files, choose this option. You can additionally store your data in a Database and/or publish them through MQTT.
 
 * **0** => do not store csv files
 * **1** => store production data in csv files
 
 ### MQTT_ENABLE
-If you want to publish your production data to an MQTT Broker, chose this option. You can additionally store your data in a Database and/or CSV files.
+If you want to publish your production data to an MQTT Broker, choose this option. You can additionally store your data in a Database and/or CSV files.
 
 * **0** => do not publish data
 * **1** => publish production data to an MQTT Broker
@@ -71,7 +69,7 @@ The following Options can be used directly as environment variables.
 
 ### SBFSPOT_ARGS
 * **List of Args** => if you don't find the needed Option as an Environment Variable, you can pass the Args directly to the SBFSPOT_ARGS Var.
-Example: ```SBFSPOT_ARGS="-finq -settime"``` (Separate multiple Args with space)
+Example: `SBFSPOT_ARGS="-finq -settime"` (Separate multiple Args with space)
 
     Following a list of useable SBFspots Options
     
@@ -101,9 +99,9 @@ Example: ```SBFSPOT_ARGS="-finq -settime"``` (Separate multiple Args with space)
 * **0** => normal Operation (poll Inverter and / or upload Data to PVoutput)
 * **1** => initialize Database
 
-If you choose ```sqlite``` in the ```DB_STORAGE``` variable, a new database file under /var/sbfspot will be created and set up.
+If you choose `sqlite` in the `DB_STORAGE` variable, a new database file under /var/sbfspot will be created and set up.
 
-If you choose ```mysql``` or ```mariadb```, a connection to the DB Server configured in SBFspot.cfg will be opened and a SBFspot database and user created. (You have to setup your user and DB Connection in ```SBFspot.cfg```.)
+If you choose `mysql` or `mariadb`, a connection to the DB Server configured in SBFspot.cfg will be opened and a SBFspot database and user created. (You have to setup your user and DB Connection in `SBFspot.cfg`.)
 
 ### DB_ROOT_USER
 * **username** => provide root username to your mysql/mariadb database (or the username of an user with grants for creating a new database and adding a new user)
@@ -119,33 +117,27 @@ Examples for using the container:
 Initialize a new mysql Database
 
 ```
-docker run -e "DB_STORAGE=mysql" -e "INIT_DB=1" -e "DB_ROOT_USER=root" -e "DB_ROOT_PW=secret" 
-   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot sbfspot/sbfspot:latest
+docker run -e "DB_STORAGE=mysql" -e "INIT_DB=1" -e "DB_ROOT_USER=root" -e "DB_ROOT_PW=secret" -v path_to_host_cfgdir:/etc/sbfspot -v path_to_host_datadir:/var/sbfspot sbfspot/sbfspot:latest
 ```
 
-Start only SBFspot and store inverters data in a mariadb Database configured in SBFspot.conf
+Start only SBFspot and store inverters data in a mariadb Database configured in SBFspot.cfg
 
 ```
-docker run --network host -e "DB_STORAGE=mariadb" -e "ENABLE_SBFSPOT=1" -e "TZ=Europe/Berlin" 
-   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot sbfspot/sbfspot:latest
+docker run --network host -e "DB_STORAGE=mariadb" -e "ENABLE_SBFSPOT=1" -v path_to_host_cfgdir:/etc/sbfspot -v path_to_host_datadir:/var/sbfspot sbfspot/sbfspot:latest
 ```
 
-Start only SBFspot and store inverters data in csv files on the host in the directory /path/to/your/data/dir/on/host
+Start only SBFspot and store inverters data in csv files on the host in the directory path_to_host_datadir
 
 ```
-docker run --network host -e "CSV_STORAGE=1" -e "ENABLE_SBFSPOT=1" -e "TZ=Europe/Berlin" 
-   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot sbfspot/sbfspot:latest
+docker run --network host -e "CSV_STORAGE=1" -e "ENABLE_SBFSPOT=1" -v path_to_host_cfgdir:/etc/sbfspot -v path_to_host_datadir:/var/sbfspot sbfspot/sbfspot:latest
 ```
-
 Start SBFspot, store inverters data in a mysql Database and upload inverters Data to pvoutput.org
 
 ```
-docker run --network host -e "DB_STORAGE=mysql" -e "ENABLE_SBFSPOT=1" -e "ENABLE_SBFSPOT_UPLOAD=1" 
-   -v /path/to/your/config/dir/on/host:/etc/sbfspot -v /path/to/your/data/dir/on/host:/var/sbfspot sbfspot/sbfspot:latest
-
+docker run --network host -e "DB_STORAGE=mysql" -e "ENABLE_SBFSPOT=1" -e "ENABLE_SBFSPOT_UPLOAD=1" -v path_to_host_cfgdir:/etc/sbfspot -v path_to_host_datadir:/var/sbfspot sbfspot/sbfspot:latest
 ```
 
-You can also use the following docker-compose.yaml file to start your container.
+You can also use the following docker-compose.yml file to start your container.
 
 ```
 version: '3'
@@ -169,6 +161,4 @@ services:
             SBFSPOT_ARGS: -d0 -v2
             INIT_DB: 0
         restart: always
-
 ```
-
