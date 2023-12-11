@@ -472,9 +472,14 @@ while true; do
         else
             echo -n "."
         fi
+        sleep $SBFSPOT_INTERVAL
     else
         date
-        echo "Sleeping $SBFSPOT_INTERVAL seconds."
+        cnt=$SBFSPOT_INTERVAL
+        while [ "$cnt" -gt 0 ]; do
+            printf "\rWaiting %d seconds..." $cnt
+            sleep 1
+            cnt=$(( cnt - 1 ))
+        done 
     fi
-    sleep $SBFSPOT_INTERVAL
 done
