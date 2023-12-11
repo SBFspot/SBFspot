@@ -446,9 +446,17 @@ if [ $SBFSPOT_INTERVAL -lt 60 ]; then
     echo "SBFSPOT_INTERVAL is very short. It will be set to 60 seconds."
 fi
 
-while [ TRUE ]; do
+bt_address=$(getConfigValue BTAddress)
+
+while true; do
+    if [ -n "${bt_address}" ]; then
+        if hcitool con | grep "${bt_address}" > /dev/null; then
+            echo "Disconnecting ${bt_address}..."
+            hcitool dc "${bt_address}"
+        fi
+    fi
     if [ -n "$sbfspotbinary" ]; then
-        $homedir/$sbfspotbinary $sbfspot_options -cfg$confdir/SBFspot.cfg
+        timeout --foreground 180 $homedir/$sbfspotbinary $sbfspot_options -cfg$confdir/SBFspot.cfg
     fi
 
     # if QUIET SBFspot Option is set, produce less output

@@ -71,8 +71,14 @@ ARG sbfspot_home=/usr/local/bin/sbfspot.3
 
 ENV SBFSPOT_INTERVAL 300
 
-# install Packages needed for SBFspot usage, tzdata for setting local time, mariadb-common, mariadb-connector-c and ncurses-libs for mysql command, sqlite for sqlite3 command, libcurl for SBFspotUploadDaemon, mosquitto-clients for mosquitto_pub, sed for setConfigValue
-RUN apk --no-cache add boost-date_time bluez-libs libstdc++ sqlite-libs tzdata mariadb-common mariadb-connector-c ncurses-libs sqlite libcurl mosquitto-clients sed
+# install Packages needed for SBFspot usage, tzdata for setting local time,
+# mariadb-common, mariadb-connector-c and ncurses-libs for mysql command,
+# sqlite for sqlite3 command, libcurl for SBFspotUploadDaemon,
+# mosquitto-clients for mosquitto_pub, sed for setConfigValue,
+# coreutils for timeout, bluez-deprecated for hcitool
+RUN apk --no-cache add boost-date_time bluez-libs libstdc++ sqlite-libs tzdata \
+    mariadb-common mariadb-connector-c ncurses-libs sqlite libcurl mosquitto-clients \
+    sed coreutils bluez-deprecated
 
 # copy SBFspot
 COPY --from=builder $sbfspot_home $sbfspot_home
