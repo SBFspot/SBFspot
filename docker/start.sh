@@ -407,6 +407,19 @@ checkNoServiceSelected() {
     fi
 }
 
+setTimezone() {
+    if [ -z "$TZ" ]; then
+        tz=$(getConfigValue "Timezone")
+        if [ -z "$tz" ]; then
+            echo "Error: Timezone not configured."
+            exit 1
+        else
+            echo "Setting Timezone from config to $tz"
+            export TZ=$tz
+        fi
+    fi
+}
+
 ############################################################################################################################################
 
 # Scriptstart
@@ -423,6 +436,7 @@ selectSBFspotBinary
 
 selectSBFspotUploadBinary
 
+setTimezone
 # initialize Database
 if [ -n "$INIT_DB" ] && [ $INIT_DB -eq 1 ]; then
     initDatabase
