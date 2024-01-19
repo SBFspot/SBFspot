@@ -4,6 +4,8 @@
 V3.9.8
     MQTT stream to Custom CSV
     Fail on incompatible firmware version when MIS_ENABLED=0 (See #37 #535 #678)
+    Fix #578 Corrupted/Future data from Inverter
+    Fix #635 The mystery of the sole 2.5 min interval datapoint... and it's corrupt
 
 V3.9.7
     Fix #567 Segmentation fault when connection address is missing

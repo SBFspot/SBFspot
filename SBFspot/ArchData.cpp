@@ -108,8 +108,6 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                 uint64_t totalWh_prev = 0;
                 time_t datetime = 0;
                 time_t datetime_prev = 0;
-                time_t datetime_next = 0;
-                bool dblrecord = false; // Flag for double records (twins)
 
                 const int recordsize = 12;
 
@@ -141,27 +139,20 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                             validPcktID = true;
                             for (int x = 41; x < (packetposition - 3); x += recordsize)
                             {
-                                datetime_next = (time_t)get_long(pcktBuf + x);
-                                if (0 != (datetime_next - datetime)) // Fix Issue 108: sbfspot v307 crashes for daily export (-adnn)
-                                {
-                                    if (!is_NaN(totalWh)) // Fix 384/137/381/313/... Bad request 400: Power value too high for system size
-                                    {
-                                        totalWh_prev = totalWh;
-                                    }
-                                    datetime_prev = datetime;
-                                    datetime = datetime_next;
-                                    dblrecord = false;
-                                }
-                                else
-                                    dblrecord = true;
-
+                                hasData = E_OK;
+                                datetime = (time_t)get_long(pcktBuf + x);
                                 totalWh = (uint64_t)get_longlong(pcktBuf + x + 4);
-                                if (!is_NaN(totalWh)) // Fix Issue 109: Bad request 400: Power value too high for system size
+
+                                /*
+                                Record validation
+                                    Fix 384/137/381/313/109... Bad request 400: Power value too high for system size
+                                    Fix 578 Corrupted/Future data from Inverter
+                                    Fix 635 The mystery of the sole 2.5 min interval datapoint... and it's corrupt
+                                */ 
+                                bool invalidRec = (is_NaN(totalWh) || (datetime <= datetime_prev) || (datetime % 300 != 0) || (totalWh < totalWh_prev));
+
+                                if (!invalidRec)
                                 {
-                                    if (totalWh > 0)
-                                    {
-                                        hasData = E_OK;
-                                    }
                                     if (totalWh_prev != 0)
                                     {
                                         struct tm timeinfo;
@@ -171,20 +162,8 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                                             unsigned int idx = (timeinfo.tm_hour * 12) + (timeinfo.tm_min / 5);
                                             if (idx < sizeof(inverters[inv]->dayData) / sizeof(DayData))
                                             {
-                                                if (VERBOSE_HIGHEST && dblrecord)
-                                                {
-                                                    std::cout << "Overwriting existing record: " << strftime_t("%d/%m/%Y %H:%M:%S", datetime);
-                                                    std::cout << " - " << std::fixed << std::setprecision(3) << (double)inverters[inv]->dayData[idx].totalWh / 1000 << "kWh";
-                                                    std::cout << " - " << std::fixed << std::setprecision(0) << inverters[inv]->dayData[idx].watt << "W" << std::endl;
-                                                }
-                                                if (VERBOSE_HIGHEST && ((datetime - datetime_prev) > 300))
-                                                {
-                                                    std::cout << "Missing records in datastream " << strftime_t("%d/%m/%Y %H:%M:%S", datetime_prev);
-                                                    std::cout << " -> " << strftime_t("%H:%M:%S", datetime) << std::endl;
-                                                }
                                                 inverters[inv]->dayData[idx].datetime = datetime;
                                                 inverters[inv]->dayData[idx].totalWh = totalWh;
-                                                //inverters[inv]->dayData[idx].watt = (totalWh - totalWh_prev) * 12;	// 60:5
                                                 // Fix Issue 105 - Don't assume each interval is 5 mins
                                                 // This is also a bug in SMA's Sunny Explorer V1.07.17 and before
                                                 inverters[inv]->dayData[idx].watt = (totalWh - totalWh_prev) * 3600 / (datetime - datetime_prev);
@@ -192,6 +171,8 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                                             }
                                         }
                                     }
+                                    datetime_prev = datetime;
+                                    totalWh_prev = totalWh;
                                 }
                             } //for
                         }
