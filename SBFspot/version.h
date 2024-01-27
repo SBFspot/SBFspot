@@ -1,6 +1,9 @@
-#define VERSION "3.9.8"
+#define VERSION "3.9.9"
 
 /*
+V3.9.9
+    Fix #532 SBFspotUpload service stops when remote SQL server is temporarily down
+
 V3.9.8
     MQTT stream to Custom CSV
     Fail on incompatible firmware version when MIS_ENABLED=0 (See #37 #535 #678)

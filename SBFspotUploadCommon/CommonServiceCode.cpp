@@ -58,7 +58,9 @@ void CommonServiceCode(void)
         db.open(cfg.getSqlDatabase());
 #endif
 
-        if (db.isopen())
+        if (!db.isopen())
+            Log(db.errortext(), LOG_ERROR_);
+        else
         {
             for (std::map<SMASerial, PVOSystemID>::const_iterator it = cfg.getPvoSIDs().begin(); !bStopping && it != cfg.getPvoSIDs().end(); ++it)
             {
@@ -136,18 +138,11 @@ void CommonServiceCode(void)
             }
 
             db.close();
+        }
 
-            // Wait for next run; 30 seconds after every 1 minute (08:00:30 - 08:01:30 - 08:02:30 - ...)
-            for (int countdown = 90 - (time(nullptr) % 60); !bStopping && countdown > 0; countdown--)
-                sleep(1);
-        }
-        else
-        {
-            std::string errortext = db.errortext();
-            msg << "Failed to open database: " << errortext;
-            Log(msg.str(), LOG_ERROR_);
-            bStopping = true;
-        }
+        // Wait for next run; 30 seconds after every 1 minute (08:00:30 - 08:01:30 - 08:02:30 - ...)
+        for (int countdown = 90 - (time(nullptr) % 60); !bStopping && countdown > 0; countdown--)
+            sleep(1);
     }
 }
 
