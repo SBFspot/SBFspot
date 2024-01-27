@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -145,18 +145,9 @@ int Configuration::readSettings(std::string me, std::string filename)
                                 }
                                 else
                                 {
-                                    try
-                                    {
-                                        SMASerial Serial = boost::lexical_cast<SMASerial>(sys_serial[0]);
-                                        PVOSystemID SID = boost::lexical_cast<PVOSystemID>(sys_serial[1]);
-                                        m_PvoSIDs[Serial] = SID;
-                                    }
-                                    catch (...)
-                                    {
-                                        print_error("Syntax error", lineCnt, m_ConfigFile);
-                                        m_Status = CFG_ERROR;
-                                        break;
-                                    }
+                                    SMASerial Serial = boost::lexical_cast<SMASerial>(sys_serial[0]);
+                                    PVOSystemID SID = boost::lexical_cast<PVOSystemID>(sys_serial[1]);
+                                    m_PvoSIDs[Serial] = SID;
                                 }
                             }
                         }
@@ -177,17 +168,17 @@ int Configuration::readSettings(std::string me, std::string filename)
                     else if (lineparts[0] == "sql_password")
                         m_SqlUserPassword = lineparts[1];
                     else if (lineparts[0] == "sql_port")
-                        try
-                    {
-                        m_SqlPort = boost::lexical_cast<unsigned int>(lineparts[1]);
-                    }
-                    catch (...)
-                    {
-                        print_error("Syntax error", lineCnt, m_ConfigFile);
-                        m_Status = CFG_ERROR;
-                        break;
-                    }
+                            m_SqlPort = boost::lexical_cast<unsigned int>(lineparts[1]);
 #endif
+                    else if (lineparts[0] == "sql_queryinterval")
+                    {
+                        m_SqlQueryInterval = boost::lexical_cast<uint32_t>(lineparts[1]);
+                        if ((m_SqlQueryInterval < 60) || (m_SqlQueryInterval > 3600))
+                        {
+                            std::cerr << "WARNING: SqlQueryInterval out of range (60-3600)" << std::endl;
+                            m_SqlQueryInterval = 300; // Set to default
+                        }
+                    }
                     else
                         std::cerr << "WARNING: Ignoring '" << lineparts[0] << "'" << std::endl;
                 } // try

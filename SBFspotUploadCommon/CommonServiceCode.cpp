@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -140,8 +140,8 @@ void CommonServiceCode(void)
             db.close();
         }
 
-        // Wait for next run; 30 seconds after every 1 minute (08:00:30 - 08:01:30 - 08:02:30 - ...)
-        for (int countdown = 90 - (time(nullptr) % 60); !bStopping && countdown > 0; countdown--)
+        // Wait for next run
+        for (uint32_t countdown = cfg.getSqlQueryInterval() + 30 - (time(nullptr) % cfg.getSqlQueryInterval()); !bStopping && countdown > 0; countdown--)
             sleep(1);
     }
 }

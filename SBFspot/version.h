@@ -3,6 +3,7 @@
 /*
 V3.9.9
     Fix #532 SBFspotUpload service stops when remote SQL server is temporarily down
+    Added SqlQueryInterval to Upload service/daemon config option
 
 V3.9.8
     MQTT stream to Custom CSV

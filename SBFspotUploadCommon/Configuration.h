@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -81,6 +81,7 @@ private:
     unsigned int m_SqlPort = 3306;  // Default 3306
     std::map<SMASerial, PVOSystemID> m_PvoSIDs;
     std::string	m_PvoAPIkey;
+    uint32_t m_SqlQueryInterval = 300;
 
     std::ifstream m_fs;
 
@@ -106,6 +107,7 @@ public:
     unsigned int getSqlPort() const { return m_SqlPort; }
     const std::map<SMASerial, PVOSystemID>& getPvoSIDs() const { return m_PvoSIDs; }
     std::string getPvoApiKey() const { return m_PvoAPIkey; }
+    uint32_t getSqlQueryInterval() const { return m_SqlQueryInterval; }
 
 private:
     bool isverbose(int level)
