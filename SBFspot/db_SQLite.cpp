@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -361,9 +361,19 @@ int db_SQL_Base::get_config(const std::string key, std::string &value)
 int db_SQL_Base::get_config(const std::string key, int &value)
 {
     int rc = SQLITE_OK;
-    std::string strValue = intToString(value);
+    std::string strValue = std::to_string(value);
     if ((rc = get_config(key, strValue)) == SQL_OK)
         value = boost::lexical_cast<int>(strValue);
+
+    return rc;
+}
+
+int db_SQL_Base::get_config(const std::string key, time_t &value)
+{
+    int rc = SQLITE_OK;
+    std::string strValue = std::to_string(value);
+    if ((rc = get_config(key, strValue)) == SQL_OK)
+        value = boost::lexical_cast<time_t>(strValue);
 
     return rc;
 }

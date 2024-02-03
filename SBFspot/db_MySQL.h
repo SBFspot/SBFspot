@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -83,9 +83,7 @@ public:
     int set_config(const std::string key, const std::string value);
     int get_config(const std::string key, std::string &value);
     int get_config(const std::string key, int &value);
-
-    //TODO: replace with std::to_string
-    std::string intToString(const int i) { return static_cast<std::ostringstream &&>((std::ostringstream() << i)).str(); }
+    int get_config(const std::string key, time_t &value);
 
 protected:
     std::string s_quoted(std::string str) { return "'" + str + "'"; }

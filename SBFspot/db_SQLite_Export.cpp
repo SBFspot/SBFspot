@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -81,7 +81,7 @@ int db_SQL_Export::exportDayData(InverterData *inverters[])
                     // Invalid dates are not written to db
                     if (inverters[inv]->dayData[idx].datetime > 0)
                     {
-                        sqlite3_bind_int(pStmt, 1, inverters[inv]->dayData[idx].datetime);
+                        sqlite3_bind_int(pStmt, 1, (int)inverters[inv]->dayData[idx].datetime);
                         // Fix #269
                         // To store unsigned int32 serial numbers, we're using sqlite3_bind_int64
                         // SQLite will store these uint32 in 4 bytes
@@ -151,7 +151,7 @@ int db_SQL_Export::exportMonthData(InverterData *inverters[])
             {
                 if (inverters[inv]->monthData[idx].datetime > 0)
                 {
-                    sqlite3_bind_int(pStmt, 1, inverters[inv]->monthData[idx].datetime);
+                    sqlite3_bind_int(pStmt, 1, (int)inverters[inv]->monthData[idx].datetime);
                     // Fix #269
                     // To store unsigned int32 serial numbers, we're using sqlite3_bind_int64
                     // SQLite will store these uint32 in 4 bytes
@@ -290,7 +290,7 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
                 }
 
                 sqlite3_bind_int(pStmt, 1, event.EntryID());
-                sqlite3_bind_int(pStmt, 2, event.DateTime());
+                sqlite3_bind_int(pStmt, 2, (int)event.DateTime());
                 // Fix #269
                 // To store unsigned int32 serial numbers, we're using sqlite3_bind_int64
                 // SQLite will store these uint32 in 4 bytes
@@ -356,15 +356,15 @@ int db_SQL_Export::exportBatteryData(InverterData *inverters[], time_t spottime)
             InverterData* id = inverters[inv];
             if (id->hasBattery)
             {
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatChaStt >> 8, id->BatChaStt)) != SQLITE_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatTmpVal >> 8, id->BatTmpVal)) != SQLITE_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatVol >> 8, id->BatVol)) != SQLITE_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatAmp >> 8, id->BatAmp)) != SQLITE_OK) break;
-                //if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatDiagCapacThrpCnt >> 8, id->BatDiagCapacThrpCnt)) != SQLITE_OK) break;
-                //if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatDiagTotAhIn >> 8, id->BatDiagTotAhIn)) != SQLITE_OK) break;
-                //if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatDiagTotAhOut >> 8, id->BatDiagTotAhOut)) != SQLITE_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, MeteringGridMsTotWIn >> 8, id->MeteringGridMsTotWIn)) != SQLITE_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, MeteringGridMsTotWOut >> 8, id->MeteringGridMsTotWOut)) != SQLITE_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatChaStt >> 8, id->BatChaStt)) != SQLITE_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatTmpVal >> 8, id->BatTmpVal)) != SQLITE_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatVol >> 8, id->BatVol)) != SQLITE_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatAmp >> 8, id->BatAmp)) != SQLITE_OK) break;
+                //if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatDiagCapacThrpCnt >> 8, id->BatDiagCapacThrpCnt)) != SQLITE_OK) break;
+                //if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatDiagTotAhIn >> 8, id->BatDiagTotAhIn)) != SQLITE_OK) break;
+                //if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatDiagTotAhOut >> 8, id->BatDiagTotAhOut)) != SQLITE_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, MeteringGridMsTotWIn >> 8, id->MeteringGridMsTotWIn)) != SQLITE_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, MeteringGridMsTotWOut >> 8, id->MeteringGridMsTotWOut)) != SQLITE_OK) break;
             }
         }
 

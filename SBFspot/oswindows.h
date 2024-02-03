@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -42,8 +42,6 @@ DISCLAIMER:
 
 // Ignore some of the warnings
 #pragma warning(disable:4996)   // 'strnicmp': The POSIX name for this item is deprecated.
-
-#define _USE_32BIT_TIME_T
 
 #include <time.h>
 #include <string.h>

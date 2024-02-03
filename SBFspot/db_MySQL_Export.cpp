@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -336,7 +336,7 @@ int db_SQL_Export::exportEventData(InverterData *inv[], TagDefs& tags)
                 values[0].is_unsigned = true;
 
                 // Timestamp
-                int32_t DateTime = event.DateTime();
+                int32_t DateTime = (int32_t)event.DateTime();
                 values[1].buffer_type = MYSQL_TYPE_LONG;
                 values[1].buffer = &DateTime;
                 values[1].is_unsigned = false;
@@ -458,15 +458,15 @@ int db_SQL_Export::exportBatteryData(InverterData *inverters[], time_t spottime)
             InverterData* id = inverters[inv];
             if (id->hasBattery)
             {
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatChaStt >> 8, id->BatChaStt)) != SQL_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatTmpVal >> 8, id->BatTmpVal)) != SQL_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatVol >> 8, id->BatVol)) != SQL_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatAmp >> 8, id->BatAmp)) != SQL_OK) break;
-                //if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatDiagCapacThrpCnt >> 8, id->BatDiagCapacThrpCnt)) != SQL_OK) break;
-                //if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatDiagTotAhIn >> 8, id->BatDiagTotAhIn)) != SQL_OK) break;
-                //if ((rc = insert_battery_data(pStmt, spottime, id->Serial, BatDiagTotAhOut >> 8, id->BatDiagTotAhOut)) != SQL_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, MeteringGridMsTotWIn >> 8, id->MeteringGridMsTotWIn)) != SQL_OK) break;
-                if ((rc = insert_battery_data(pStmt, spottime, id->Serial, MeteringGridMsTotWOut >> 8, id->MeteringGridMsTotWOut)) != SQL_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatChaStt >> 8, id->BatChaStt)) != SQL_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatTmpVal >> 8, id->BatTmpVal)) != SQL_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatVol >> 8, id->BatVol)) != SQL_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatAmp >> 8, id->BatAmp)) != SQL_OK) break;
+                //if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatDiagCapacThrpCnt >> 8, id->BatDiagCapacThrpCnt)) != SQL_OK) break;
+                //if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatDiagTotAhIn >> 8, id->BatDiagTotAhIn)) != SQL_OK) break;
+                //if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, BatDiagTotAhOut >> 8, id->BatDiagTotAhOut)) != SQL_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, MeteringGridMsTotWIn >> 8, id->MeteringGridMsTotWIn)) != SQL_OK) break;
+                if ((rc = insert_battery_data(pStmt, (int32_t)spottime, id->Serial, MeteringGridMsTotWOut >> 8, id->MeteringGridMsTotWOut)) != SQL_OK) break;
             }
         }
 

@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -91,8 +91,8 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                 writePacketHeader(pcktBuf, 0x01, inverters[inv]->BTAddress);
                 writePacket(pcktBuf, 0x09, 0xE0, 0, inverters[inv]->SUSyID, inverters[inv]->Serial);
                 writeLong(pcktBuf, 0x70000200);
-                writeLong(pcktBuf, startTime - 300);
-                writeLong(pcktBuf, startTime + 86100);
+                writeLong(pcktBuf, (int32_t)startTime - 300);
+                writeLong(pcktBuf, (int32_t)startTime + 86100);
                 writePacketTrailer(pcktBuf);
                 writePacketLength(pcktBuf);
             } while (!isCrcValid(pcktBuf[packetposition - 3], pcktBuf[packetposition - 2]));
@@ -275,8 +275,8 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
                 writePacketHeader(pcktBuf, 0x01, inverters[inv]->BTAddress);
                 writePacket(pcktBuf, 0x09, 0xE0, 0, inverters[inv]->SUSyID, inverters[inv]->Serial);
                 writeLong(pcktBuf, 0x70200200);
-                writeLong(pcktBuf, startTime - 86400 - 86400);
-                writeLong(pcktBuf, startTime + 86400 * (sizeof(inverters[inv]->monthData) / sizeof(MonthData) + 1));
+                writeLong(pcktBuf, (int32_t)startTime - 86400 - 86400);
+                writeLong(pcktBuf, (int32_t)startTime + 86400 * (sizeof(inverters[inv]->monthData) / sizeof(MonthData) + 1));
                 writePacketTrailer(pcktBuf);
                 writePacketLength(pcktBuf);
             } while (!isCrcValid(pcktBuf[packetposition - 3], pcktBuf[packetposition - 2]));
@@ -417,8 +417,8 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
             writePacketHeader(pcktBuf, 0x01, inverters[inv]->BTAddress);
             writePacket(pcktBuf, 0x09, 0xE0, 0, inverters[inv]->SUSyID, inverters[inv]->Serial);
             writeLong(pcktBuf, UserGroup == UG_USER ? 0x70100200 : 0x70120200);
-            writeLong(pcktBuf, startTime);
-            writeLong(pcktBuf, endTime);
+            writeLong(pcktBuf, (int32_t)startTime);
+            writeLong(pcktBuf, (int32_t)endTime);
             writePacketTrailer(pcktBuf);
             writePacketLength(pcktBuf);
         } while (!isCrcValid(pcktBuf[packetposition - 3], pcktBuf[packetposition - 2]));

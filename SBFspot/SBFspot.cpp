@@ -7,7 +7,7 @@
                                                    |_|
 
     SBFspot - Yet another tool to read power production of SMA solar/battery inverters
-    (c)2012-2023, SBF
+    (c)2012-2024, SBF
 
     Latest version can be found at https://github.com/SBFspot/SBFspot
 
@@ -781,7 +781,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
             writeLong(pcktBuf, 0xFFFD040C);
             writeLong(pcktBuf, userGroup);    // User / Installer
             writeLong(pcktBuf, 0x00000384); // Timeout = 900sec ?
-            writeLong(pcktBuf, now);
+            writeLong(pcktBuf, (int32_t)now);
             writeLong(pcktBuf, 0);
             writeArray(pcktBuf, pw, sizeof(pw));
             writePacketTrailer(pcktBuf);
@@ -848,7 +848,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
                 writeLong(pcktBuf, 0xFFFD040C);
                 writeLong(pcktBuf, userGroup);    // User / Installer
                 writeLong(pcktBuf, 0x00000384); // Timeout = 900sec ?
-                writeLong(pcktBuf, now);
+                writeLong(pcktBuf, (int32_t)now);
                 writeLong(pcktBuf, 0);
                 writeArray(pcktBuf, pw, sizeof(pw));
                 writePacketTrailer(pcktBuf);
@@ -1032,9 +1032,9 @@ E_SBFSPOT SetPlantTime(time_t ndays, time_t lowerlimit, time_t upperlimit)
             writeLong(pcktBuf, 0x00236D00);
             // Get new host time
             hosttime = time(NULL);
-            writeLong(pcktBuf, hosttime);
-            writeLong(pcktBuf, hosttime);
-            writeLong(pcktBuf, hosttime);
+            writeLong(pcktBuf, (int32_t)hosttime);
+            writeLong(pcktBuf, (int32_t)hosttime);
+            writeLong(pcktBuf, (int32_t)hosttime);
             writeLong(pcktBuf, tz | dst);
             writeLong(pcktBuf, ++magic);
             writeLong(pcktBuf, 1);
@@ -2847,7 +2847,7 @@ E_SBFSPOT setDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &d
         writeShort(pcktBuf, cmd);
         writeLong(pcktBuf, 0x0A);
         writeLong(pcktBuf, lri | 0x02000001);
-        writeLong(pcktBuf, now);
+        writeLong(pcktBuf, (int32_t)now);
         writeLong(pcktBuf, data.MinLL());
         writeLong(pcktBuf, data.MaxLL());
         writeLong(pcktBuf, data.MinUL());

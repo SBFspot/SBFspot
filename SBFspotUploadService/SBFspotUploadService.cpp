@@ -16,8 +16,6 @@
 * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 \***************************************************************************/
 
-#define _USE_32BIT_TIME_T
-
 #pragma region Includes
 #include <stdio.h>
 #include <windows.h>
@@ -33,25 +31,25 @@ void WriteEventLogEntry(PWSTR pszMessage, WORD wType);
 // 
 
 // Internal name of the service
-#define SERVICE_NAME             L"SBFspotUpload"
+#define SERVICE_NAME            L"SBFspotUpload"
 
 // Displayed name of the service
-#define SERVICE_DISPLAY_NAME     L"SBFspot Upload Service"
+#define SERVICE_DISPLAY_NAME    L"SBFspot Upload Service"
 
 // Description of the service
 #define SERVICE_DESCRIPTION     L"Uploads SBFspot data to PVOutput.org"
 
 // Service start options.
-#define SERVICE_START_TYPE       SERVICE_AUTO_START
+#define SERVICE_START_TYPE      SERVICE_AUTO_START
 
 // List of service dependencies - "dep1\0dep2\0\0"
-#define SERVICE_DEPENDENCIES     L""
+#define SERVICE_DEPENDENCIES    L""
 
 // The name of the account under which the service should run
-#define SERVICE_ACCOUNT          L"NT AUTHORITY\\LocalService"
+#define SERVICE_ACCOUNT         L"NT AUTHORITY\\LocalService"
 
 // The password to the service account name
-#define SERVICE_PASSWORD         NULL
+#define SERVICE_PASSWORD        NULL
 
 //
 //  FUNCTION: wmain(int, wchar_t *[])
@@ -76,46 +74,46 @@ int wmain(int argc, wchar_t *argv[])
     {
         if (_wcsicmp(L"install", argv[1] + 1) == 0)
         {
-			if (config.readSettings(argv[0], L"") == Configuration::CFG_OK)
-			{
-				// Install the service when the command is 
-				// "-install" or "/install".
-				InstallService(
-					SERVICE_NAME,               // Name of service
-					SERVICE_DISPLAY_NAME,       // Name to display
-					SERVICE_DESCRIPTION,		// Description
-					SERVICE_START_TYPE,         // Service start type
-					SERVICE_DEPENDENCIES,       // Dependencies
-					SERVICE_ACCOUNT,            // Service running account
-					SERVICE_PASSWORD            // Password of the account
-					);
-			}
-		}
+            if (config.readSettings(argv[0], L"") == Configuration::CFG_OK)
+            {
+                // Install the service when the command is 
+                // "-install" or "/install".
+                InstallService(
+                    SERVICE_NAME,               // Name of service
+                    SERVICE_DISPLAY_NAME,       // Name to display
+                    SERVICE_DESCRIPTION,        // Description
+                    SERVICE_START_TYPE,         // Service start type
+                    SERVICE_DEPENDENCIES,       // Dependencies
+                    SERVICE_ACCOUNT,            // Service running account
+                    SERVICE_PASSWORD            // Password of the account
+                    );
+            }
+        }
         else if (_wcsicmp(L"remove", argv[1] + 1) == 0)
         {
             // Uninstall the service when the command is 
             // "-remove" or "/remove".
             UninstallService(SERVICE_NAME);
         }
-		else
-		{
-	        wprintf(L"Invalid parameter: ");
-			wprintf(argv[1] + 1);
-		}
+        else
+        {
+            wprintf(L"Invalid parameter: ");
+            wprintf(argv[1] + 1);
+        }
     }
     else
     {
-		// We get here when:
-		//   - executing command without parameters
-		//   - starting the service (sc start SBFspotUpload)
+        // We get here when:
+        //   - executing command without parameters
+        //   - starting the service (sc start SBFspotUpload)
         wprintf(L"Parameters:\n");
         wprintf(L" -install  to install the service.\n");
         wprintf(L" -remove   to remove the service.\n");
-		wprintf(L"\n\nTo start the service, reboot or type\n\tsc start %s\n", SERVICE_NAME);
-
-		CSBFspotUploadService service(SERVICE_NAME);
-		CServiceBase::Run(service);
-	}
+        wprintf(L"\n\nTo start the service, reboot or type\n\tsc start %s\n", SERVICE_NAME);
+        
+        CSBFspotUploadService service(SERVICE_NAME);
+        CServiceBase::Run(service);
+    }
 
     return 0;
 }

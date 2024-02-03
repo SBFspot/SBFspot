@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -293,6 +293,6 @@ short get_short(uint8_t *buf)
 // Generate a unique session ID for application
 uint32_t genSessionID()
 {
-    srand(time(nullptr));
+    srand((unsigned int)time(nullptr));
     return 900000000 + ((rand() << 16) + rand()) % 100000000;
 }
