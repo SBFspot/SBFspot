@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -294,7 +294,7 @@ int Inverter::process()
         {
             if (!archdata_available)
             {
-                time_t arch_time = time(NULL);
+                time_t arch_time = time(nullptr);
 
                 if ((rc = ArchiveDayData(m_inverters, arch_time)) == E_OK)
                     archdata_available = true;
@@ -403,13 +403,13 @@ int Inverter::process()
             if (VERBOSE_NORMAL)
             {
                 printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
-                if (m_inverters[inv]->InverterDatetime > 0)
+                if (m_inverters[inv]->InverterDatetime != 0)
                     printf("Current Inverter Time: %s\n", strftime_t(m_config.DateTimeFormat, m_inverters[inv]->InverterDatetime));
 
-                if (m_inverters[inv]->WakeupTime > 0)
+                if (m_inverters[inv]->WakeupTime != 0)
                     printf("Inverter Wake-Up Time: %s\n", strftime_t(m_config.DateTimeFormat, m_inverters[inv]->WakeupTime));
 
-                if (m_inverters[inv]->SleepTime > 0)
+                if (m_inverters[inv]->SleepTime != 0)
                     printf("Inverter Sleep Time  : %s\n", strftime_t(m_config.DateTimeFormat, m_inverters[inv]->SleepTime));
             }
         }
@@ -435,7 +435,7 @@ int Inverter::process()
     /***************
     * Get Day Data *
     ****************/
-    time_t arch_time = (0 == m_config.startdate) ? time(NULL) : m_config.startdate;
+    time_t arch_time = (0 == m_config.startdate) ? time(nullptr) : m_config.startdate;
 
     for (int count=0; count<m_config.archDays; count++)
     {
@@ -474,7 +474,7 @@ int Inverter::process()
     if (m_config.archMonths > 0)
     {
         getMonthDataOffset(m_inverters); //Issues 115/130
-        arch_time = (0 == m_config.startdate) ? time(NULL) : m_config.startdate;
+        arch_time = (0 == m_config.startdate) ? time(nullptr) : m_config.startdate;
         struct tm arch_tm;
         memcpy(&arch_tm, gmtime(&arch_time), sizeof(arch_tm));
 
@@ -508,7 +508,7 @@ int Inverter::process()
     /*****************
     * Get Event Data *
     ******************/
-    boost::posix_time::ptime tm_utc(boost::posix_time::from_time_t((0 == m_config.startdate) ? time(NULL) : m_config.startdate));
+    boost::posix_time::ptime tm_utc(boost::posix_time::from_time_t((0 == m_config.startdate) ? time(nullptr) : m_config.startdate));
     //ptime tm_utc(posix_time::second_clock::universal_time());
     boost::gregorian::date dt_utc(tm_utc.date().year(), tm_utc.date().month(), 1);
     std::string dt_range_csv = str(boost::format("%d%02d") % dt_utc.year() % static_cast<short>(dt_utc.month()));
@@ -709,7 +709,7 @@ void Inverter::exportSpotData()
 #if defined(USE_SQLITE) || defined(USE_MYSQL)
     if (!m_config.nosql && m_db.isopen())
     {
-        time_t spottime = time(NULL);
+        time_t spottime = time(nullptr);
         m_db.type_label(m_inverters);
         m_db.device_status(m_inverters, spottime);
         m_db.exportSpotData(m_inverters, spottime);

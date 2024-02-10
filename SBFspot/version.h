@@ -4,6 +4,8 @@
 V3.9.9
     Fix #532 SBFspotUpload service stops when remote SQL server is temporarily down
     Added SqlQueryInterval to Upload service/daemon config option
+    Fix Y2038 issue (See #688 Not able to set inverter time)
+    Cleanup of #include <time.h>
 
 V3.9.8
     MQTT stream to Custom CSV

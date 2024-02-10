@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -35,7 +35,6 @@ DISCLAIMER:
 #include "osselect.h"
 #include "misc.h"
 #include "SBFspot.h"
-#include <time.h>
 #include <string.h>
 #include <stdio.h>
 #if defined(_WIN32)
@@ -93,7 +92,6 @@ char *rtrim(char *txt)
     return txt;
 }
 
-//V1.4.5 - Fixed issue 14
 #if defined(__linux__)
 int get_tzOffset(/*OUT*/int *isDST)
 {
@@ -102,7 +100,7 @@ int get_tzOffset(/*OUT*/int *isDST)
 
     struct tm *loctime = localtime(&curtime);
 
-    if (isDST)	// Valid pointer?
+    if (isDST)  // Valid pointer?
         *isDST = loctime->tm_isdst;
 
     return loctime->tm_gmtoff;
@@ -190,7 +188,7 @@ void print_error(FILE *error_file, ERRORLEVEL error_level, const char *error_msg
 {
     const char *error_list[4] = {"INFO", "WARNING", "ERROR", "CRITICAL"};
     char my_time[32];
-    time_t tim = time(NULL);
+    time_t tim = time(nullptr);
     strcpy(my_time, ctime(&tim));
     size_t size = strlen(my_time);
     my_time[size - 1] = '\0';	//Remove newline char

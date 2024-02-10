@@ -40,7 +40,6 @@ DISCLAIMER:
 #include "EventData.h"
 #include "Ethernet.h"
 #include "Types.h"
-#include <time.h>
 #include <vector>
 #include <algorithm>
 #include <string>

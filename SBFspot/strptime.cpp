@@ -35,7 +35,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #define isspace(c) (c == 0x20)
 
@@ -110,10 +109,10 @@ match_string (const char **buf, const char **strs)
     int i = 0;
 
     for (i = 0; strs[i] != NULL; ++i)
-	{
+    {
         size_t len = strlen (strs[i]);
         if (strnicmp(*buf, strs[i], len) == 0)
-		{
+        {
             *buf += len;
             return i;
         }

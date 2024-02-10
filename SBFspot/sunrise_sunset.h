@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -36,7 +36,6 @@ DISCLAIMER:
 
 #include "osselect.h"
 
-#include <time.h>
 #include <math.h>
 #include <string.h>     //memcpy
 

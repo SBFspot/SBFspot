@@ -55,7 +55,6 @@ DISCLAIMER:
 #include <string.h>
 #include <limits.h>
 #include <math.h>
-#include <time.h>
 #include "bluetooth.h"
 #include "Ethernet.h"
 #include "SBFNet.h"
@@ -1402,14 +1401,15 @@ void SayHello(int ShowHelp)
 #endif
     std::cout << "SBFspot V" << VERSION << "\n";
     std::cout << "Yet another tool to read power production of SMA solar inverters\n";
-    std::cout << "(c) 2012-2023, SBF (https://github.com/SBFspot/SBFspot)\n";
+    std::cout << "(c) 2012-2024, SBF (https://github.com/SBFspot/SBFspot)\n";
     std::cout << "Compiled for " << OS << " (" << BYTEORDER << ") " << sizeof(long) * 8 << " bit";
 #if defined(USE_SQLITE)
-    std::cout << " with SQLite support\n";
+    std::cout << " with SQLite support";
 #endif
 #if defined(USE_MYSQL)
-    std::cout << " with MySQL support\n";
+    std::cout << " with MySQL support";
 #endif
+    std::cout << '\n';  // Missing newline with nosql version
     if (ShowHelp != 0)
     {
         std::cout << "SBFspot [-options]\n";
