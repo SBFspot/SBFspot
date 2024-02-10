@@ -66,14 +66,6 @@ char *strftime_t (const char *format, const time_t rawtime)
     return buffer;
 }
 
-char *strftime_t (char *buffer, size_t maxsize, const char *format, const time_t rawtime)
-{
-    struct tm tm_struct;
-    memcpy(&tm_struct, localtime(&rawtime), sizeof(tm_struct));
-    strftime(buffer, maxsize, format, &tm_struct);
-    return buffer;
-}
-
 char *rtrim(char *txt)
 {
     if ((txt != NULL) && (*txt != 0))

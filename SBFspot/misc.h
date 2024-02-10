@@ -48,7 +48,6 @@ DISCLAIMER:
 #endif
 
 char *strftime_t (const char *format, const time_t rawtime);
-char *strftime_t (char *buffer, size_t maxsize, const char *format, const time_t rawtime);
 char *strfgmtime_t (const char *format, const time_t rawtime);
 char *rtrim(char *txt);
 int get_tzOffset(/*OUT*/int *isDST);
