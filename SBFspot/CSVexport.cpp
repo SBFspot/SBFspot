@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -140,7 +140,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
             csvpath << strftime_t(cfg->outputPath, inverters[0]->monthData[0].datetime);
             CreatePath(csvpath.str().c_str());
 
-            csvpath << FOLDER_SEP << cfg->plantname << "-" << strfgmtime_t("%Y%m", inverters[0]->monthData[0].datetime) << ".csv";
+            csvpath << FOLDER_SEP << cfg->plantname << '-' << strftime_t("%Y%m", inverters[0]->monthData[0].datetime) << ".csv";
 
             if ((csv = fopen(csvpath.str().c_str(), "w+")) == NULL)
             {
@@ -193,7 +193,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
 
                 if (datetime > 0)
                 {
-                    fprintf(csv, "%s", strfgmtime_t(cfg->DateFormat, datetime));
+                    fprintf(csv, "%s", strftime_t(cfg->DateFormat, datetime).c_str());
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                     {
                         fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->monthData[idx].totalWh / 1000, 0, cfg->precision, cfg->decimalpoint));
@@ -290,7 +290,7 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
         {
             if ((cfg->CSV_SaveZeroPower) || (totalPower > 0))
             {
-                fprintf(csv, "%s", strftime_t(cfg->DateTimeFormat, datetime));
+                fprintf(csv, "%s", strftime_t(cfg->DateTimeFormat, datetime).c_str());
                 for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                 {
                     fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->dayData[dd].totalWh / 1000, 0, cfg->precision, cfg->decimalpoint));
@@ -483,7 +483,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
         const char *strout = "%c%s";
 
         if (cfg->SpotWebboxHeader)
-            fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
+            fputs(strftime_t(cfg->DateTimeFormat, spottime).c_str(), csv);
 
         for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
@@ -491,7 +491,7 @@ int ExportSpotDataToCSV(const Config *cfg, InverterData* const inverters[])
             {
                 if (!cfg->SpotWebboxHeader)
                 {
-                    fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
+                    fputs(strftime_t(cfg->DateTimeFormat, spottime).c_str(), csv);
                     fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName.c_str());
                     fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceType.c_str());
                     fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
@@ -615,7 +615,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
                 fprintf(csv, "%s%c", inverters[inv]->DeviceName.c_str(), cfg->delimiter);
                 fprintf(csv, "%d%c", event.SUSyID(), cfg->delimiter);
                 fprintf(csv, "%u%c", event.SerNo(), cfg->delimiter);
-                fprintf(csv, "%s%c", strftime_t(cfg->DateTimeFormat, event.DateTime()), cfg->delimiter);
+                fprintf(csv, "%s%c", strftime_t(cfg->DateTimeFormat, event.DateTime()).c_str(), cfg->delimiter);
                 fprintf(csv, "%d%c", event.EntryID(), cfg->delimiter);
                 fprintf(csv, "%d%c", event.EventCode(), cfg->delimiter);
                 fprintf(csv, "%s%c", event.EventType().c_str(), cfg->delimiter);
@@ -705,7 +705,7 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
         const char *strout = "%c%s";
 
         if (cfg->SpotWebboxHeader)
-            fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
+            fputs(strftime_t(cfg->DateTimeFormat, spottime).c_str(), csv);
 
         for (uint32_t inv = 0; inverters[inv] != NULL && inv < MAX_INVERTERS; inv++)
         {
@@ -713,7 +713,7 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
             {
                 if (!cfg->SpotWebboxHeader)
                 {
-                    fputs(strftime_t(cfg->DateTimeFormat, spottime), csv);
+                    fputs(strftime_t(cfg->DateTimeFormat, spottime).c_str(), csv);
                     fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceName.c_str());
                     fprintf(csv, strout, cfg->delimiter, inverters[inv]->DeviceType.c_str());
                     fprintf(csv, "%c%lu", cfg->delimiter, inverters[inv]->Serial);
@@ -857,7 +857,7 @@ int ExportInformationDataTo123s(const Config *cfg, InverterData* const inverters
     // Inverter bluetooth NetID
     printf("Bluetooth NetID: %02X%c", invdata->NetID, *s123_delimiter);
     // Inverter time ( YYYYMMDD-HH:MM:SS )
-    printf("Time: %s%c", strftime_t(s123_dt_format, invdata->InverterDatetime), *s123_delimiter);
+    printf("Time: %s%c", strftime_t(s123_dt_format, invdata->InverterDatetime).c_str(), *s123_delimiter);
     // Inverter device name
     printf("Device Name: %s%c", invdata->DeviceName.c_str(), *s123_delimiter);
     // Inverter device class
@@ -873,8 +873,8 @@ int ExportInformationDataTo123s(const Config *cfg, InverterData* const inverters
     if (invdata->Pmax2 > 0) printf("Pac Max Phase 2: %luW%c", invdata->Pmax2, *s123_delimiter);
     if (invdata->Pmax3 > 0) printf("Pac Max Phase 3: %luW%c", invdata->Pmax3, *s123_delimiter);
     // Inverter wake-up & sleep times
-    printf("Wake-Up Time: %s%c", strftime_t(s123_dt_format, invdata->WakeupTime), *s123_delimiter);
-    printf("Sleep Time: %s\n", strftime_t(s123_dt_format, invdata->SleepTime));
+    printf("Wake-Up Time: %s%c", strftime_t(s123_dt_format, invdata->WakeupTime).c_str(), *s123_delimiter);
+    printf("Sleep Time: %s\n", strftime_t(s123_dt_format, invdata->SleepTime).c_str());
     return 0;
 }
 
@@ -894,7 +894,7 @@ int ExportStateDataTo123s(const Config *cfg, InverterData* const inverters[])
     //Send Inverter State Data to 123Solar
 
     // Inverter time ( YYYYMMDD-HH:MM:SS )
-    printf("Inverter Time: %s%c", strftime_t(s123_dt_format, invdata->InverterDatetime), *s123_delimiter);
+    printf("Inverter Time: %s%c", strftime_t(s123_dt_format, invdata->InverterDatetime).c_str(), *s123_delimiter);
     // Inverter device name
     printf("Device Name: %s%c", invdata->DeviceName.c_str(), *s123_delimiter);
     // Device status

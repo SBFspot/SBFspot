@@ -404,13 +404,13 @@ int Inverter::process()
             {
                 printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
                 if (m_inverters[inv]->InverterDatetime != 0)
-                    printf("Current Inverter Time: %s\n", strftime_t(m_config.DateTimeFormat, m_inverters[inv]->InverterDatetime));
+                    std::cout << "Current Inverter Time: " << strftime_t(m_config.DateTimeFormat, m_inverters[inv]->InverterDatetime) << std::endl;
 
                 if (m_inverters[inv]->WakeupTime != 0)
-                    printf("Inverter Wake-Up Time: %s\n", strftime_t(m_config.DateTimeFormat, m_inverters[inv]->WakeupTime));
+                    std::cout << "Inverter Wake-Up Time: " << strftime_t(m_config.DateTimeFormat, m_inverters[inv]->WakeupTime) << std::endl;
 
                 if (m_inverters[inv]->SleepTime != 0)
-                    printf("Inverter Sleep Time  : %s\n", strftime_t(m_config.DateTimeFormat, m_inverters[inv]->SleepTime));
+                    std::cout << "Inverter Sleep Time  : " << strftime_t(m_config.DateTimeFormat, m_inverters[inv]->SleepTime) << std::endl;
             }
         }
     }
@@ -454,7 +454,7 @@ int Inverter::process()
                     for (idx=0; idx<sizeof(m_inverters[inv]->dayData)/sizeof(DayData); idx++)
                         if (m_inverters[inv]->dayData[idx].datetime > 0)
                         {
-                            printf("%s : %.3fkWh - %3.3fW\n", strftime_t(m_config.DateTimeFormat, m_inverters[inv]->dayData[idx].datetime), (double)m_inverters[inv]->dayData[idx].totalWh/1000, (double)m_inverters[inv]->dayData[idx].watt);
+                            printf("%s : %.3fkWh - %3.3fW\n", strftime_t(m_config.DateTimeFormat, m_inverters[inv]->dayData[idx].datetime).c_str(), (double)m_inverters[inv]->dayData[idx].totalWh/1000, (double)m_inverters[inv]->dayData[idx].watt);
                             fflush(stdout);
                         }
                     puts("======");
@@ -489,7 +489,7 @@ int Inverter::process()
                     printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
                     for (unsigned int ii = 0; ii < sizeof(m_inverters[inv]->monthData) / sizeof(MonthData); ii++)
                         if (m_inverters[inv]->monthData[ii].datetime > 0)
-                            printf("%s : %.3fkWh - %3.3fkWh\n", strfgmtime_t(m_config.DateFormat, m_inverters[inv]->monthData[ii].datetime), (double)m_inverters[inv]->monthData[ii].totalWh / 1000, (double)m_inverters[inv]->monthData[ii].dayWh / 1000);
+                            printf("%s : %.3fkWh - %3.3fkWh\n", strftime_t(m_config.DateFormat, m_inverters[inv]->monthData[ii].datetime).c_str(), (double)m_inverters[inv]->monthData[ii].totalWh / 1000, (double)m_inverters[inv]->monthData[ii].dayWh / 1000);
                     puts("======");
                 }
             }

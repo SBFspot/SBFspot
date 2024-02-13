@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -47,8 +47,7 @@ DISCLAIMER:
 #define MAX_PATH          260
 #endif
 
-char *strftime_t (const char *format, const time_t rawtime);
-char *strfgmtime_t (const char *format, const time_t rawtime);
+std::string strftime_t(const char *format, const time_t rawtime);
 char *rtrim(char *txt);
 int get_tzOffset(/*OUT*/int *isDST);
 int CreatePath(const char *dir);

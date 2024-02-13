@@ -58,7 +58,7 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
     startTime = mktime(&start_tm);
 
     if (VERBOSE_NORMAL)
-        printf("startTime: %s\n", strftime_t("%d/%m/%Y %H:%M:%S", startTime));
+        std::cout << "startTime: " << strftime_t("%d/%m/%Y %H:%M:%S", startTime) << std::endl;
 
     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
     {
@@ -245,7 +245,7 @@ E_SBFSPOT ArchiveMonthData(InverterData *inverters[], tm *start_tm)
     time_t startTime = mktime(start_tm);
 
     if (VERBOSE_NORMAL)
-        printf("startTime: %s\n", strftime_t("%d/%m/%Y %H:%M:%S", startTime));
+        std::cout << "startTime: " << strftime_t("%d/%m/%Y %H:%M:%S", startTime) << std::endl;
 
     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
     {

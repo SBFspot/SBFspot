@@ -46,24 +46,14 @@ DISCLAIMER:
 
 extern int debug;
 
-//print time as UTC time
-char *strfgmtime_t (const char *format, const time_t rawtime)
-{
-    static char buffer[256];
-    struct tm tm_struct;
-    memcpy(&tm_struct, gmtime(&rawtime), sizeof(tm_struct));
-    strftime(buffer, sizeof(buffer), format, &tm_struct);
-    return buffer;
-}
-
 //Print time as local time
-char *strftime_t (const char *format, const time_t rawtime)
+std::string strftime_t(const char *format, const time_t rawtime)
 {
-    static char buffer[256];
-    struct tm tm_struct;
-    memcpy(&tm_struct, localtime(&rawtime), sizeof(tm_struct));
-    strftime(buffer, sizeof(buffer), format, &tm_struct);
-    return buffer;
+    const struct tm* timeinfo = localtime(&rawtime);
+
+    std::ostringstream os;
+    os << std::put_time(timeinfo, format);
+    return os.str();
 }
 
 char *rtrim(char *txt)

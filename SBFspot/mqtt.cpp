@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2023, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -95,15 +95,15 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             {
             case "prgversion"_:     snprintf(value, sizeof(value) - 1, "\"%s\"", m_config.prgVersion); break;
             case "plantname"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", m_config.plantname); break;
-            case "timestamp"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, time(nullptr))); break;
-            case "sunrise"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunrise))); break;
-            case "sunset"_:         snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunset))); break;
+            case "timestamp"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, time(nullptr)).c_str()); break;
+            case "sunrise"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunrise)).c_str()); break;
+            case "sunset"_:         snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunset)).c_str()); break;
             case "invserial"_:      snprintf(value, sizeof(value) - 1, "%lu", inv.Serial); break;
             case "invname"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName.c_str()); break;
             case "invclass"_:       snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass.c_str()); break;
             case "invtype"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceType.c_str()); break;
             case "invswver"_:       snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion.c_str()); break;
-            case "invtime"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.InverterDatetime)); break;
+            case "invtime"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.InverterDatetime).c_str()); break;
             case "invstatus"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.DeviceStatus, "?").c_str()); break;
             case "invtemperature"_: FormatFloat(value, is_NaN(inv.Temperature) ? 0.0f : (float)inv.Temperature / 100, 0, prec, dp); break;
             case "invgridrelay"_:   snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.GridRelayStatus, "?").c_str()); break;
@@ -134,8 +134,8 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             case "batvol"_:         FormatFloat(value, ((float)inv.BatVol) / 100, 0, prec, dp); break;
             case "batamp"_:         FormatFloat(value, ((float)inv.BatAmp) / 1000, 0, prec, dp); break;
             case "batchastt"_:      FormatFloat(value, ((float)inv.BatChaStt), 0, prec, dp); break;
-            case "invwakeuptm"_:    snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.WakeupTime)); break;
-            case "invsleeptm"_:     snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.SleepTime)); break;
+            case "invwakeuptm"_:    snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.WakeupTime).c_str()); break;
+            case "invsleeptm"_:     snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.SleepTime).c_str()); break;
             case "meteringwin"_:    FormatFloat(value, (float)inv.MeteringGridMsTotWIn, 0, prec, dp); break;
             case "meteringwout"_:   FormatFloat(value, (float)inv.MeteringGridMsTotWOut, 0, prec, dp); break;
             case "meteringwtot"_:   FormatFloat(value, (float)(inv.MeteringGridMsTotWIn - inv.MeteringGridMsTotWOut), 0, prec, dp); break;
