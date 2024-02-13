@@ -79,7 +79,7 @@ int db_SQL_Export::exportDayData(InverterData *inverters[])
                 for (unsigned int idx = first_rec; idx <= last_rec; idx++)
                 {
                     // Invalid dates are not written to db
-                    if (inverters[inv]->dayData[idx].datetime > 0)
+                    if (inverters[inv]->dayData[idx].datetime != 0)
                     {
                         sqlite3_bind_int(pStmt, 1, (int)inverters[inv]->dayData[idx].datetime);
                         // Fix #269
@@ -149,7 +149,7 @@ int db_SQL_Export::exportMonthData(InverterData *inverters[])
 
             for (unsigned int idx = 0; idx < sizeof(inverters[inv]->monthData)/sizeof(MonthData); idx++)
             {
-                if (inverters[inv]->monthData[idx].datetime > 0)
+                if (inverters[inv]->monthData[idx].datetime != 0)
                 {
                     sqlite3_bind_int(pStmt, 1, (int)inverters[inv]->monthData[idx].datetime);
                     // Fix #269

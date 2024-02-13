@@ -459,7 +459,7 @@ E_SBFSPOT ArchiveEventData(InverterData *inverters[], boost::gregorian::date sta
                         for (int x = 41; x < (packetposition - 3); x += sizeof(SMA_EVENTDATA))
                         {
                             SMA_EVENTDATA *pEventData = (SMA_EVENTDATA *)(pcktBuf + x);
-                            if (pEventData->DateTime > 0)	// Fix Issue 89
+                            if (pEventData->DateTime != 0)
                             {
                                 inverters[inv]->eventData.push_back(EventData(UserGroup, pEventData));
                                 if (pEventData->EntryID == 1)

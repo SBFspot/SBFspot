@@ -127,7 +127,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
     char msg[80 + MAX_PATH];
     if (cfg->CSV_Export)
     {
-        if (inverters[0]->monthData[0].datetime <= 0)   //invalid date?
+        if (inverters[0]->monthData[0].datetime == 0)   //invalid date?
         {
             if (!cfg->quiet) puts("ExportMonthDataToCSV: There is no data to export!"); //First day of the month?
         }
@@ -188,10 +188,10 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
             {
                 time_t datetime = 0;
                 for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-                    if (inverters[inv]->monthData[idx].datetime > 0)
+                    if (inverters[inv]->monthData[idx].datetime != 0)
                         datetime = inverters[inv]->monthData[idx].datetime;
 
-                if (datetime > 0)
+                if (datetime != 0)
                 {
                     fprintf(csv, "%s", strftime_t(cfg->DateFormat, datetime).c_str());
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
@@ -280,13 +280,13 @@ int ExportDayDataToCSV(const Config *cfg, InverterData* const inverters[])
         time_t datetime = 0;
         unsigned long long totalPower = 0;
         for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
-            if (inverters[inv]->dayData[dd].datetime > 0)
+            if (inverters[inv]->dayData[dd].datetime != 0)
             {
                 datetime = inverters[inv]->dayData[dd].datetime;
                 totalPower += inverters[inv]->dayData[dd].watt;
             }
 
-        if (datetime > 0)
+        if (datetime != 0)
         {
             if ((cfg->CSV_SaveZeroPower) || (totalPower > 0))
             {
