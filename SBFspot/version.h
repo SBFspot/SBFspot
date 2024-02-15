@@ -6,6 +6,7 @@ V3.9.9
     Added SqlQueryInterval to Upload service/daemon config option
     Fix Y2038 issue (See #688 Not able to set inverter time)
     Cleanup of #include <time.h>
+    Fix RootDeviceAddress empty when MIS_Enabled=0
 
 V3.9.8
     MQTT stream to Custom CSV

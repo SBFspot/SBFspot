@@ -412,6 +412,11 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
     unsigned int tmp[6];
     sscanf(BTAddress, "%02X:%02X:%02X:%02X:%02X:%02X", &tmp[5], &tmp[4], &tmp[3], &tmp[2], &tmp[1], &tmp[0]);
 
+    // Fix: RootDeviceAddress empty when MIS_Enabled=0
+    // MIS_Enabled=1 --> RootDeviceAddress can change during device discovery
+    for (int i = 0; i<6; i++)
+        RootDeviceAddress[i] = (uint8_t)tmp[i];
+
     // Multiple Inverter Support disabled
     // Connect to 1 and only 1 device (V2.0.6 compatibility mode)
     if (!MIS)
@@ -427,9 +432,6 @@ E_SBFSPOT initialiseSMAConnection(const char *BTAddress, InverterData *inverters
         // Call 2.0.6 init function
         return initialiseSMAConnection(inverters[0]);
     }
-
-    for (int i=0; i<6; i++)
-        RootDeviceAddress[i] = (uint8_t)tmp[i];
 
     //Init Inverter
     uint8_t version[6] = {1,0,0,0,0,0};
