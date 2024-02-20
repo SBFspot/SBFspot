@@ -34,9 +34,7 @@ DISCLAIMER:
 
 #pragma once
 
-#if !defined(_WIN32)
-#error Do Not include oswindows.h on non-windows systems
-#endif
+#if defined(_WIN32)
 
 #define OS "Windows"
 
@@ -57,4 +55,6 @@ char *strptime (const char *buf, const char *format, struct tm *timeptr);
 
 #if !defined(NOMINMAX)
 #define NOMINMAX
+#endif
+
 #endif

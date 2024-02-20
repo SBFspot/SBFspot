@@ -34,15 +34,16 @@ DISCLAIMER:
 
 #pragma once
 
-#if !defined(__linux__)
-#error Do Not include oslinux.h on non-linux systems
-#endif
+#if defined(__linux__)
 
 #define OS "Linux"
 
 #include <unistd.h>
 
-#define __USE_TIME_BITS64
+// Fix #692 Compile failure on Debian 12 - 64 bit
+#if !defined(__LP64__)   // Target 32 bit
+#   define __USE_TIME_BITS64
+#endif
 #include <time.h>
 
 extern unsigned int sleep (unsigned int __seconds); // See unistd.h
@@ -68,3 +69,5 @@ extern unsigned int sleep (unsigned int __seconds); // See unistd.h
 typedef int SOCKET;
 
 #define FOLDER_SEP "/"
+
+#endif

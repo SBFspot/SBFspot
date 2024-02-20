@@ -7,6 +7,7 @@ V3.9.9
     Fix Y2038 issue (See #688 Not able to set inverter time)
     Cleanup of #include <time.h>
     Fix RootDeviceAddress empty when MIS_Enabled=0
+    Fix #692 Compile failure on Debian 12 - 64 bit
 
 V3.9.8
     MQTT stream to Custom CSV
