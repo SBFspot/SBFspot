@@ -566,7 +566,7 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
 
     //Expand date specifiers in config::outputPath_Events
     std::stringstream csvpath;
-    csvpath << strftime_t(cfg->outputPath_Events, time(NULL));
+    csvpath << strftime_t(cfg->outputPath_Events, time(nullptr));
     CreatePath(csvpath.str().c_str());
 
     csvpath << FOLDER_SEP << cfg->plantname << "-" << (cfg->userGroup == UG_USER ? "User" : "Installer") << "-Events-" << dt_range_csv.c_str() << ".csv";
@@ -666,7 +666,7 @@ int ExportBatteryDataToCSV(const Config *cfg, InverterData* const inverters[])
 
     FILE *csv;
 
-    time_t spottime = time(NULL);
+    time_t spottime = time(nullptr);
 
     //Expand date specifiers in config::outputPath
     std::stringstream csvpath;

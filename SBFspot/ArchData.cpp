@@ -489,7 +489,7 @@ E_SBFSPOT getMonthDataOffset(InverterData *inverters[])
 {
     E_SBFSPOT rc = E_OK;
 
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     struct tm now_tm;
     memcpy(&now_tm, gmtime(&now), sizeof(now_tm));
 
@@ -511,7 +511,7 @@ E_SBFSPOT getMonthDataOffset(InverterData *inverters[])
                 {
                     if (inverters[inv]->monthData[i].datetime != 0)
                     {
-                        now = time(NULL);
+                        now = time(nullptr);
                         memcpy(&now_tm, gmtime(&now), sizeof(now_tm));
 
                         struct tm inv_tm;
