@@ -776,7 +776,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
         do
         {
             pcktID++;
-            now = time(NULL);
+            now = time(nullptr);
             writePacketHeader(pcktBuf, 0x01, addr_unknown);
             writePacket(pcktBuf, 0x0E, 0xA0, 0x0100, anySUSyID, anySerial);
             writeLong(pcktBuf, 0xFFFD040C);
@@ -839,7 +839,7 @@ E_SBFSPOT logonSMAInverter(InverterData* const inverters[], long userGroup, cons
             do
             {
                 pcktID++;
-                now = time(NULL);
+                now = time(nullptr);
                 writePacketHeader(pcktBuf, 0x01, addr_unknown);
                 if (inverters[inv]->SUSyID != SID_SB240)
                     writePacket(pcktBuf, 0x0E, 0xA0, 0x0100, inverters[inv]->SUSyID, inverters[inv]->Serial);
@@ -909,14 +909,66 @@ E_SBFSPOT logoffSMAInverter(InverterData* const inverter)
     return E_OK;
 }
 
-E_SBFSPOT SetPlantTime(time_t ndays, time_t lowerlimit, time_t upperlimit)
+/*
+ *  Set plant time of V2.1.0 as mentioned in #442 (Failed to get current plant time)
+ */
+E_SBFSPOT SetPlantTime_V1()
 {
     // If not a Bluetooth connection, just quit
     if (ConnType != CT_BLUETOOTH)
         return E_OK;
 
     if (DEBUG_NORMAL)
-        std::cout <<"SetPlantTime()" << std::endl;
+        std::cout << "SetPlantTime_V1()" << std::endl;
+
+    time_t localtime = time(nullptr);
+    int32_t dst = 0;
+    int32_t tzOffset = get_tzOffset(&dst);
+
+    if (VERBOSE_NORMAL)
+    {
+        std::cout << "Local Time: " << strftime_t(DateTimeFormat, localtime) << '\n' <<
+            "TZ offset (s): " << tzOffset << '\n' <<
+            "Adjusting plant time..." << std::endl;
+    }
+
+    do
+    {
+        pcktID++;
+        writePacketHeader(pcktBuf, 0x01, RootDeviceAddress);
+        writePacket(pcktBuf, 0x10, 0xA0, 0, anySUSyID, anySerial);
+        writeLong(pcktBuf, 0xF000020A);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0x00236D00);
+        // Get new host time
+        localtime = time(nullptr);
+        writeLong(pcktBuf, (int32_t)localtime);
+        writeLong(pcktBuf, (int32_t)localtime);
+        writeLong(pcktBuf, (int32_t)localtime);
+        writeLong(pcktBuf, tzOffset | dst);
+        writeLong(pcktBuf, 1);
+        writeLong(pcktBuf, 1);
+        writePacketTrailer(pcktBuf);
+        writePacketLength(pcktBuf);
+    } while (!isCrcValid(pcktBuf[packetposition - 3], pcktBuf[packetposition - 2]));
+
+    bthSend(pcktBuf);
+    // No reply expected here...
+
+    std::cout << "New plant time is now " << strftime_t(DateTimeFormat, localtime) << std::endl;
+
+    return E_OK;
+}
+
+E_SBFSPOT SetPlantTime_V2(time_t ndays, time_t lowerlimit, time_t upperlimit)
+{
+    // If not a Bluetooth connection, just quit
+    if (ConnType != CT_BLUETOOTH)
+        return E_OK;
+
+    if (DEBUG_NORMAL)
+        std::cout <<"SetPlantTime_V2()" << std::endl;
 
     do
     {
@@ -940,120 +992,147 @@ E_SBFSPOT SetPlantTime(time_t ndays, time_t lowerlimit, time_t upperlimit)
 
     bthSend(pcktBuf);
 
-    time_t hosttime = time(NULL);
-
     // Inverter returns UTC time, TZ offset and DST
     // Packet ID is mismatched
     E_SBFSPOT rc = getPacket(addr_unknown, 1);
 
-    if ((rc == E_OK) && (packetposition == 72))
+    if (rc != E_OK)
     {
-        if (get_long(pcktBuf + 41) != 0x00236D00)
-        {
-            if (DEBUG_NORMAL) std::cout << "Unexpected packet received!" << std::endl;
-            return E_COMM;
-        }
-        time_t invCurrTime = get_long(pcktBuf + 45);
-        time_t invLastTimeSet = get_long(pcktBuf + 49);
-        int tz = get_long(pcktBuf + 57) & 0xFFFFFFFE;
-        int dst = get_long(pcktBuf + 57) & 0x00000001;
-        int magic = get_long(pcktBuf + 61); // What's this?
-
-        time_t timediff = invCurrTime - hosttime;
-
         if (VERBOSE_NORMAL)
-        {
-            std::cout << "Local Host Time: " << strftime_t(DateTimeFormat, hosttime) << std::endl;
-            std::cout << "Plant Time     : " << strftime_t(DateTimeFormat, invCurrTime) << " (" << (timediff>0 ? "+":"") << timediff << " sec)" << std::endl;
-            std::cout << "TZ offset      : " << tz << " sec - DST: " << (dst == 1? "On":"Off") << std::endl;
-            std::cout << "Last Time Set  : " << strftime_t(DateTimeFormat, invLastTimeSet) << std::endl;
-        }
-
-        // Time difference between plant and host should be in the range of 1-3600 seconds
-        // This is to avoid the plant time is wrongly set when host time is not OK
-        // This check can be overruled by setting lower and upper limits = 0 (SBFspot -settime)
-        timediff = abs(timediff);
-
-        if ((lowerlimit == 0) && (upperlimit == 0)) // Ignore limits? (-settime command line argument)
-        {
-            // Plant time is OK - nothing to do
-            if (timediff == 0) return E_OK;
-        }
-        else
-        {
-            // Time difference is too big - nothing to do
-            if (timediff > upperlimit)
-            {
-                if (VERBOSE_NORMAL)
-                {
-                    std::cout << "The time difference between inverter/host is more than " << upperlimit << " seconds.\n";
-                    std::cout << "As a precaution the plant time won't be adjusted.\n";
-                    std::cout << "To overrule this behaviour, execute SBFspot -settime" << std::endl;
-                }
-
-                return E_OK;
-            }
-
-            // Time difference is too small - nothing to do
-            if (timediff < lowerlimit) return E_OK;
-
-            // Calculate #days of last time set
-            time_t daysago = ((hosttime - hosttime % 86400) - (invLastTimeSet - invLastTimeSet % 86400)) / 86400;
-
-            if (daysago < ndays)
-            {
-                if (VERBOSE_NORMAL)
-                {
-                    std::cout << "Time was already adjusted ";
-                    if (ndays == 1)
-                        std::cout << "today" << std::endl;
-                    else
-                        std::cout << "in last " << ndays << " days" << std::endl;
-                }
-
-                return E_OK;
-            }
-        }
-
-        // All checks passed - OK to set the time
-
-        if (VERBOSE_NORMAL)
-        {
-            std::cout << "Adjusting plant time..." << std:: endl;
-        }
-
-        do
-        {
-            pcktID++;
-            writePacketHeader(pcktBuf, 0x01, addr_unknown);
-            writePacket(pcktBuf, 0x10, 0xA0, 0, anySUSyID, anySerial);
-            writeLong(pcktBuf, 0xF000020A);
-            writeLong(pcktBuf, 0x00236D00);
-            writeLong(pcktBuf, 0x00236D00);
-            writeLong(pcktBuf, 0x00236D00);
-            // Get new host time
-            hosttime = time(NULL);
-            writeLong(pcktBuf, (int32_t)hosttime);
-            writeLong(pcktBuf, (int32_t)hosttime);
-            writeLong(pcktBuf, (int32_t)hosttime);
-            writeLong(pcktBuf, tz | dst);
-            writeLong(pcktBuf, ++magic);
-            writeLong(pcktBuf, 1);
-            writePacketTrailer(pcktBuf);
-            writePacketLength(pcktBuf);
-        }
-        while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
-
-        bthSend(pcktBuf);
-        // No response expected
-
-        std::cout << "New plant time is now " << strftime_t(DateTimeFormat, hosttime) << std::endl;
-    }
-    else
-        if (VERBOSE_NORMAL)
-        {
             std::cout << "Failed to get current plant time (" << rc << ")" << std::endl;
+
+        return rc;
+    }
+
+    time_t invCurrTime = get_long(pcktBuf + 45);
+    time_t invLastTimeSet = get_long(pcktBuf + 49);
+    int tz = get_long(pcktBuf + 57) & 0xFFFFFFFE;
+    int dst = get_long(pcktBuf + 57) & 0x00000001;
+    int timesetCount = get_long(pcktBuf + 61);
+
+    time_t hosttime = time(nullptr);
+    time_t timediff = invCurrTime - hosttime;
+
+    if (VERBOSE_NORMAL)
+    {
+        std::cout << "Local Host Time: " << strftime_t(DateTimeFormat, hosttime) << '\n' << 
+            "Plant Time     : " << strftime_t(DateTimeFormat, invCurrTime) << " (" << (timediff > 0 ? "+":"") << timediff << " sec)\n" <<
+            "TZ offset      : " << tz << " sec - DST: " << (dst == 1? "On":"Off") << '\n' <<
+            "Last Time Set  : " << strftime_t(DateTimeFormat, invLastTimeSet) << std::endl;
+    }
+
+    // Time difference between plant and host should be in the range of 1-3600 seconds
+    // This is to avoid the plant time is wrongly set when host time is not OK
+    // This check can be overruled by setting lower and upper limits = 0 (SBFspot -settime)
+    timediff = abs(timediff);
+
+    bool settime = ((lowerlimit + upperlimit) == 0);
+
+    if (!settime)
+    {
+        if (timediff >= upperlimit)  // Time difference is too high - nothing to do
+        {
+            if (VERBOSE_NORMAL)
+            {
+                std::cout << "The time difference between inverter/host is more than " << upperlimit << " seconds.\n" <<
+                    "As a precaution the plant time won't be adjusted.\n" <<
+                    "To overrule this behaviour, execute SBFspot -settime" <<
+                    std::endl;
+            }
+
+            return E_OK;
         }
+
+        if (timediff <= lowerlimit)  // Time difference is too low - nothing to do
+            return E_OK;
+
+        // Calculate #days of last time set
+        time_t daysago = ((hosttime - hosttime % 86400) - (invLastTimeSet - invLastTimeSet % 86400)) / 86400;
+
+        if (daysago < ndays)
+        {
+            if (VERBOSE_NORMAL)
+            {
+                std::cout << "Time was already adjusted ";
+                if (ndays == 1)
+                    std::cout << "today" << std::endl;
+                else
+                    std::cout << "in last " << ndays << " days" << std::endl;
+            }
+
+            return E_OK;
+        }
+    }
+
+    // All checks passed - OK to set the time
+
+    if (VERBOSE_NORMAL)
+        std::cout << "Adjusting plant time..." << std:: endl;
+
+    do
+    {
+        pcktID++;
+        writePacketHeader(pcktBuf, 0x01, addr_unknown);
+        writePacket(pcktBuf, 0x10, 0xA0, 0, anySUSyID, anySerial);
+        writeLong(pcktBuf, 0xF000020A);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0x00236D00);
+        // Get new host time
+        hosttime = time(nullptr);
+        writeLong(pcktBuf, (int32_t)hosttime);
+        writeLong(pcktBuf, (int32_t)hosttime);
+        writeLong(pcktBuf, (int32_t)hosttime);
+        writeLong(pcktBuf, tz | dst);
+        writeLong(pcktBuf, ++timesetCount);
+        writeLong(pcktBuf, 1);
+        writePacketTrailer(pcktBuf);
+        writePacketLength(pcktBuf);
+    }
+    while (!isCrcValid(pcktBuf[packetposition-3], pcktBuf[packetposition-2]));
+
+    bthSend(pcktBuf);
+    // No reply expected here...
+
+    do
+    {
+        pcktID++;
+        writePacketHeader(pcktBuf, 0x01, addr_unknown);
+        writePacket(pcktBuf, 0x10, 0xA0, 0, anySUSyID, anySerial);
+        writeLong(pcktBuf, 0xF000020A);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0x00236D00);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 0);
+        writeLong(pcktBuf, 1);
+        writeLong(pcktBuf, 1);
+        writePacketTrailer(pcktBuf);
+        writePacketLength(pcktBuf);
+    } while (!isCrcValid(pcktBuf[packetposition - 3], pcktBuf[packetposition - 2]));
+
+    bthSend(pcktBuf);
+
+    rc = getPacket(addr_unknown, 1);
+
+    if (rc == E_OK)
+    {
+        invCurrTime = get_long(pcktBuf + 45);
+        invLastTimeSet = get_long(pcktBuf + 49);
+
+        if (VERBOSE_NORMAL)
+        {
+            if (abs(invCurrTime - invLastTimeSet) < 5)
+                std::cout << "Plant time successfully set to " << strftime_t(DateTimeFormat, invCurrTime) << std::endl;
+            else
+            {
+                std::cout << "Failed to set plant time" << std::endl;
+                if (settime) std::cout << "Try SBFspot -settime2 for an alternative method" << std::endl;
+            }
+        }
+    }
 
     return rc;
 }
@@ -1081,6 +1160,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     cfg->loadlive = false;      //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
     cfg->startdate = 0;
     cfg->settime = false;
+    cfg->settime2 = false;
     cfg->mqtt = false;
 
     bool help_requested = false;
@@ -1283,7 +1363,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
                 std::string dt_start(argv[i] + 11);
                 if (dt_start.length() == 8)    //YYYYMMDD
                 {
-                    time_t start = time(NULL);
+                    time_t start = time(nullptr);
                     struct tm tm_start;
                     memcpy(&tm_start, localtime(&start), sizeof(tm_start));
                     tm_start.tm_year = atoi(dt_start.substr(0,4).c_str()) - 1900;
@@ -1341,6 +1421,9 @@ int parseCmdline(int argc, char **argv, Config *cfg)
         else if (stricmp(argv[i], "-settime") == 0)
             cfg->settime = true;
 
+        else if (stricmp(argv[i], "-settime2") == 0)
+            cfg->settime2 = true;
+
         //Scan for bluetooth devices
         else if (stricmp(argv[i], "-scan") == 0)
         {
@@ -1370,7 +1453,7 @@ int parseCmdline(int argc, char **argv, Config *cfg)
 
     }
 
-    if (cfg->settime)
+    if (cfg->settime || cfg->settime2)
     {
         // Verbose output level should be at least = 2 (normal)
         if (cfg->verbose < 2)
@@ -1951,7 +2034,7 @@ int GetConfig(Config *cfg)
         // If 1st day of the month and -am1 specified, force to -am2 to get last day of prev month
         if (cfg->archMonths == 1)
         {
-            time_t now = time(NULL);
+            time_t now = time(nullptr);
             struct tm *tm_now = localtime(&now);
             if (tm_now->tm_mday == 1)
                 cfg->archMonths++;
@@ -2842,7 +2925,7 @@ E_SBFSPOT setDeviceData(InverterData *inv, LriDef lri, uint16_t cmd, Rec40S32 &d
     do
     {
         pcktID++;
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         writePacketHeader(pcktBuf, 0x01, inv->BTAddress);
         writePacket(pcktBuf, 0x12, 0xE0, 0x0100, inv->SUSyID, inv->Serial);
         writeShort(pcktBuf, 0x010E);

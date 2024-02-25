@@ -8,6 +8,7 @@ V3.9.9
     Cleanup of #include <time.h>
     Fix RootDeviceAddress empty when MIS_Enabled=0
     Fix #692 Compile failure on Debian 12 - 64 bit
+    Fix #442 Failed to get current plant time
 
 V3.9.8
     MQTT stream to Custom CSV

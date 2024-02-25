@@ -134,6 +134,7 @@ struct Config
     time_t  startdate;              // -startdate   Start reading of historic data at the given date (YYYYMMDD)
     S123_COMMAND    s123;           // -123s        123Solar logger support(http://www.123solar.org/)
     bool    settime;                // -settime     Set plant time
+    bool    settime2;               // -settime2    Set plant time of V2.1.0 as mentioned in #442 (Failed to get current plant time)
     bool    mqtt;                   // -mqtt        Publish spot data to mqtt broker
 };
 

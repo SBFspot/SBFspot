@@ -66,9 +66,13 @@ int Inverter::process()
     if (VERBOSE_NORMAL) puts("Logon OK");
 
     // If SBFspot is executed with -settime argument
-    if (m_config.settime)
+    if (m_config.settime || m_config.settime2)
     {
-        rc = SetPlantTime(0, 0, 0); // Set time ignoring limits
+        if (m_config.settime)
+            rc = SetPlantTime_V2(0, 0, 0);
+        else if (m_config.settime2)
+            rc = SetPlantTime_V1();
+        
         logoffSMAInverter(m_inverters[0]);
         logOff();
         bthClose(); // Close socket
@@ -80,7 +84,7 @@ int Inverter::process()
     // Only BT connected devices and if enabled in config _or_ requested by 123Solar
     // Most probably Speedwire devices get their time from the local IP network
     if ((m_config.ConnectionType == CT_BLUETOOTH) && (m_config.synchTime > 0 || m_config.s123 == S123_SYNC ))
-        if ((rc = SetPlantTime(m_config.synchTime, m_config.synchTimeLow, m_config.synchTimeHigh)) != E_OK)
+        if ((rc = SetPlantTime_V2(m_config.synchTime, m_config.synchTimeLow, m_config.synchTimeHigh)) != E_OK)
             std::cout << "SetPlantTime returned an error: " << rc << std::endl;
 
     //if ((rc = getInverterData(m_inverters, sbftest)) != E_OK)
