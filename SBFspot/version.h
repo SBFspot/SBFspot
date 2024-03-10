@@ -3,6 +3,7 @@
 /*
 V3.9.10
     Fix regression (Month data shifted by one day on some systems)
+    Fix #694 Corrupt data
 
 V3.9.9 (Retired)
     Fix #532 SBFspotUpload service stops when remote SQL server is temporarily down

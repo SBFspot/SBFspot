@@ -91,7 +91,7 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                 writePacketHeader(pcktBuf, 0x01, inverters[inv]->BTAddress);
                 writePacket(pcktBuf, 0x09, 0xE0, 0, inverters[inv]->SUSyID, inverters[inv]->Serial);
                 writeLong(pcktBuf, 0x70000200);
-                writeLong(pcktBuf, (int32_t)startTime - 300);
+                writeLong(pcktBuf, (int32_t)startTime - 600);   // Fix #694 Corrupt data
                 writeLong(pcktBuf, (int32_t)startTime + 86100);
                 writePacketTrailer(pcktBuf);
                 writePacketLength(pcktBuf);
