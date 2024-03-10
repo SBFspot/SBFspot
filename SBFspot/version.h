@@ -1,7 +1,10 @@
-#define VERSION "3.9.9"
+#define VERSION "3.9.10"
 
 /*
-V3.9.9
+V3.9.10
+    Fix regression (Month data shifted by one day on some systems)
+
+V3.9.9 (Retired)
     Fix #532 SBFspotUpload service stops when remote SQL server is temporarily down
     Added SqlQueryInterval to Upload service/daemon config option
     Fix Y2038 issue (See #688 Not able to set inverter time)

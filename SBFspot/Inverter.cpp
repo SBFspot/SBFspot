@@ -493,7 +493,7 @@ int Inverter::process()
                     printf("SUSyID: %d - SN: %lu\n", m_inverters[inv]->SUSyID, m_inverters[inv]->Serial);
                     for (unsigned int ii = 0; ii < sizeof(m_inverters[inv]->monthData) / sizeof(MonthData); ii++)
                         if (m_inverters[inv]->monthData[ii].datetime != 0)
-                            printf("%s : %.3fkWh - %3.3fkWh\n", strftime_t(m_config.DateFormat, m_inverters[inv]->monthData[ii].datetime).c_str(), (double)m_inverters[inv]->monthData[ii].totalWh / 1000, (double)m_inverters[inv]->monthData[ii].dayWh / 1000);
+                            printf("%s : %.3fkWh - %3.3fkWh\n", strfgmtime_t(m_config.DateFormat, m_inverters[inv]->monthData[ii].datetime).c_str(), (double)m_inverters[inv]->monthData[ii].totalWh / 1000, (double)m_inverters[inv]->monthData[ii].dayWh / 1000);
                     puts("======");
                 }
             }

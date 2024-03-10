@@ -46,10 +46,20 @@ DISCLAIMER:
 
 extern int debug;
 
+//print time as UTC time
+std::string strfgmtime_t(const char *format, const time_t rawtime)
+{
+    const tm *timeinfo = gmtime(&rawtime);
+
+    std::ostringstream os;
+    os << std::put_time(timeinfo, format);
+    return os.str();
+}
+
 //Print time as local time
 std::string strftime_t(const char *format, const time_t rawtime)
 {
-    const struct tm* timeinfo = localtime(&rawtime);
+    const tm *timeinfo = localtime(&rawtime);
 
     std::ostringstream os;
     os << std::put_time(timeinfo, format);

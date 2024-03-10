@@ -47,6 +47,7 @@ DISCLAIMER:
 #define MAX_PATH          260
 #endif
 
+std::string strfgmtime_t(const char *format, const time_t rawtime);
 std::string strftime_t(const char *format, const time_t rawtime);
 char *rtrim(char *txt);
 int get_tzOffset(/*OUT*/int *isDST);

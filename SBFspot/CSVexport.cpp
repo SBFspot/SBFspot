@@ -140,7 +140,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
             csvpath << strftime_t(cfg->outputPath, inverters[0]->monthData[0].datetime);
             CreatePath(csvpath.str().c_str());
 
-            csvpath << FOLDER_SEP << cfg->plantname << '-' << strftime_t("%Y%m", inverters[0]->monthData[0].datetime) << ".csv";
+            csvpath << FOLDER_SEP << cfg->plantname << '-' << strfgmtime_t("%Y%m", inverters[0]->monthData[0].datetime) << ".csv";
 
             if ((csv = fopen(csvpath.str().c_str(), "w+")) == NULL)
             {
@@ -193,7 +193,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
 
                 if (datetime != 0)
                 {
-                    fprintf(csv, "%s", strftime_t(cfg->DateFormat, datetime).c_str());
+                    fprintf(csv, "%s", strfgmtime_t(cfg->DateFormat, datetime).c_str());
                     for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
                     {
                         fprintf(csv, "%c%s", cfg->delimiter, FormatDouble(FormattedFloat, (double)inverters[inv]->monthData[idx].totalWh / 1000, 0, cfg->precision, cfg->decimalpoint));
