@@ -605,9 +605,6 @@ int ExportEventsToCSV(const Config *cfg, InverterData* const inverters[], std::s
 
         for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
         {
-            // Sort events on ascending Entry_ID
-            std::sort(inverters[inv]->eventData.begin(), inverters[inv]->eventData.end(), SortEntryID_Asc);
-
             for (const auto &event : inverters[inv]->eventData)
             {
 

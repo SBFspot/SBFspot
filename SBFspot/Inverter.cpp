@@ -561,12 +561,10 @@ int Inverter::process()
                 {
                     std::cout << "Events for device " << m_inverters[inv]->SUSyID << ":" << m_inverters[inv]->Serial << '\n';
 
-                    // Sort events on descending Entry_ID
-                    std::sort(m_inverters[inv]->eventData.begin(), m_inverters[inv]->eventData.end(), SortEntryID_Desc);
-
-                    for (const auto &event : m_inverters[inv]->eventData)
+                    // Print events in reverse order (Highest EntryID first)
+                    for (auto it = m_inverters[inv]->eventData.rbegin(); it != m_inverters[inv]->eventData.rend(); ++it)
                     {
-                        std::cout << event.ToString(m_config.DateTimeFormat) << '\n';
+                        std::cout << it->ToString(m_config.DateTimeFormat) << '\n';
                     }
                 }
             }
