@@ -132,13 +132,10 @@ int db_SQL_Export::exportMonthData(InverterData *inverters[])
         for (uint32_t inv=0; inverters[inv]!=NULL && inv<MAX_INVERTERS; inv++)
         {
             //Fix Issue 74: Double data in Monthdata tables
-            tm *ptm = gmtime(&inverters[inv]->monthData[0].datetime);
-            char dt[32];
-            strftime(dt, sizeof(dt), "%Y-%m", ptm);
+            tm *ptm = localtime(&inverters[inv]->monthData[0].datetime);
 
             std::stringstream rmvsql;
-            rmvsql.str("");
-            rmvsql << "DELETE FROM MonthData WHERE Serial=" << inverters[inv]->Serial << " AND strftime('%Y-%m',datetime(TimeStamp, 'unixepoch'))='" << dt << "';";
+            rmvsql << "DELETE FROM MonthData WHERE Serial=" << inverters[inv]->Serial << " AND strftime('%Y-%m',datetime(TimeStamp, 'unixepoch'))='" << std::put_time(dt, "%Y-%m") << "';";
 
             rc = exec_query(rmvsql.str().c_str());
             if (rc != SQLITE_OK)

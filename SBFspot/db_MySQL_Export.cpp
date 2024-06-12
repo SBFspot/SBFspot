@@ -145,7 +145,8 @@ int db_SQL_Export::exportDayData(InverterData *inverters[])
 
 int db_SQL_Export::exportMonthData(InverterData *inverters[])
 {
-    const char *sql = "INSERT INTO MonthData(TimeStamp,Serial,TotalYield,DayYield) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE Serial=Serial";
+    const char *sql = "INSERT INTO MonthData(TimeStamp,Serial,TotalYield,DayYield) VALUES(?,?,?,?)";
+
     int rc = SQL_OK;
 
     MYSQL_BIND values[4];
@@ -163,6 +164,18 @@ int db_SQL_Export::exportMonthData(InverterData *inverters[])
 
         for (uint32_t inv = 0; inverters[inv] != NULL && inv<MAX_INVERTERS; inv++)
         {
+            // Fix #74 / #701: Double data in Monthdata table
+            tm *ptm = localtime(&inverters[inv]->monthData[0].datetime);
+
+            std::stringstream rmvsql;
+            rmvsql << "DELETE FROM MonthData WHERE Serial=" << inverters[inv]->Serial << " AND DATE_FORMAT(CONVERT_TZ(FROM_UNIXTIME(TimeStamp),@@time_zone,'+00:00'), '%Y-%m')='" << std::put_time(ptm, "%Y-%m") << "';";
+
+            if ((rc = exec_query(rmvsql.str())) != SQL_OK)
+            {
+                print_error("exec_query() returned", rmvsql.str());
+                break;
+            }
+
             for (unsigned int idx = 0; idx < sizeof(inverters[inv]->monthData) / sizeof(MonthData); idx++)
             {
                 if (inverters[inv]->monthData[idx].datetime != 0)
