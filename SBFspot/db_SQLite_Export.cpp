@@ -135,7 +135,7 @@ int db_SQL_Export::exportMonthData(InverterData *inverters[])
             tm *ptm = localtime(&inverters[inv]->monthData[0].datetime);
 
             std::stringstream rmvsql;
-            rmvsql << "DELETE FROM MonthData WHERE Serial=" << inverters[inv]->Serial << " AND strftime('%Y-%m',datetime(TimeStamp, 'unixepoch'))='" << std::put_time(dt, "%Y-%m") << "';";
+            rmvsql << "DELETE FROM MonthData WHERE Serial=" << inverters[inv]->Serial << " AND strftime('%Y-%m',datetime(TimeStamp, 'unixepoch'))='" << std::put_time(ptm, "%Y-%m") << "';";
 
             rc = exec_query(rmvsql.str().c_str());
             if (rc != SQLITE_OK)
