@@ -38,6 +38,10 @@ DISCLAIMER:
 
 #include "osselect.h"
 #include "SBFspot.h"
+
+// Fix 695 error compiling on recent Armbian / arm debian with mariadb reference to deprecated include <mysql/mysql.h>
+// Linux: Create symlink when using MariaDB
+// sudo ln -s /usr/include/mariadb /usr/include/mysql
 #include <mysql/mysql.h>
 
 extern bool quiet;
