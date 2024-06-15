@@ -179,7 +179,7 @@ E_SBFSPOT ArchiveDayData(InverterData* const inverters[], time_t startTime)
                         else
                         {
                             if (DEBUG_HIGHEST) printf("Packet ID mismatch. Expected %d, received %d\n", pcktID, rcvpcktID);
-                            validPcktID = true;
+                            validPcktID = false;    // Fix #700 Partial ArchiveDayData after PacketID mismatch
                             packetcount = 0;
                         }
                     }

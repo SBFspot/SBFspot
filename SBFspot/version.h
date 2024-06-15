@@ -1,6 +1,9 @@
-#define VERSION "3.9.10"
+#define VERSION "3.9.11"
 
 /*
+V3.9.11
+    Fix #700 Partial ArchiveDayData after PacketID mismatch
+
 V3.9.10
     Fix regression (Month data shifted by one day on some systems)
     Fix #694 Corrupt data
