@@ -4,6 +4,7 @@
 V3.9.11
     Fix #700 Partial ArchiveDayData after PacketID mismatch
     Fix 695 Error compiling on recent Armbian / arm debian with mariadb reference to deprecated include <mysql/mysql.h>
+    Prepare for SMAdata2+ protocol decoder plugin
 
 V3.9.10
     Fix regression (Month data shifted by one day on some systems)

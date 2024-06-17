@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -119,6 +119,8 @@ struct Config
     std::string mqtt_item_format;   // default "{key}": {value}
     std::string mqtt_item_delimiter;// default comma
 
+    std::string decode_path;        // undocumented
+
                                     //Commandline settings
     int     debug;                  // -d           Debug level (0-5)
     int     verbose;                // -v           Verbose output level (0-5)
@@ -136,6 +138,7 @@ struct Config
     bool    settime;                // -settime     Set plant time
     bool    settime2;               // -settime2    Set plant time of V2.1.0 as mentioned in #442 (Failed to get current plant time)
     bool    mqtt;                   // -mqtt        Publish spot data to mqtt broker
+    bool    decode_file;            // -decode      Undocumented
 };
 
 struct MonthData
@@ -167,8 +170,8 @@ enum getInverterDataType
     SpotACPower         = 1 << 3,
     SpotACVoltage       = 1 << 4,
     SpotGridFrequency   = 1 << 5,
-    //MaxACPower        = 1 << 6,
-    //MaxACPower2       = 1 << 7,
+    SpotDCPower_2       = 1 << 6,   // SB 1600TL-10
+    SpotACPower_2       = 1 << 7,   // SB 1600TL-10
     SpotACTotalPower    = 1 << 8,
     TypeLabel           = 1 << 9,
     OperationTime       = 1 << 10,

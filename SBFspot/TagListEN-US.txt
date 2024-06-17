@@ -5742,6 +5742,8 @@
 10011=Metering.TotOpTms\4599296\Operating time
 10012=Metering.TotFeedTms\4599552\Feed-in time
 10013=Operation.EvtCntIstl\6393088\Number of events for installer
+10014=Operation.EvtCntSvc\6393344\Number of events for service
+10026=Operation.EvtCntDvlp\6393600\Number of events for developer
 10027=Operation.Evt.EvtNoShrt\4292352\Current event number
 10028=Operation.RmgTms\4285952\Waiting time until feed-in
 10029=PCC.WMaxAsymMod\9581312\Load unbalance limit

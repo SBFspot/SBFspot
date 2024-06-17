@@ -150,6 +150,9 @@
     <ClInclude Include="hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="TagListDE-DE.txt">

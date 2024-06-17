@@ -366,6 +366,7 @@ copy "$(ProjectDir)SBFspot.cfg" "$(OutDir)SBFspot.default.cfg"
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="db_update.h" />
+    <ClInclude Include="decoder.h" />
     <ClInclude Include="Ethernet.h" />
     <ClInclude Include="EventData.h" />
     <ClInclude Include="hash.h" />

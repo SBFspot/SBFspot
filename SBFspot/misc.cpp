@@ -38,7 +38,7 @@ DISCLAIMER:
 #include <string.h>
 #include <stdio.h>
 #if defined(_WIN32)
-#include <windows.h> // Should not be included in oswindows.h but it is needed for realpath()
+#include "decoder.h"
 #endif
 #if defined(__linux__)
 #include <limits.h>
@@ -190,26 +190,33 @@ void print_error(FILE *error_file, ERRORLEVEL error_level, const char *error_msg
 
 void HexDump(uint8_t *buf, int count, int radix)
 {
-    int i, j;
-    printf("--------:");
-    for (i=0; i < radix; i++)
+#if defined(_WIN32)
+    if (decodeSMAData)
+        decodeSMAData(buf, count, tagdefs);
+    else
+#endif
     {
-        printf(" %02X", i);
-    }
-    for (i = 0, j = 0; i < count; i++)
-    {
-        if (j % radix == 0)
+        int i, j;
+        printf("--------:");
+        for (i = 0; i < radix; i++)
         {
-            if (radix == 16)
-                printf("\n%08X: ", j);
-            else
-                printf("\n%08d: ", j);
+            printf(" %02X", i);
         }
-        printf("%02X ", buf[i]);
-        j++;
+        for (i = 0, j = 0; i < count; i++)
+        {
+            if (j % radix == 0)
+            {
+                if (radix == 16)
+                    printf("\n%08X: ", j);
+                else
+                    printf("\n%08d: ", j);
+            }
+            printf("%02X ", buf[i]);
+            j++;
+        }
+        printf("\n");
+        fflush(stdout);
     }
-    printf("\n");
-    fflush(stdout);
 }
 
 char *FormatFloat(char *str, float value, int width, int precision, char decimalpoint)

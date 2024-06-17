@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2018, SBF
+    (c)2012-2024, SBF
     
     Latest version found at https://github.com/SBFspot/SBFspot
     
@@ -43,12 +43,8 @@ extern TagDefs tagdefs;
 
 unsigned int EventData::GroupTagID() const
 {
-    const unsigned int GroupDefOffset = 829;
-    uint32_t GroupDef = m_Group & 0x1F;
-    if ((GroupDef > 0) && (GroupDef <= 17))
-        return GroupDef + GroupDefOffset;   // 830 = LriGrpStt (Status)
-    else
-        return 0;
+    #define GroupDefOffset 829
+    return (m_Group & 0x1F) + GroupDefOffset;   // 830 = LriGrpStt (Status)
 }
 
 unsigned int EventData::UserGroupTagID() const
@@ -63,15 +59,14 @@ unsigned int EventData::UserGroupTagID() const
 
 std::string EventData::EventType() const
 {
-    switch (m_EventFlags & 3)
+    switch (m_EventFlags & 7)
     {
     case 0: return "Incoming";
     case 1: return "Outgoing";
     case 2: return "Event";
     case 3: return "Acknowledge";
     case 4: return "Reminder";
-    case 7: return "Invalid";
-    default: return "N/A";
+    default: return "Invalid";
     }
 }
 

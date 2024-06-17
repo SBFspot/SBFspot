@@ -113,8 +113,6 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
         {
             bib += bthRead(CommBuf + sizeof(pkHeader), btohs(pkHdr->pkLength) - sizeof(pkHeader));
 
-            if (DEBUG_HIGHEST) HexDump(CommBuf, bib, 10);
-
             //Check if data is coming from the right inverter
             if (isValidSender(senderaddr, pkHdr->SourceAddr))
             {
@@ -180,7 +178,6 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
         }
         else
         {
-            if (DEBUG_HIGHEST) HexDump(CommBuf, bib, 10);
             //Check if data is coming from the right inverter
             if (isValidSender(senderaddr, pkHdr->SourceAddr))
             {
@@ -266,7 +263,6 @@ E_SBFSPOT ethGetPacket(void)
             //More data after header?
             if (pkLen > 0)
             {
-                if (DEBUG_HIGHEST) HexDump(CommBuf, bib, 10);
                 if (btohl(pkHdr->pcktHdrL2.MagicNumber) == ETH_L2SIGNATURE)
                 {
                     // Copy CommBuf to packetbuffer
@@ -328,8 +324,6 @@ E_SBFSPOT ethInitConnection(InverterData *inverters[], std::vector<std::string> 
         int bytesRead = 0;
         while ((bytesRead = ethRead(CommBuf, sizeof(CommBuf))) > 0)
         {
-            if (DEBUG_HIGHEST) HexDump(CommBuf, bytesRead, 10);
-
             if (memcmp(CommBuf, "SMA", 3) == 0)
             {
                 inverters[devcount] = new InverterData;
@@ -1162,10 +1156,21 @@ int parseCmdline(int argc, char **argv, Config *cfg)
     cfg->settime = false;
     cfg->settime2 = false;
     cfg->mqtt = false;
+    cfg->decode_file = false;
 
     bool help_requested = false;
 
-    //Set quiet/help mode
+    // Get path of executable
+    // Fix Issue 169 (expand symlinks)
+    cfg->AppPath = realpath(argv[0]);
+
+    size_t pos = cfg->AppPath.find_last_of("/\\");
+    if (pos != std::string::npos)
+        cfg->AppPath.erase(++pos);
+    else
+        cfg->AppPath.clear();
+
+    //Set quiet/help/decode mode
     for (int i = 1; i < argc; i++)
     {
         if (*argv[i] == '/')
@@ -1182,17 +1187,38 @@ int parseCmdline(int argc, char **argv, Config *cfg)
             puts(VERSION);
             return 1;
         }
+#if defined(_WIN32)
+#pragma region SMAdata2pdec
+        if (strnicmp(argv[i], "-decode:", 8) == 0)
+        {
+            /*
+            SMAdata2pdec.dll is a closed source SMAdata2+ protocol decoder
+            Check if the plugin is available in the SBFspot application folder
+            */
+            std::ifstream dll(cfg->AppPath + "SMAdata2pdec.dll");
+            if ((cfg->decode_file = dll.is_open()) == true)
+            {
+                // Force quiet mode to mute own output
+                cfg->quiet = true;
+
+                dll.close();
+
+                if (strlen(argv[i]) == 8)
+                {
+                    InvalidArg(argv[i]);
+                    return -1;
+                }
+                else
+                    cfg->decode_path = argv[i] + 8;
+            }
+
+            strcpy(cfg->locale, "en-US");
+            return 0;
+        }
+#pragma endregion
+#endif
+
     }
-
-    // Get path of executable
-    // Fix Issue 169 (expand symlinks)
-    cfg->AppPath = realpath(argv[0]);
-
-    size_t pos = cfg->AppPath.find_last_of("/\\");
-    if (pos != std::string::npos)
-        cfg->AppPath.erase(++pos);
-    else
-        cfg->AppPath.clear();
 
     //Build fullpath to config file (SBFspot.cfg should be in same folder as SBFspot.exe)
     cfg->ConfigFile = cfg->AppPath + "SBFspot.cfg";
@@ -1265,7 +1291,6 @@ int parseCmdline(int argc, char **argv, Config *cfg)
             }
             else
                 cfg->archEventMonths = (int)lValue;
-
         }
 
         //Set debug level
@@ -2743,6 +2768,13 @@ E_SBFSPOT getInverterData(InverterData *devList[], enum getInverterDataType type
         command = 0x53800200;
         first = 0x00251E00;
         last = 0x00251EFF;
+        break;
+
+    case SpotDCPower_2:
+        // SPOT_PDC1, SPOT_PDC2
+        command = 0x53800200;
+        first = 0x00451E00;
+        last = 0x00451EFF;
         break;
 
     case SpotDCVoltage:

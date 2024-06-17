@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -36,8 +36,9 @@ DISCLAIMER:
 
 #include "osselect.h"
 #include "endianness.h"
-
+#include "TagDefs.h"
 #include <string>
+#include <memory>
 
 extern bool quiet;
 extern int verbose;
@@ -79,7 +80,7 @@ union SMA_EVENTARGS
 
 struct SMA_EVENTDATA
 {
-    int32_t DateTime;
+    int32_t  DateTime;
     uint16_t EntryID;
     uint16_t SUSyID;
     uint32_t SerNo;

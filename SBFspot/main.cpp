@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2021, SBF
+    (c)2012-2024, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -37,6 +37,14 @@ DISCLAIMER:
 
 const uint32_t MAX_INVERTERS = 20;
 
+#if defined(_WIN32)
+#include "decoder.h"
+HINSTANCE hDLL = NULL;
+dll_decode decodeSMAData = NULL;
+dll_import importSMAData = NULL;
+dll_version decoderVersion = NULL;
+#endif
+
 int main(int argc, char **argv)
 {
 #if defined(_WIN32)
@@ -50,46 +58,51 @@ int main(int argc, char **argv)
 
     //Read the command line and store settings in config struct
     rc = parseCmdline(argc, argv, &cfg);
-    if (rc == -1) return 1;	//Invalid commandline - Quit, error
-    if (rc == 1) return 0;	//Nothing to do - Quit, no error
+    if (rc == -1) return 1; //Invalid commandline - Quit, error
+    if (rc == 1) return 0;  //Nothing to do - Quit, no error
 
-    //Read config file and store settings in config struct
-    rc = GetConfig(&cfg);	//Config struct contains fullpath to config file
-    if (rc != 0) return rc;
-
-    //Copy some config settings to public variables
-    debug = cfg.debug;
-    verbose = cfg.verbose;
-    quiet = cfg.quiet;
-    ConnType = cfg.ConnectionType;
-
-    if ((ConnType != CT_BLUETOOTH) && cfg.settime)
+    if (cfg.decode_file)
+        std::cout << "Decoding " << cfg.decode_path << std::endl;
+    else
     {
-        std::cout << "-settime is only supported for Bluetooth devices" << std::endl;
-        return 0;
-    }
+        //Read config file and store settings in config struct
+        rc = GetConfig(&cfg);   //Config struct contains fullpath to config file
+        if (rc != 0) return rc;
 
-    strncpy(DateTimeFormat, cfg.DateTimeFormat, sizeof(DateTimeFormat));
-    strncpy(DateFormat, cfg.DateFormat, sizeof(DateFormat));
+        //Copy some config settings to public variables
+        debug = cfg.debug;
+        verbose = cfg.verbose;
+        quiet = cfg.quiet;
+        ConnType = cfg.ConnectionType;
 
-    if (VERBOSE_NORMAL) print_error(stdout, PROC_INFO, "Starting...\n");
-
-    // If co-ordinates provided, calculate sunrise & sunset times
-    // for this location
-    if ((cfg.latitude != 0) || (cfg.longitude != 0))
-    {
-        cfg.isLight = sunrise_sunset(cfg.latitude, cfg.longitude, &cfg.sunrise, &cfg.sunset, (float)cfg.SunRSOffset / 3600);
-
-        if (VERBOSE_NORMAL)
+        if ((ConnType != CT_BLUETOOTH) && cfg.settime)
         {
-            printf("sunrise: %02d:%02d\n", (int)cfg.sunrise, (int)((cfg.sunrise - (int)cfg.sunrise) * 60));
-            printf("sunset : %02d:%02d\n", (int)cfg.sunset, (int)((cfg.sunset - (int)cfg.sunset) * 60));
+            std::cout << "-settime is only supported for Bluetooth devices" << std::endl;
+            return 0;
         }
 
-        if ((!cfg.forceInq) && (!cfg.isLight))
+        strncpy(DateTimeFormat, cfg.DateTimeFormat, sizeof(DateTimeFormat));
+        strncpy(DateFormat, cfg.DateFormat, sizeof(DateFormat));
+
+        if (VERBOSE_NORMAL) print_error(stdout, PROC_INFO, "Starting...\n");
+
+        // If co-ordinates provided, calculate sunrise & sunset times
+        // for this location
+        if ((cfg.latitude != 0) || (cfg.longitude != 0))
         {
-            if (!quiet) puts("Nothing to do... it's dark. Use -finq to force inquiry.");
-            return 0;
+            cfg.isLight = sunrise_sunset(cfg.latitude, cfg.longitude, &cfg.sunrise, &cfg.sunset, (float)cfg.SunRSOffset / 3600);
+
+            if (VERBOSE_NORMAL)
+            {
+                printf("sunrise: %02d:%02d\n", (int)cfg.sunrise, (int)((cfg.sunrise - (int)cfg.sunrise) * 60));
+                printf("sunset : %02d:%02d\n", (int)cfg.sunset, (int)((cfg.sunset - (int)cfg.sunset) * 60));
+            }
+
+            if ((!cfg.forceInq) && (!cfg.isLight))
+            {
+                if (!quiet) puts("Nothing to do... it's dark. Use -finq to force inquiry.");
+                return 0;
+            }
         }
     }
 
@@ -100,10 +113,36 @@ int main(int argc, char **argv)
         return(2);
     }
 
+#if defined(_WIN32)
+    hDLL = LoadLibrary(L"SMAdata2pdec.dll");
+
+    if (hDLL)
+    {
+        decodeSMAData = (dll_decode)GetProcAddress(hDLL, "decode");
+        importSMAData = (dll_import)GetProcAddress(hDLL, "import");
+        decoderVersion = (dll_version)GetProcAddress(hDLL, "version");
+
+        if (decodeSMAData && VERBOSE_NORMAL)
+            std::cout << "SMAdata2+ protocol decoder V" << decoderVersion() << " activated" << std::endl;
+
+        if (cfg.decode_file)
+        {
+            importSMAData(cfg.decode_path, tagdefs);
+            return(0);
+        }
+    }
+#endif
+
     Inverter inverter(cfg);
     rc = inverter.process();
 
-    if (VERBOSE_NORMAL) print_error(stdout, PROC_INFO, "Done.\n");
+    if (VERBOSE_NORMAL)
+        print_error(stdout, PROC_INFO, "Done.\n");
+
+#if defined(_WIN32)
+    if (hDLL) FreeLibrary(hDLL);
+    hDLL = NULL;
+#endif
 
     return rc;
 }
