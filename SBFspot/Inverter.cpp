@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2024, SBF
+    (c)2012-2025, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -692,11 +692,13 @@ void Inverter::logOff()
 
 void Inverter::exportSpotData()
 {
-    if (m_inverters[0]->DevClass == SolarInverter)
-    {
-        if ((m_config.CSV_Export) && (!m_config.nospot))
-            ExportSpotDataToCSV(&m_config, m_inverters);
+    if ((m_config.CSV_Export) && (!m_config.nospot))
+        ExportSpotDataToCSV(&m_config, m_inverters);
 
+    // Undocumented - For 123Solar Web Solar logger usage only)
+    // Currently, only data of first inverter is exported
+    if ((m_inverters[0]->DevClass == SolarInverter) || (m_inverters[0]->DevClass == BatteryInverter) || (m_inverters[0]->DevClass == HybridInverter))
+    {
         if (m_config.s123 == S123_DATA)
             ExportSpotDataTo123s(&m_config, m_inverters);
         if (m_config.s123 == S123_INFO)
