@@ -142,7 +142,7 @@ int bthSend(uint8_t *btbuffer)
     int bytes_sent = send(sock, (const char *)btbuffer, packetposition, 0);
     if (bytes_sent >= 0)
     {
-        if (DEBUG_NORMAL) std::cout << bytes_sent << " Bytes sent" << std::endl;
+        if (DEBUG_HIGHEST) std::cout << bytes_sent << " Bytes sent" << std::endl;
     }
     else
     {
@@ -368,7 +368,7 @@ int bthSend(uint8_t *btbuffer)
 
     if (bytes_sent >= 0)
     {
-        if (DEBUG_NORMAL) std::cout << bytes_sent << " Bytes sent" << std::endl;
+        if (DEBUG_HIGHEST) std::cout << bytes_sent << " Bytes sent" << std::endl;
     }
     else
     {

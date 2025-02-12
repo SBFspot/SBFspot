@@ -4,6 +4,7 @@
 V3.9.12
     Added "include" keyword to config (See #720)
     Fix SBFspot not completely quiet when using -q (See #721)
+    Tightened some debug messages
 
 V3.9.11
     Fix #700 Partial ArchiveDayData after PacketID mismatch

@@ -94,7 +94,7 @@ void freemem(InverterData *inverters[])
 
 E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
 {
-    if (DEBUG_NORMAL) printf("getPacket(%d)\n", wait4Command);
+    if (DEBUG_HIGHEST) printf("getPacket(%d)\n", wait4Command);
     int index = 0;
     int hasL2pckt  = 0;
     E_SBFSPOT rc = E_OK;
@@ -117,7 +117,7 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
             if (isValidSender(senderaddr, pkHdr->SourceAddr))
             {
                 rc = E_OK;
-                if (DEBUG_NORMAL) printf("cmd=%d\n", btohs(pkHdr->command));
+                if (DEBUG_HIGHEST) printf("cmd=%d\n", btohs(pkHdr->command));
 
                 if ((hasL2pckt == 0) && (CommBuf[18] == 0x7E) && (get_long(CommBuf+19) == 0x656003FF))
                 {
@@ -130,7 +130,7 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
                     int bufptr = sizeof(pkHeader);
                     bool escNext = false;
 
-                    if (DEBUG_NORMAL) printf("PacketLength=%d\n", btohs(pkHdr->pkLength));
+                    if (DEBUG_HIGHEST) printf("PacketLength=%d\n", btohs(pkHdr->pkLength));
 
                     for (int i = sizeof(pkHeader); i < btohs(pkHdr->pkLength); i++)
                     {
@@ -182,7 +182,7 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
             if (isValidSender(senderaddr, pkHdr->SourceAddr))
             {
                 rc = E_OK;
-                if (DEBUG_NORMAL) printf("cmd=%d\n", btohs(pkHdr->command));
+                if (DEBUG_HIGHEST) printf("cmd=%d\n", btohs(pkHdr->command));
 
                 memcpy(pcktBuf, CommBuf, bib);
                 packetposition = bib;
@@ -214,7 +214,7 @@ E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command)
     if (packetposition > MAX_pcktBuf)
     {
         MAX_pcktBuf = packetposition;
-        if (DEBUG_HIGH)
+        if (DEBUG_HIGHEST)
         {
             printf("MAX_pcktBuf is now %d bytes\n", MAX_pcktBuf);
         }
