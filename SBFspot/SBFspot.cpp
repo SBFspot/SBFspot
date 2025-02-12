@@ -2686,85 +2686,88 @@ E_SBFSPOT getInverterData(InverterData *device, unsigned long command, unsigned 
                                 break;
 
                             default:
-                                switch (dataType)
+                                if (DEBUG_HIGH)
                                 {
-                                case DT_ULONG:
-                                    if (recordsize == 16)
+                                    switch (dataType)
                                     {
-                                        printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), u64_tostring(get_longlong(recptr + 8)).c_str());
-                                    }
-                                    else if (recordsize == 28)
+                                    case DT_ULONG:
+                                        if (recordsize == 16)
+                                        {
+                                            printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), u64_tostring(get_longlong(recptr + 8)).c_str());
+                                        }
+                                        else if (recordsize == 28)
+                                        {
+                                            printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                                u32_tostring(get_long(recptr + 8)).c_str(),
+                                                u32_tostring(get_long(recptr + 12)).c_str(),
+                                                u32_tostring(get_long(recptr + 16)).c_str(),
+                                                u32_tostring(get_long(recptr + 20)).c_str()
+                                            );
+                                        }
+                                        else if (recordsize == 40)
+                                        {
+                                            printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                                u32_tostring(get_long(recptr + 8)).c_str(),
+                                                u32_tostring(get_long(recptr + 12)).c_str(),
+                                                u32_tostring(get_long(recptr + 16)).c_str(),
+                                                u32_tostring(get_long(recptr + 20)).c_str(),
+                                                u32_tostring(get_long(recptr + 24)).c_str(),
+                                                u32_tostring(get_long(recptr + 28)).c_str()
+                                            );
+                                        }
+                                        else
+                                            printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                        break;
+
+                                    case DT_STATUS:
                                     {
-                                        printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
-                                            u32_tostring(get_long(recptr + 8)).c_str(),
-                                            u32_tostring(get_long(recptr + 12)).c_str(),
-                                            u32_tostring(get_long(recptr + 16)).c_str(),
-                                            u32_tostring(get_long(recptr + 20)).c_str()
-                                        );
+                                        for (const auto &tag : getattribute(recptr))
+                                            printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(tag, "???").c_str());
                                     }
-                                    else if (recordsize == 40)
-                                    {
-                                        printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
-                                            u32_tostring(get_long(recptr + 8)).c_str(),
-                                            u32_tostring(get_long(recptr + 12)).c_str(),
-                                            u32_tostring(get_long(recptr + 16)).c_str(),
-                                            u32_tostring(get_long(recptr + 20)).c_str(),
-                                            u32_tostring(get_long(recptr + 24)).c_str(),
-                                            u32_tostring(get_long(recptr + 28)).c_str()
-                                        );
-                                    }
-                                    else
-                                        printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
                                     break;
 
-                                case DT_STATUS:
-                                {
-                                    for (const auto &tag : getattribute(recptr))
-                                        printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), tagdefs.getDesc(tag, "???").c_str());
-                                }
-                                break;
-
-                                case DT_STRING:
-                                {
-                                    char str[40];
-                                    strncpy(str, (char*)recptr + 8, recordsize - 8);
-                                    printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), str);
-                                }
-                                break;
-
-                                case DT_SLONG:
-                                    if (recordsize == 16)
+                                    case DT_STRING:
                                     {
-                                        printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), s64_tostring(get_longlong(recptr + 8)).c_str());
+                                        char str[40];
+                                        strncpy(str, (char*)recptr + 8, recordsize - 8);
+                                        printf("%08X %d %s %s: '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), str);
                                     }
-                                    else if (recordsize == 28)
-                                    {
-                                        printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
-                                            s32_tostring(get_long(recptr + 8)).c_str(),
-                                            s32_tostring(get_long(recptr + 12)).c_str(),
-                                            s32_tostring(get_long(recptr + 16)).c_str(),
-                                            s32_tostring(get_long(recptr + 20)).c_str()
-                                        );
-
-                                    }
-                                    else if (recordsize == 40)
-                                    {
-                                        printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
-                                            s32_tostring(get_long(recptr + 8)).c_str(),
-                                            s32_tostring(get_long(recptr + 12)).c_str(),
-                                            s32_tostring(get_long(recptr + 16)).c_str(),
-                                            s32_tostring(get_long(recptr + 20)).c_str(),
-                                            s32_tostring(get_long(recptr + 24)).c_str(),
-                                            s32_tostring(get_long(recptr + 28)).c_str()
-                                        );
-                                    }
-                                    else
-                                        printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
                                     break;
 
-                                default:
-                                    printf("%08X %d %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
-                                    break;
+                                    case DT_SLONG:
+                                        if (recordsize == 16)
+                                        {
+                                            printf("%08X %d %s '%s' %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(), s64_tostring(get_longlong(recptr + 8)).c_str());
+                                        }
+                                        else if (recordsize == 28)
+                                        {
+                                            printf("%08X %d %s '%s' %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                                s32_tostring(get_long(recptr + 8)).c_str(),
+                                                s32_tostring(get_long(recptr + 12)).c_str(),
+                                                s32_tostring(get_long(recptr + 16)).c_str(),
+                                                s32_tostring(get_long(recptr + 20)).c_str()
+                                            );
+
+                                        }
+                                        else if (recordsize == 40)
+                                        {
+                                            printf("%08X %d %s '%s' %s %s %s %s %s %s\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str(),
+                                                s32_tostring(get_long(recptr + 8)).c_str(),
+                                                s32_tostring(get_long(recptr + 12)).c_str(),
+                                                s32_tostring(get_long(recptr + 16)).c_str(),
+                                                s32_tostring(get_long(recptr + 20)).c_str(),
+                                                s32_tostring(get_long(recptr + 24)).c_str(),
+                                                s32_tostring(get_long(recptr + 28)).c_str()
+                                            );
+                                        }
+                                        else
+                                            printf("%08X ?%d? %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                        break;
+
+                                    default:
+                                        printf("%08X %d %s '%s'\n", code, recordsize, strtok(ctime(&datetime), "\n"), tagdefs.getDescForLRI(lri).c_str());
+                                        break;
+                                    }
                                 }
                                 break;
                             }
