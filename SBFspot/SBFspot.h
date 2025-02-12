@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2022, SBF
+    (c)2012-2025, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -85,7 +85,7 @@ void CalcMissingSpot(InverterData *invData);
 int DaysInMonth(int month, int year);
 int getBT_SignalStrength(InverterData *invData);
 void freemem(InverterData *inverters[]);
-int GetConfig(Config *cfg);
+int GetConfig(Config *cfg, bool isInclude = false);
 E_SBFSPOT getInverterData(InverterData *inverters[], enum getInverterDataType type);
 int getInverterIndexByAddress(InverterData* const inverters[], uint8_t bt_addr[6]);
 E_SBFSPOT getPacket(uint8_t senderaddr[6], int wait4Command);

@@ -7,7 +7,7 @@
                                                    |_|
 
     SBFspot - Yet another tool to read power production of SMA solar/battery inverters
-    (c)2012-2024, SBF
+    (c)2012-2025, SBF
 
     Latest version can be found at https://github.com/SBFspot/SBFspot
 
@@ -1511,7 +1511,7 @@ void SayHello(int ShowHelp)
 #endif
     std::cout << "SBFspot V" << VERSION << "\n";
     std::cout << "Yet another tool to read power production of SMA solar inverters\n";
-    std::cout << "(c) 2012-2024, SBF (https://github.com/SBFspot/SBFspot)\n";
+    std::cout << "(c) 2012-2025, SBF (https://github.com/SBFspot/SBFspot)\n";
     std::cout << "Compiled for " << OS << " (" << BYTEORDER << ") " << sizeof(long) * 8 << " bit";
 #if defined(USE_SQLITE)
     std::cout << " with SQLite support";
@@ -1580,44 +1580,52 @@ int DaysInMonth(int month, int year)
 }
 
 /* read Config from file */
-int GetConfig(Config *cfg)
+int GetConfig(Config *cfg, bool isInclude)
 {
-    //Initialise config structure and set default values
-    strncpy(cfg->prgVersion, VERSION, sizeof(cfg->prgVersion));
-    memset(cfg->BT_Address, 0, sizeof(cfg->BT_Address));
-    memset(cfg->Local_BT_Address, 0, sizeof(cfg->Local_BT_Address));
-    memset(cfg->IP_Address, 0, sizeof(cfg->IP_Address));
-    cfg->outputPath[0] = 0;
-    cfg->outputPath_Events[0] = 0;
-    if (cfg->userGroup == UG_USER) cfg->SMA_Password[0] = 0;
-    cfg->plantname[0] = 0;
-    cfg->latitude = 0.0;
-    cfg->longitude = 0.0;
-    cfg->archdata_from = 0;
-    cfg->archdata_to = 0;
-    cfg->delimiter = ';';
-    cfg->precision = 3;
-    cfg->decimalpoint = ',';
-    cfg->BT_Timeout = 5;
-    cfg->BT_ConnectRetries = 10;
+    if (!isInclude)
+    {
+        //Initialise config structure and set default values
+        strncpy(cfg->prgVersion, VERSION, sizeof(cfg->prgVersion));
+        memset(cfg->BT_Address, 0, sizeof(cfg->BT_Address));
+        memset(cfg->Local_BT_Address, 0, sizeof(cfg->Local_BT_Address));
+        memset(cfg->IP_Address, 0, sizeof(cfg->IP_Address));
+        cfg->IP_Port = 0;
+        cfg->ConnectionType = CT_NONE;
+        cfg->outputPath[0] = 0;
+        cfg->outputPath_Events[0] = 0;
+        if (cfg->userGroup == UG_USER) cfg->SMA_Password[0] = 0;
+        cfg->plantname[0] = 0;
+        cfg->latitude = 0.0;
+        cfg->longitude = 0.0;
+        cfg->archdata_from = 0;
+        cfg->archdata_to = 0;
+        cfg->delimiter = ';';
+        cfg->precision = 3;
+        cfg->decimalpoint = ',';
+        cfg->BT_Timeout = 5;
+        cfg->BT_ConnectRetries = 10;
 
-    cfg->calcMissingSpot = false;
-    strcpy(cfg->DateTimeFormat, "%d/%m/%Y %H:%M:%S");
-    strcpy(cfg->DateFormat, "%d/%m/%Y");
-    strcpy(cfg->TimeFormat, "%H:%M:%S");
-    cfg->synchTime = 1;
-    cfg->CSV_Export = true;
-    cfg->CSV_ExtendedHeader = true;
-    cfg->CSV_Header = true;
-    cfg->CSV_SaveZeroPower = true;
-    cfg->SunRSOffset = 900;
-    cfg->SpotTimeSource = false;
-    cfg->SpotWebboxHeader = false;
-    cfg->MIS_Enabled = false;
-    strcpy(cfg->locale, "en-US");
-    cfg->synchTimeLow = 1;
-    cfg->synchTimeHigh = 3600;
-    cfg->sqlPort = 3306;
+        cfg->calcMissingSpot = false;
+        strcpy(cfg->DateTimeFormat, "%d/%m/%Y %H:%M:%S");
+        strcpy(cfg->DateFormat, "%d/%m/%Y");
+        strcpy(cfg->TimeFormat, "%H:%M:%S");
+        cfg->synchTime = 1;
+        cfg->CSV_Export = true;
+        cfg->CSV_ExtendedHeader = true;
+        cfg->CSV_Header = true;
+        cfg->CSV_SaveZeroPower = true;
+        cfg->SunRSOffset = 900;
+        cfg->SpotTimeSource = false;
+        cfg->SpotWebboxHeader = false;
+        cfg->MIS_Enabled = false;
+        strcpy(cfg->locale, "en-US");
+        cfg->synchTimeLow = 1;
+        cfg->synchTimeHigh = 3600;
+        cfg->sqlPort = 3306;
+        cfg->sunrise = 0;
+        cfg->sunset = 0;
+        cfg->isLight = false;
+    }
 
     const char *CFG_Boolean = "(0-1)";
     const char *CFG_InvalidValue = "Invalid value for '%s' %s\n";
@@ -1646,20 +1654,20 @@ int GetConfig(Config *cfg)
     {
         if (line[0] != '#' && line[0] != 0 && line[0] != 10)
         {
-            char *variable = strtok(line,"=");
+            char *key = strtok(line,"=");
             char *value = strtok(NULL,"\n");
 
             if ((value != NULL) && (*rtrim(value) != 0))
             {
-                if (stricmp(variable, "BTaddress") == 0)
+                if (stricmp(key, "BTaddress") == 0)
                 {
                     strncpy(cfg->BT_Address, value, sizeof(cfg->BT_Address) - 1);
                 }
-                else if (stricmp(variable, "LocalBTaddress") == 0)
+                else if (stricmp(key, "LocalBTaddress") == 0)
                 {
                     strncpy(cfg->Local_BT_Address, value, sizeof(cfg->Local_BT_Address) - 1);
                 }
-                else if(strnicmp(variable, "IP_Address", 10) == 0)
+                else if(stricmp(key, "IP_Address") == 0)
                 {
                     boost::split(cfg->ip_addresslist, value, boost::is_any_of(","));
                     for (unsigned int i = 0; i < cfg->ip_addresslist.size(); i++)
@@ -1672,7 +1680,7 @@ int GetConfig(Config *cfg)
                         }
                         catch (...)
                         {
-                            std::cout << "Invalid value for '" << variable << "' " << cfg->ip_addresslist[i] << std::endl;
+                            std::cout << "Invalid value for '" << key << "' " << cfg->ip_addresslist[i] << std::endl;
                             rc = -2;
                             break;
                         }
@@ -1684,7 +1692,7 @@ int GetConfig(Config *cfg)
                         strncpy(cfg->IP_Address, cfg->ip_addresslist[0].c_str(), sizeof(cfg->IP_Address) - 1);
                     }
                 }
-                else if(stricmp(variable, "Password") == 0)
+                else if(stricmp(key, "Password") == 0)
                 {
                     if (cfg->userGroup == UG_USER)
                     {
@@ -1692,191 +1700,197 @@ int GetConfig(Config *cfg)
                         strncpy(cfg->SMA_Password, value, sizeof(cfg->SMA_Password) - 1);
                     }
                 }
-                else if (stricmp(variable, "OutputPath") == 0)
+                else if (stricmp(key, "OutputPath") == 0)
                 {
                     memset(cfg->outputPath, 0, sizeof(cfg->outputPath));
                     strncpy(cfg->outputPath, value, sizeof(cfg->outputPath) - 1);
                 }
-                else if (stricmp(variable, "OutputPathEvents") == 0)
+                else if (stricmp(key, "OutputPathEvents") == 0)
                 {
                     memset(cfg->outputPath_Events, 0, sizeof(cfg->outputPath_Events));
                     strncpy(cfg->outputPath_Events, value, sizeof(cfg->outputPath_Events) - 1);
                 }
-                else if(stricmp(variable, "Latitude") == 0) cfg->latitude = (float)atof(value);
-                else if(stricmp(variable, "Longitude") == 0) cfg->longitude = (float)atof(value);
-                else if (stricmp(variable, "Plantname") == 0)
+                else if(stricmp(key, "Latitude") == 0)
+                    cfg->latitude = (float)atof(value);
+                else if(stricmp(key, "Longitude") == 0)
+                    cfg->longitude = (float)atof(value);
+                else if (stricmp(key, "Plantname") == 0)
                 {
                     memset(cfg->plantname, 0, sizeof(cfg->plantname));
                     strncpy(cfg->plantname, value, sizeof(cfg->plantname) - 1);
                 }
-                else if(stricmp(variable, "CalculateMissingSpotValues") == 0)
+                else if(stricmp(key, "CalculateMissingSpotValues") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
                         cfg->calcMissingSpot = (lValue == 1);
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, key, CFG_Boolean);
                         rc = -2;
                     }
                 }
-                else if (stricmp(variable, "DatetimeFormat") == 0)
+                else if (stricmp(key, "DatetimeFormat") == 0)
                 {
                     memset(cfg->DateTimeFormat, 0, sizeof(cfg->DateTimeFormat));
                     strncpy(cfg->DateTimeFormat, value, sizeof(cfg->DateTimeFormat) - 1);
                 }
-                else if (stricmp(variable, "DateFormat") == 0)
+                else if (stricmp(key, "DateFormat") == 0)
                 {
                     memset(cfg->DateFormat, 0, sizeof(cfg->DateFormat));
                     strncpy(cfg->DateFormat, value, sizeof(cfg->DateFormat)-1);
                 }
-                else if (stricmp(variable, "TimeFormat") == 0)
+                else if (stricmp(key, "TimeFormat") == 0)
                 {
                     memset(cfg->TimeFormat, 0, sizeof(cfg->TimeFormat));
                     strncpy(cfg->TimeFormat, value, sizeof(cfg->TimeFormat) - 1);
                 }
-                else if(stricmp(variable, "DecimalPoint") == 0)
+                else if(stricmp(key, "DecimalPoint") == 0)
                 {
                     if (stricmp(value, "comma") == 0) cfg->decimalpoint = ',';
                     else if ((stricmp(value, "dot") == 0) || (stricmp(value, "point") == 0)) cfg->decimalpoint = '.'; // Fix Issue 84 - 'Point' is accepted for backward compatibility
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "(comma|dot)");
+                        fprintf(stdout, CFG_InvalidValue, key, "(comma|dot)");
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "CSV_Delimiter") == 0)
+                else if(stricmp(key, "CSV_Delimiter") == 0)
                 {
-                    if (stricmp(value, "comma") == 0) cfg->delimiter = ',';
-                    else if (stricmp(value, "semicolon") == 0) cfg->delimiter = ';';
+                    if (stricmp(value, "comma") == 0)
+                        cfg->delimiter = ',';
+                    else if (stricmp(value, "semicolon") == 0)
+                        cfg->delimiter = ';';
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "(comma|semicolon)");
+                        fprintf(stdout, CFG_InvalidValue, key, "(comma|semicolon)");
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "SynchTime") == 0)
+                else if(stricmp(key, "SynchTime") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue >= 0) && (lValue <= 30)) && (*pEnd == 0))
                         cfg->synchTime = (int)lValue;
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "(0-30)");
+                        fprintf(stdout, CFG_InvalidValue, key, "(0-30)");
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "SynchTimeLow") == 0)
+                else if(stricmp(key, "SynchTimeLow") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if ((lValue >= 1) && (lValue <= 120) && (*pEnd == 0))
                         cfg->synchTimeLow = (int)lValue;
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "(1-120)");
+                        fprintf(stdout, CFG_InvalidValue, key, "(1-120)");
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "SynchTimeHigh") == 0)
+                else if(stricmp(key, "SynchTimeHigh") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if ((lValue >= 1200) && (lValue <= 3600) && (*pEnd == 0))
                         cfg->synchTimeHigh = (int)lValue;
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "(1200-3600)");
+                        fprintf(stdout, CFG_InvalidValue, key, "(1200-3600)");
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "CSV_Export") == 0)
+                else if(stricmp(key, "CSV_Export") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
                         cfg->CSV_Export = (lValue == 1);
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, key, CFG_Boolean);
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "CSV_ExtendedHeader") == 0)
+                else if(stricmp(key, "CSV_ExtendedHeader") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
                         cfg->CSV_ExtendedHeader = (lValue == 1);
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, key, CFG_Boolean);
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "CSV_Header") == 0)
+                else if(stricmp(key, "CSV_Header") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
                         cfg->CSV_Header = (lValue == 1);
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, key, CFG_Boolean);
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "CSV_SaveZeroPower") == 0)
+                else if(stricmp(key, "CSV_SaveZeroPower") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
                         cfg->CSV_SaveZeroPower = (lValue == 1);
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, key, CFG_Boolean);
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "SunRSOffset") == 0)
+                else if(stricmp(key, "SunRSOffset") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if ((lValue >= 0) && (lValue <= 3600) && (*pEnd == 0))
                         cfg->SunRSOffset = (int)lValue;
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "(0-3600)");
+                        fprintf(stdout, CFG_InvalidValue, key, "(0-3600)");
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "CSV_Spot_TimeSource") == 0)
+                else if(stricmp(key, "CSV_Spot_TimeSource") == 0)
                 {
-                    if (stricmp(value, "Inverter") == 0) cfg->SpotTimeSource = false;
-                    else if (stricmp(value, "Computer") == 0) cfg->SpotTimeSource = true;
+                    if (stricmp(value, "Inverter") == 0)
+                        cfg->SpotTimeSource = false;
+                    else if (stricmp(value, "Computer") == 0)
+                        cfg->SpotTimeSource = true;
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "Inverter|Computer");
+                        fprintf(stdout, CFG_InvalidValue, key, "Inverter|Computer");
                         rc = -2;
                     }
                 }
 
-                else if(stricmp(variable, "CSV_Spot_WebboxHeader") == 0)
+                else if(stricmp(key, "CSV_Spot_WebboxHeader") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
                         cfg->SpotWebboxHeader = (lValue == 1);
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, key, CFG_Boolean);
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "MIS_Enabled") == 0)
+                else if(stricmp(key, "MIS_Enabled") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if (((lValue == 0) || (lValue == 1)) && (*pEnd == 0))
                         cfg->MIS_Enabled = (lValue == 1);
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, CFG_Boolean);
+                        fprintf(stdout, CFG_InvalidValue, key, CFG_Boolean);
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "Locale") == 0)
+                else if(stricmp(key, "Locale") == 0)
                 {
                     if ((stricmp(value, "de-DE") == 0) ||
                         (stricmp(value, "en-US") == 0) ||
@@ -1888,22 +1902,22 @@ int GetConfig(Config *cfg)
                         strcpy(cfg->locale, value);
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "de-DE|en-US|fr-FR|nl-NL|it-IT|es-ES");
+                        fprintf(stdout, CFG_InvalidValue, key, "de-DE|en-US|fr-FR|nl-NL|it-IT|es-ES");
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "BTConnectRetries") == 0)
+                else if(stricmp(key, "BTConnectRetries") == 0)
                 {
                     lValue = strtol(value, &pEnd, 10);
                     if ((lValue >= 0) && (lValue <= 15) && (*pEnd == 0))
                         cfg->BT_ConnectRetries = (int)lValue;
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "(1-15)");
+                        fprintf(stdout, CFG_InvalidValue, key, "(1-15)");
                         rc = -2;
                     }
                 }
-                else if(stricmp(variable, "Timezone") == 0)
+                else if(stricmp(key, "Timezone") == 0)
                 {
                     cfg->timezone = value;
                     boost::local_time::tz_database tzDB;
@@ -1930,58 +1944,78 @@ int GetConfig(Config *cfg)
                     }
                 }
 
-                else if(stricmp(variable, "SQL_Database") == 0)
+                else if(stricmp(key, "SQL_Database") == 0)
                     cfg->sqlDatabase = value;
 #if defined(USE_MYSQL)
-                else if(stricmp(variable, "SQL_Hostname") == 0)
+                else if(stricmp(key, "SQL_Hostname") == 0)
                     cfg->sqlHostname = value;
-                else if(stricmp(variable, "SQL_Username") == 0)
+                else if(stricmp(key, "SQL_Username") == 0)
                     cfg->sqlUsername = value;
-                else if(stricmp(variable, "SQL_Password") == 0)
+                else if(stricmp(key, "SQL_Password") == 0)
                     cfg->sqlUserPassword = value;
-                else if (stricmp(variable, "SQL_Port") == 0)
+                else if (stricmp(key, "SQL_Port") == 0)
                     try
                         {
                         cfg->sqlPort = boost::lexical_cast<unsigned int>(value);
                         }
                         catch (...)
                         {
-                            fprintf(stdout, CFG_InvalidValue, variable, "");
+                            fprintf(stdout, CFG_InvalidValue, key, "");
                             rc = -2;
                             break;
                         }
 #endif
-                else if (stricmp(variable, "MQTT_Host") == 0)
+                else if (stricmp(key, "MQTT_Host") == 0)
                     cfg->mqtt_host = value;
-                else if (stricmp(variable, "MQTT_Port") == 0)
+                else if (stricmp(key, "MQTT_Port") == 0)
                     cfg->mqtt_port = value;
-                else if (stricmp(variable, "MQTT_Publisher") == 0)
+                else if (stricmp(key, "MQTT_Publisher") == 0)
                     cfg->mqtt_publish_exe = value;
-                else if (stricmp(variable, "MQTT_PublisherArgs") == 0)
+                else if (stricmp(key, "MQTT_PublisherArgs") == 0)
                     cfg->mqtt_publish_args = value;
-                else if (stricmp(variable, "MQTT_Topic") == 0)
+                else if (stricmp(key, "MQTT_Topic") == 0)
                     cfg->mqtt_topic = value;
-                else if (stricmp(variable, "MQTT_ItemFormat") == 0)
+                else if (stricmp(key, "MQTT_ItemFormat") == 0)
                     cfg->mqtt_item_format = value;
-                else if (stricmp(variable, "MQTT_Data") == 0)
+                else if (stricmp(key, "MQTT_Data") == 0)
                     cfg->mqtt_publish_data = value;
-                else if (stricmp(variable, "MQTT_ItemDelimiter") == 0)
+                else if (stricmp(key, "MQTT_ItemDelimiter") == 0)
                 {
-                    if (stricmp(value, "comma") == 0) cfg->mqtt_item_delimiter = ",";
-                    else if (stricmp(value, "semicolon") == 0) cfg->mqtt_item_delimiter = ";";
-                    else if (stricmp(value, "blank") == 0) cfg->mqtt_item_delimiter = " ";
-                    else if (stricmp(value, "none") == 0) cfg->mqtt_item_delimiter = "";
+                    if (stricmp(value, "comma") == 0)
+                        cfg->mqtt_item_delimiter = ",";
+                    else if (stricmp(value, "semicolon") == 0)
+                        cfg->mqtt_item_delimiter = ";";
+                    else if (stricmp(value, "blank") == 0)
+                        cfg->mqtt_item_delimiter = " ";
+                    else if (stricmp(value, "none") == 0)
+                        cfg->mqtt_item_delimiter = "";
                     else
                     {
-                        fprintf(stdout, CFG_InvalidValue, variable, "(none|blank|comma|semicolon)");
+                        fprintf(stdout, CFG_InvalidValue, key, "(none|blank|comma|semicolon)");
                         rc = -2;
                     }
+                }
+
+                // Include another config file with common settings
+                else if (stricmp(key, "Include") == 0)
+                {
+                    // Backup current config filename
+                    auto tmp_filename = cfg->ConfigFile;
+
+                    auto fn_start = cfg->ConfigFile.find_last_of("/\\");
+                    cfg->ConfigFile = fn_start == std::string::npos ? value : cfg->ConfigFile.substr(0, fn_start) + FOLDER_SEP + value;
+
+                    // Read config to include
+                    rc = GetConfig(cfg, true);
+
+                    // Restore previous config filename
+                    cfg->ConfigFile = tmp_filename;
                 }
 
                 // Add more config keys here
 
                 else
-                    fprintf(stdout, "Warning: Ignoring keyword '%s'\n", variable);
+                    fprintf(stdout, "Warning: Ignoring keyword '%s'\n", key);
             }
         }
     }
@@ -1989,84 +2023,87 @@ int GetConfig(Config *cfg)
 
     if (rc != 0) return rc;
 
-    if (strlen(cfg->BT_Address) > 0)
-        cfg->ConnectionType = CT_BLUETOOTH;
-    else if (strlen(cfg->IP_Address) > 0)
+    if (!isInclude)
     {
-        cfg->ConnectionType = CT_ETHERNET;
-        cfg->IP_Port = 9522;
-    }
-    else
-        cfg->ConnectionType = CT_NONE;
-
-    if (strlen(cfg->SMA_Password) == 0)
-    {
-        fprintf(stdout, "Missing USER Password.\n");
-        rc = -2;
-    }
-
-    if (cfg->decimalpoint == cfg->delimiter)
-    {
-        fprintf(stdout, "'CSV_Delimiter' and 'DecimalPoint' must be different character.\n");
-        rc = -2;
-    }
-
-    if (strlen(cfg->outputPath) == 0)
-    {
-        fprintf(stdout, "Missing OutputPath.\n");
-        rc = -2;
-    }
-
-    if (cfg->timezone.empty())
-    {
-        std::cout << "Missing timezone.\n";
-        rc = -2;
-    }
-
-    if (rc == 0)
-    {
-        if (strlen(cfg->plantname) == 0)
-            strncpy(cfg->plantname, "MyPlant", sizeof(cfg->plantname));
-
-        //Overrule CSV_Export from config with Commandline setting -nocsv
-        if (cfg->nocsv)
-            cfg->CSV_Export = false; // Fix #549
-
-        //Silently enable CSV_Header when CSV_ExtendedHeader is enabled
-        if (cfg->CSV_ExtendedHeader)
-            cfg->CSV_Header = true;
-
-        //If OutputPathEvents is omitted, use OutputPath
-        if (strlen(cfg->outputPath_Events) == 0)
-            strcpy(cfg->outputPath_Events, cfg->outputPath);
-
-        //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
-        if (cfg->loadlive)
+        if (strlen(cfg->BT_Address) > 0)
+            cfg->ConnectionType = CT_BLUETOOTH;
+        else if (strlen(cfg->IP_Address) > 0)
         {
-            strncat(cfg->outputPath, "/LoadLive", sizeof(cfg->outputPath));
-            strcpy(cfg->DateTimeFormat, "%H:%M");
-            cfg->CSV_Export = true;
-            cfg->decimalpoint = '.';
-            cfg->CSV_Header = false;
-            cfg->CSV_ExtendedHeader = false;
-            cfg->CSV_SaveZeroPower = false;
-            cfg->delimiter = ';';
-            cfg->archEventMonths = 0;
-            cfg->archMonths = 0;
-            cfg->nospot = true;
+            cfg->ConnectionType = CT_ETHERNET;
+            cfg->IP_Port = 9522;
+        }
+        else
+            cfg->ConnectionType = CT_NONE;
+
+        if (strlen(cfg->SMA_Password) == 0)
+        {
+            fprintf(stdout, "Missing USER Password.\n");
+            rc = -2;
         }
 
-        // If 1st day of the month and -am1 specified, force to -am2 to get last day of prev month
-        if (cfg->archMonths == 1)
+        if (cfg->decimalpoint == cfg->delimiter)
         {
-            time_t now = time(nullptr);
-            struct tm *tm_now = localtime(&now);
-            if (tm_now->tm_mday == 1)
-                cfg->archMonths++;
+            fprintf(stdout, "'CSV_Delimiter' and 'DecimalPoint' must be different character.\n");
+            rc = -2;
         }
 
-        if (cfg->verbose > 2) ShowConfig(cfg);
-    }
+        if (strlen(cfg->outputPath) == 0)
+        {
+            fprintf(stdout, "Missing OutputPath.\n");
+            rc = -2;
+        }
+
+        if (cfg->timezone.empty())
+        {
+            std::cout << "Missing timezone.\n";
+            rc = -2;
+        }
+
+        if (rc == 0)
+        {
+            if (strlen(cfg->plantname) == 0)
+                strncpy(cfg->plantname, "MyPlant", sizeof(cfg->plantname));
+
+            //Overrule CSV_Export from config with Commandline setting -nocsv
+            if (cfg->nocsv)
+                cfg->CSV_Export = false; // Fix #549
+
+            //Silently enable CSV_Header when CSV_ExtendedHeader is enabled
+            if (cfg->CSV_ExtendedHeader)
+                cfg->CSV_Header = true;
+
+            //If OutputPathEvents is omitted, use OutputPath
+            if (strlen(cfg->outputPath_Events) == 0)
+                strcpy(cfg->outputPath_Events, cfg->outputPath);
+
+            //force settings to prepare for live loading to http://pvoutput.org/loadlive.jsp
+            if (cfg->loadlive)
+            {
+                strncat(cfg->outputPath, "/LoadLive", sizeof(cfg->outputPath));
+                strcpy(cfg->DateTimeFormat, "%H:%M");
+                cfg->CSV_Export = true;
+                cfg->decimalpoint = '.';
+                cfg->CSV_Header = false;
+                cfg->CSV_ExtendedHeader = false;
+                cfg->CSV_SaveZeroPower = false;
+                cfg->delimiter = ';';
+                cfg->archEventMonths = 0;
+                cfg->archMonths = 0;
+                cfg->nospot = true;
+            }
+
+            // If 1st day of the month and -am1 specified, force to -am2 to get last day of prev month
+            if (cfg->archMonths == 1)
+            {
+                time_t now = time(nullptr);
+                struct tm *tm_now = localtime(&now);
+                if (tm_now->tm_mday == 1)
+                    cfg->archMonths++;
+            }
+
+            if (cfg->verbose > 2) ShowConfig(cfg);
+        }
+    }   // if (!include)
 
     return rc;
 }

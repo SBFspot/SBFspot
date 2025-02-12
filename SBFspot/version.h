@@ -1,13 +1,16 @@
-#define VERSION "3.9.11"
+#define VERSION "3.9.12"
 
 /*
+V3.9.12
+    Added "include" keyword to config (See #720)
+
 V3.9.11
     Fix #700 Partial ArchiveDayData after PacketID mismatch
     Fix 695 Error compiling on recent Armbian / arm debian with mariadb reference to deprecated include <mysql/mysql.h>
     Prepare for SMAdata2+ protocol decoder plugin
 
 V3.9.10
-    Fix regression (Month data shifted by one day on some systems)
+    Fix regression V3.9.9 (Month data shifted by one day on some systems)
     Fix #694 Corrupt data
     Removed redundant events sorting
     Fix #701 Double data in Monthdata table
