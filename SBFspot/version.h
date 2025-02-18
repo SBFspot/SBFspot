@@ -6,10 +6,11 @@ V3.9.12
     Fix SBFspot not completely quiet when using -q (See #721)
     Tightened some debug messages
     Fix #722 Data for Sunny Tripower 8.0 SE is not exported to 123Solar
+    Fix #723 Cannot build with Boost V1.87 (remove deprecated method from_string())
 
 V3.9.11
     Fix #700 Partial ArchiveDayData after PacketID mismatch
-    Fix 695 Error compiling on recent Armbian / arm debian with mariadb reference to deprecated include <mysql/mysql.h>
+    Fix #695 Error compiling on recent Armbian / arm debian with mariadb reference to deprecated include <mysql/mysql.h>
     Prepare for SMAdata2+ protocol decoder plugin
 
 V3.9.10

@@ -1674,7 +1674,15 @@ int GetConfig(Config *cfg, bool isInclude)
                     {
                         try
                         {
+                            /*
+                            Fix #723 Cannot build with Boost V1.87
+                            from_string() is deprecated since V1.66 and removed in V1.87
+                            */
+#if BOOST_VERSION < 108700
                             boost::asio::ip::address ipv4Addr = boost::asio::ip::address::from_string(cfg->ip_addresslist[i]);
+#else
+                            boost::asio::ip::address ipv4Addr = boost::asio::ip::make_address(cfg->ip_addresslist[i]);
+#endif
                             if (!ipv4Addr.is_v4())
                                 throw -2;
                         }
