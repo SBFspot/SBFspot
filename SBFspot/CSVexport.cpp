@@ -137,7 +137,7 @@ int ExportMonthDataToCSV(const Config *cfg, InverterData* const inverters[])
 
             //Expand date specifiers in config::outputPath
             std::stringstream csvpath;
-            csvpath << strftime_t(cfg->outputPath, inverters[0]->monthData[0].datetime);
+            csvpath << strftime_t(cfg->outputPath, inverters[0]->dayData[0].datetime);
             CreatePath(csvpath.str().c_str());
 
             csvpath << FOLDER_SEP << cfg->plantname << '-' << strfgmtime_t("%Y%m", inverters[0]->monthData[0].datetime) << ".csv";

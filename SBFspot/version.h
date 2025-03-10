@@ -3,7 +3,7 @@
 /*
 V3.10.0
     Migration to Visual Studio 2022
-
+    Fix Outputpath containing '%d' always expands to '02'
 */
 
 /***
