@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2024, SBF
+    (c)2012-2025, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -83,7 +83,7 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             bool add_to_msg = true;
             key = item;
             memset(value, 0, sizeof(value));
-            std::transform((key).begin(), (key).end(), (key).begin(), ::tolower);
+            std::transform(key.begin(), key.end(), key.begin(), [](auto ch) {return static_cast<char>(std::toupper(ch)); });
 
 // suppress warning C4307: '*': integral constant overflow
 #if defined(_MSC_VER)

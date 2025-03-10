@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2024, SBF
+    (c)2012-2025, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -35,15 +35,14 @@ DISCLAIMER:
 #include "Configuration.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/locale.hpp>
 
 std::string errlevelText[] = { "", "DEBUG", "INFO", "WARNING", "ERROR" };
 
 
 int Configuration::readSettings(std::wstring wme, std::wstring wfilename)
 {
-    std::string me(wme.begin(), wme.end());
-    std::string filename(wfilename.begin(), wfilename.end());
-    return readSettings(me, filename);
+    return readSettings(boost::locale::conv::utf_to_utf<char>(wme), boost::locale::conv::utf_to_utf<char>(wfilename));
 }
 
 int Configuration::readSettings(std::string me, std::string filename)

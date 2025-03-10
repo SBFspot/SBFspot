@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2024, SBF
+    (c)2012-2025, SBF
 
     Latest version found at https://github.com/SBFspot/SBFspot
 
@@ -782,7 +782,7 @@ int ExportSpotDataTo123s(const Config *cfg, InverterData* const inverters[])
     //Send Spot Data Frame to 123Solar
 
     // $SDTE = Date & Time ( YYYYMMDD-HH:MM:SS )
-    printf(strout, strftime_t(s123_dt_format, spottime), *s123_delimiter);
+    printf(strout, strftime_t(s123_dt_format, spottime).c_str(), *s123_delimiter);
     // $G1V  = GridMs.PhV.phsA
     printf(strout, FormatFloat(FormattedFloat, (float)invdata->Uac1 / 100, 0, cfg->precision, *s123_decimalpoint), *s123_delimiter);
     // $G1A  = GridMs.A.phsA

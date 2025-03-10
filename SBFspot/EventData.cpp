@@ -1,6 +1,6 @@
 /************************************************************************************************
     SBFspot - Yet another tool to read power production of SMA solar inverters
-    (c)2012-2024, SBF
+    (c)2012-2025, SBF
     
     Latest version found at https://github.com/SBFspot/SBFspot
     
@@ -99,6 +99,8 @@ std::string EventData::EventDescription() const
             boost::replace_all(eventDescr, "|tnc|", quote(tagdefs.getDesc(OldVal())));
         if (eventDescr.find("|s0|") != std::string::npos)
             boost::replace_all(eventDescr, "|s0|", S0());
+        // TODO: Untranslated item found! Parameter ?Speedwire meter serial no.? set successfully. |lv04c| to |lv048|
+        // See https://forum.pvoutput.org/t/sbfspot-user-password-wrong/7302/22
         // |d0|
         // |u0|
         if (eventDescr.find("|x") != std::string::npos)
