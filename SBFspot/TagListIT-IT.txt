@@ -8279,6 +8279,10 @@
 19068=SCS 2530-UP-XT-US\0\Sunny Central Storage 2530-UP-XT-US
 19069=SCS 2630-UP-XT\0\Sunny Central Storage 2630-UP-XT
 19070=SCS 2630-UP-XT-US\0\Sunny Central Storage 2630-UP-XT-US
+19128=SBSE 3.6-50\0\Sunny Boy Smart Energy 3.6
+19129=SBSE 4.0-50\0\Sunny Boy Smart Energy 4.0
+19130=SBSE 5.0-50\0\Sunny Boy Smart Energy 5.0
+19131=SBSE 6.0-50\0\Sunny Boy Smart Energy 6.0
 20000=StrD1\0\StrD1
 29999=StopD1\0\StopD1
 30000=StrFeatTags\0\StrFeatTags
