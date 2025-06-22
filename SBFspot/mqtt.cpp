@@ -83,7 +83,10 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
             bool add_to_msg = true;
             key = item;
             memset(value, 0, sizeof(value));
-            std::transform(key.begin(), key.end(), key.begin(), [](auto ch) {return static_cast<char>(std::toupper(ch)); });
+            std::transform(key.begin(), key.end(), key.begin(), [](auto ch)
+            {
+                return static_cast<char>(std::tolower(ch));
+            });
 
 // suppress warning C4307: '*': integral constant overflow
 #if defined(_MSC_VER)
@@ -93,52 +96,144 @@ int MqttExport::exportInverterData(const std::vector<InverterData>& inverterData
 
             switch (djb::hash(key.c_str()))
             {
-            case "prgversion"_:     snprintf(value, sizeof(value) - 1, "\"%s\"", m_config.prgVersion); break;
-            case "plantname"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", m_config.plantname); break;
-            case "timestamp"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, time(nullptr)).c_str()); break;
-            case "sunrise"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunrise)).c_str()); break;
-            case "sunset"_:         snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunset)).c_str()); break;
-            case "invserial"_:      snprintf(value, sizeof(value) - 1, "%lu", inv.Serial); break;
-            case "invname"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName.c_str()); break;
-            case "invclass"_:       snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass.c_str()); break;
-            case "invtype"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceType.c_str()); break;
-            case "invswver"_:       snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion.c_str()); break;
-            case "invtime"_:        snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.InverterDatetime).c_str()); break;
-            case "invstatus"_:      snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.DeviceStatus, "?").c_str()); break;
-            case "invtemperature"_: FormatFloat(value, is_NaN(inv.Temperature) ? 0.0f : (float)inv.Temperature / 100, 0, prec, dp); break;
-            case "invgridrelay"_:   snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.GridRelayStatus, "?").c_str()); break;
-            case "pdc1"_:           FormatFloat(value, (float)inv.mpp.at(1).Pdc(), 0, prec, dp); break;
-            case "pdc2"_:           FormatFloat(value, (float)inv.mpp.at(2).Pdc(), 0, prec, dp); break;
-            case "pdctot"_:         FormatFloat(value, (float)inv.calPdcTot, 0, prec, dp); break;
-            case "idc1"_:           FormatFloat(value, (float)inv.mpp.at(1).Idc() / 1000, 0, prec, dp); break;
-            case "idc2"_:           FormatFloat(value, (float)inv.mpp.at(2).Idc() / 1000, 0, prec, dp); break;
-            case "udc1"_:           FormatFloat(value, (float)inv.mpp.at(1).Udc() / 100, 0, prec, dp); break;
-            case "udc2"_:           FormatFloat(value, (float)inv.mpp.at(2).Udc() / 100, 0, prec, dp); break;
-            case "etotal"_:         FormatDouble(value, (double)inv.ETotal / 1000, 0, prec, dp); break;
-            case "etoday"_:         FormatDouble(value, (double)inv.EToday / 1000, 0, prec, dp); break;
-            case "pactot"_:         FormatFloat(value, (float)inv.TotalPac, 0, prec, dp); break;
-            case "pac1"_:           FormatFloat(value, (float)inv.Pac1, 0, prec, dp); break;
-            case "pac2"_:           FormatFloat(value, (float)inv.Pac2, 0, prec, dp); break;
-            case "pac3"_:           FormatFloat(value, (float)inv.Pac3, 0, prec, dp); break;
-            case "uac1"_:           FormatFloat(value, (float)inv.Uac1 / 100, 0, prec, dp); break;
-            case "uac2"_:           FormatFloat(value, (float)inv.Uac2 / 100, 0, prec, dp); break;
-            case "uac3"_:           FormatFloat(value, (float)inv.Uac3 / 100, 0, prec, dp); break;
-            case "iac1"_:           FormatFloat(value, (float)inv.Iac1 / 1000, 0, prec, dp); break;
-            case "iac2"_:           FormatFloat(value, (float)inv.Iac2 / 1000, 0, prec, dp); break;
-            case "iac3"_:           FormatFloat(value, (float)inv.Iac3 / 1000, 0, prec, dp); break;
-            case "gridfreq"_:       FormatFloat(value, (float)inv.GridFreq / 100, 0, prec, dp); break;
-            case "opertm"_:         FormatDouble(value, (double)inv.OperationTime / 3600, 0, prec, dp); break;
-            case "feedtm"_:         FormatDouble(value, (double)inv.FeedInTime / 3600, 0, prec, dp); break;
-            case "btsignal"_:       FormatFloat(value, inv.BT_Signal, 0, prec, dp); break;
-            case "battmpval"_:      FormatFloat(value, ((float)inv.BatTmpVal) / 10, 0, prec, dp); break;
-            case "batvol"_:         FormatFloat(value, ((float)inv.BatVol) / 100, 0, prec, dp); break;
-            case "batamp"_:         FormatFloat(value, ((float)inv.BatAmp) / 1000, 0, prec, dp); break;
-            case "batchastt"_:      FormatFloat(value, ((float)inv.BatChaStt), 0, prec, dp); break;
-            case "invwakeuptm"_:    snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.WakeupTime).c_str()); break;
-            case "invsleeptm"_:     snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.SleepTime).c_str()); break;
-            case "meteringwin"_:    FormatFloat(value, (float)inv.MeteringGridMsTotWIn, 0, prec, dp); break;
-            case "meteringwout"_:   FormatFloat(value, (float)inv.MeteringGridMsTotWOut, 0, prec, dp); break;
-            case "meteringwtot"_:   FormatFloat(value, (float)(inv.MeteringGridMsTotWIn - inv.MeteringGridMsTotWOut), 0, prec, dp); break;
+            case "prgversion"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", m_config.prgVersion);
+                break;
+            case "plantname"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", m_config.plantname);
+                break;
+            case "timestamp"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, time(nullptr)).c_str());
+                break;
+            case "sunrise"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunrise)).c_str());
+                break;
+            case "sunset"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, to_time_t(m_config.sunset)).c_str());
+                break;
+            case "invserial"_:
+                snprintf(value, sizeof(value) - 1, "%lu", inv.Serial);
+                break;
+            case "invname"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceName.c_str());
+                break;
+            case "invclass"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceClass.c_str());
+                break;
+            case "invtype"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", inv.DeviceType.c_str());
+                break;
+            case "invswver"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", inv.SWVersion.c_str());
+                break;
+            case "invtime"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.InverterDatetime).c_str());
+                break;
+            case "invstatus"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.DeviceStatus, "?").c_str());
+                break;
+            case "invtemperature"_:
+                FormatFloat(value, is_NaN(inv.Temperature) ? 0.0f : (float)inv.Temperature / 100, 0, prec, dp);
+                break;
+            case "invgridrelay"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", tagdefs.getDesc(inv.GridRelayStatus, "?").c_str());
+                break;
+            case "pdc1"_:
+                FormatFloat(value, (float)inv.mpp.at(1).Pdc(), 0, prec, dp);
+                break;
+            case "pdc2"_:
+                FormatFloat(value, (float)inv.mpp.at(2).Pdc(), 0, prec, dp);
+                break;
+            case "pdctot"_:
+                FormatFloat(value, (float)inv.calPdcTot, 0, prec, dp);
+                break;
+            case "idc1"_:
+                FormatFloat(value, (float)inv.mpp.at(1).Idc() / 1000, 0, prec, dp);
+                break;
+            case "idc2"_:
+                FormatFloat(value, (float)inv.mpp.at(2).Idc() / 1000, 0, prec, dp);
+                break;
+            case "udc1"_:
+                FormatFloat(value, (float)inv.mpp.at(1).Udc() / 100, 0, prec, dp);
+                break;
+            case "udc2"_:
+                FormatFloat(value, (float)inv.mpp.at(2).Udc() / 100, 0, prec, dp);
+                break;
+            case "etotal"_:
+                FormatDouble(value, (double)inv.ETotal / 1000, 0, prec, dp);
+                break;
+            case "etoday"_:
+                FormatDouble(value, (double)inv.EToday / 1000, 0, prec, dp);
+                break;
+            case "pactot"_:
+                FormatFloat(value, (float)inv.TotalPac, 0, prec, dp);
+                break;
+            case "pac1"_:
+                FormatFloat(value, (float)inv.Pac1, 0, prec, dp);
+                break;
+            case "pac2"_:
+                FormatFloat(value, (float)inv.Pac2, 0, prec, dp);
+                break;
+            case "pac3"_:
+                FormatFloat(value, (float)inv.Pac3, 0, prec, dp);
+                break;
+            case "uac1"_:
+                FormatFloat(value, (float)inv.Uac1 / 100, 0, prec, dp);
+                break;
+            case "uac2"_:
+                FormatFloat(value, (float)inv.Uac2 / 100, 0, prec, dp);
+                break;
+            case "uac3"_:
+                FormatFloat(value, (float)inv.Uac3 / 100, 0, prec, dp);
+                break;
+            case "iac1"_:
+                FormatFloat(value, (float)inv.Iac1 / 1000, 0, prec, dp);
+                break;
+            case "iac2"_:
+                FormatFloat(value, (float)inv.Iac2 / 1000, 0, prec, dp);
+                break;
+            case "iac3"_:
+                FormatFloat(value, (float)inv.Iac3 / 1000, 0, prec, dp);
+                break;
+            case "gridfreq"_:
+                FormatFloat(value, (float)inv.GridFreq / 100, 0, prec, dp);
+                break;
+            case "opertm"_:
+                FormatDouble(value, (double)inv.OperationTime / 3600, 0, prec, dp);
+                break;
+            case "feedtm"_:
+                FormatDouble(value, (double)inv.FeedInTime / 3600, 0, prec, dp);
+                break;
+            case "btsignal"_:
+                FormatFloat(value, inv.BT_Signal, 0, prec, dp);
+                break;
+            case "battmpval"_:
+                FormatFloat(value, ((float)inv.BatTmpVal) / 10, 0, prec, dp);
+                break;
+            case "batvol"_:
+                FormatFloat(value, ((float)inv.BatVol) / 100, 0, prec, dp);
+                break;
+            case "batamp"_:
+                FormatFloat(value, ((float)inv.BatAmp) / 1000, 0, prec, dp);
+                break;
+            case "batchastt"_:
+                FormatFloat(value, ((float)inv.BatChaStt), 0, prec, dp);
+                break;
+            case "invwakeuptm"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.WakeupTime).c_str());
+                break;
+            case "invsleeptm"_:
+                snprintf(value, sizeof(value) - 1, "\"%s\"", strftime_t(m_config.DateTimeFormat, inv.SleepTime).c_str());
+                break;
+            case "meteringwin"_:
+                FormatFloat(value, (float)inv.MeteringGridMsTotWIn, 0, prec, dp);
+                break;
+            case "meteringwout"_:
+                FormatFloat(value, (float)inv.MeteringGridMsTotWOut, 0, prec, dp);
+                break;
+            case "meteringwtot"_:
+                FormatFloat(value, (float)(inv.MeteringGridMsTotWIn - inv.MeteringGridMsTotWOut), 0, prec, dp);
+                break;
             case "pdc"_:
                 for (const auto& dc : inv.mpp)
                 {
